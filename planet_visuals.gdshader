@@ -2,6 +2,41 @@ shader_type spatial;
 
 uniform sampler2D data_tex;
 uniform int data_tex_size;
+uniform int vis_type;
+
+const vec3 PALETTE[30] = vec3[](
+    vec3(0.96, 0.17, 0.25),
+    vec3(0.93, 0.49, 0.19),
+    vec3(0.99, 0.79, 0.16),
+    vec3(0.58, 0.87, 0.21),
+    vec3(0.15, 0.73, 0.27),
+    vec3(0.18, 0.84, 0.62),
+    vec3(0.12, 0.68, 0.83),
+    vec3(0.21, 0.46, 0.96),
+    vec3(0.54, 0.27, 0.91),
+    vec3(0.90, 0.19, 0.73),
+
+    vec3(0.96, 0.27, 0.14),
+    vec3(0.78, 0.63, 0.14),
+    vec3(0.40, 0.79, 0.09),
+    vec3(0.12, 0.88, 0.51),
+    vec3(0.09, 0.77, 0.84),
+    vec3(0.16, 0.56, 0.98),
+    vec3(0.58, 0.34, 0.98),
+    vec3(0.91, 0.30, 0.82),
+    vec3(0.98, 0.33, 0.46),
+    vec3(0.98, 0.63, 0.21),
+
+    vec3(0.97, 0.89, 0.15),
+    vec3(0.47, 0.88, 0.20),
+    vec3(0.14, 0.92, 0.67),
+    vec3(0.15, 0.76, 0.98),
+    vec3(0.30, 0.47, 0.98),
+    vec3(0.66, 0.25, 0.95),
+    vec3(0.93, 0.23, 0.64),
+    vec3(0.93, 0.43, 0.28),
+    vec3(0.91, 0.79, 0.26),
+    vec3(0.33, 0.88, 0.28));
 
 
 float get_data(int index) {
@@ -20,6 +55,7 @@ float get_data(int index) {
     return px.a;
 }
 
+
 uint decode_id(vec4 color) {
     return uint(color.r * 255.0) << 24u |
            uint(color.g * 255.0) << 16u |
@@ -27,15 +63,25 @@ uint decode_id(vec4 color) {
            uint(color.a * 255.0);
 }
 
+
+vec4 color_from_plate_data(float plate_id) {
+	if (plate_id == -1.0) return vec4(0.0);
+	else return vec4(PALETTE[int(plate_id) % 30].rgb, 1.0);
+}
+
+
 // DO NOT DECODE ID IN FRAGMENT
 // IT REALLY DOESNT LIKE IT
 void fragment() {
 	ALBEDO = vec3(COLOR.rgb);
 }
 
-// do all colour calculation in vertex function and then pass it to vertex color
+
+// do all colour calculation in vertex function and then pass it to vertex color in fragment
 void vertex() {
-    uint face_id = decode_id(COLOR);
+	uint face_id = decode_id(COLOR);
 	float data = get_data(int(face_id));
-	COLOR = vec4(data);
+	
+	if (vis_type == 0) COLOR = vec4(COLOR.a);
+	if (vis_type == 1) COLOR = color_from_plate_data(data);
 }
