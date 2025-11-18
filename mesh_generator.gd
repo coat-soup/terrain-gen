@@ -34,6 +34,9 @@ func generate_mesh():
 		#print(i)
 	#print(arrays[Mesh.ARRAY_COLOR])
 	
+	print(arrays[Mesh.ARRAY_COLOR][-1])
+	print("generated ", polyhedron.faces.size(), " faces")
+	
 	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	mesh_instance.mesh = arr_mesh
 
