@@ -9,7 +9,7 @@ class_name MeshDual
 var vertices : PackedVector3Array # triangulated list of vertices for rendering
 var faces : Array[Array] # for each polygon, ordered list of centroid indices
 var adjacency : Array[Array] # for each polygon, adjacent indices in faces array
-
+var centroids : PackedVector3Array # new vertices in the middle of faces from original shape
 
 func _init(input_vertices: PackedVector3Array, radius: float = 1.0):
 	# check unique vertices
@@ -20,7 +20,7 @@ func _init(input_vertices: PackedVector3Array, radius: float = 1.0):
 	var tri_count: int = int(input_vertices.size() / 3)
 	
 	## 1: compute centroids (new verts in middle of og faces), index is original face index
-	var centroids: PackedVector3Array = PackedVector3Array()
+	centroids = PackedVector3Array()
 	centroids.resize(tri_count)
 	for f in range(tri_count):
 		var i3: int = f * 3

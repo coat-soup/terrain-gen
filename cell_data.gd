@@ -4,8 +4,15 @@ class_name CellData
 var id : int
 var neighbours : Array[int]
 
-var plate_id : int = -1
+var unit_pos : Vector3
 
-func _init(cell_id : int) -> void:
+var height : float = 0.0
+
+var plate_id : int = -1
+var is_oceanic : bool = false
+var stress_rotation_direction : Vector3
+var debug_neighbour_stress : float = 0.0
+
+func _init(cell_id : int, pos : Vector3) -> void:
 	id = cell_id
-	plate_id = -1
+	unit_pos = pos

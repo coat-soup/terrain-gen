@@ -18,7 +18,7 @@ func init_cells() -> Array[CellData]:
 	cells = []
 	cells.resize(mesh.polyhedron.faces.size())
 	for i in range(cells.size()):
-		cells[i] = CellData.new(i)
+		cells[i] = CellData.new(i, mesh.polyhedron.centroids[mesh.polyhedron.faces[i][0]].normalized())
 		for j in mesh.polyhedron.adjacency[i].size():
 			cells[i].neighbours.append(mesh.polyhedron.adjacency[i][j])
 	
@@ -32,3 +32,7 @@ func run_pipeline():
 		step.simulate(cells)
 	
 	finished.emit()
+
+
+func get_face_center_pos():
+	pass

@@ -1,8 +1,12 @@
 shader_type spatial;
 
+uniform sampler2D height_gradient;
+
 uniform sampler2D data_tex;
 uniform int data_tex_size;
 uniform int vis_type;
+
+render_mode unshaded;
 
 const vec3 PALETTE[30] = vec3[](
     vec3(0.96, 0.17, 0.25),
@@ -69,6 +73,11 @@ vec4 color_from_plate_data(float plate_id) {
 	else return vec4(PALETTE[int(plate_id) % 30].rgb, 1.0);
 }
 
+vec4 color_from_height_data(float height) {
+	if (height <= 0.0) return vec4(0.107, 0.211, 0.255, 0.0);
+	return texture(height_gradient, vec2(height, 0.0));
+}
+
 
 // DO NOT DECODE ID IN FRAGMENT
 // IT REALLY DOESNT LIKE IT
@@ -84,4 +93,7 @@ void vertex() {
 	
 	if (vis_type == 0) COLOR = vec4(COLOR.a);
 	if (vis_type == 1) COLOR = color_from_plate_data(data);
+	if (vis_type == 2) COLOR = vec4(data);
+	if (vis_type == 3) COLOR = mix(vec4(0.255, 0.187, 0.0,0.0), vec4(0.024, 0.0, 0.255,0.0), data + 0.5 / 2.0);
+	if (vis_type == 4) COLOR = color_from_height_data(data);
 }

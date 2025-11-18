@@ -2,7 +2,7 @@
 extends Node
 class_name CellDataVisualiser
 
-enum VisualisationType {CELL_ID, PLATE_ID}
+enum VisualisationType {CELL_ID, PLATE_ID, CELL_POSITION, PLATE_STRESS, CELL_HEIGHT}
 @export var vis_type : VisualisationType
 
 @export_tool_button("ColourMesh", "SphereMesh") var colour_action = colour_mesh
@@ -23,11 +23,12 @@ func colour_mesh():
 		match vis_type:
 			0: data.append(randf())
 			1: data.append(simulator.cells[i].plate_id)
+			2: data.append(simulator.cells[i].unit_pos.y/2 + 0.5)
+			3: data.append(simulator.cells[i].debug_neighbour_stress)
+			4: data.append(simulator.cells[i].height)
 	
 	while data.size() % 4 != 0.0:
 		data.append(0.0)
-	
-	print("data: ", data)
 	
 	var tex_size = ceil(sqrt(ceil(data.size() / 4)))
 	
