@@ -8,6 +8,8 @@ class_name MeshGenerator
 
 @export_tool_button("Generate", "SphereMesh") var generate_action = generate_mesh
 
+var polyhedron : MeshDual
+
 
 func _ready() -> void:
 	generate_mesh()
@@ -21,10 +23,16 @@ func generate_mesh():
 	var verts = icosahedron(mesh_radius)
 	verts = subdivide_sphere(verts, n_subdivisons, mesh_radius)
 	
-	var polyhedra = MeshDual.new(verts, mesh_radius)
+	polyhedron = MeshDual.new(verts, mesh_radius)
 	
-	arrays[Mesh.ARRAY_VERTEX] = polyhedra.vertices
+	arrays[Mesh.ARRAY_VERTEX] = polyhedron.vertices
 	arrays[Mesh.ARRAY_NORMAL] = normals_from_vertices(arrays[Mesh.ARRAY_VERTEX])
+	
+	# encode face id into vertex color
+	arrays[Mesh.ARRAY_COLOR] = pack_face_ids(polyhedron.faces)
+	#for i in arrays[Mesh.ARRAY_COLOR]:
+		#print(i)
+	#print(arrays[Mesh.ARRAY_COLOR])
 	
 	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	mesh_instance.mesh = arr_mesh
@@ -103,3 +111,24 @@ func normals_from_vertices(vertices : PackedVector3Array) -> PackedVector3Array:
 	for i in range(vertices.size()):
 		normals[i] = vertices[i].normalized()
 	return normals
+
+
+func pack_face_ids(faces) -> PackedColorArray:
+	var face_ids := PackedColorArray()
+	
+	for id in range(faces.size()):
+		var poly = faces[id]
+		if poly.size() < 3:
+			continue
+		var r = float((id >> 24) & 0xFF) / 255.0
+		var g = float((id >> 16) & 0xFF) / 255.0
+		var b = float((id >> 8) & 0xFF) / 255.0
+		var a = float(id & 0xFF) / 255.0
+		var c := Color(r, g, b, a)
+		var first = poly[0]
+		for j in range(1, poly.size() - 1):
+			face_ids.push_back(c)
+			face_ids.push_back(c)
+			face_ids.push_back(c)
+	
+	return face_ids

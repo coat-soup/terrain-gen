@@ -48,7 +48,8 @@ func _init(input_vertices: PackedVector3Array, radius: float = 1.0):
 			# map vertex -> faces
 			if not vertex_face_map.has(k):
 				vertex_face_map[k] = {"pos": vpos, "faces": []}
-			vertex_face_map[k]["faces"].append(f)
+			if not (f in vertex_face_map[k]["faces"]):
+				vertex_face_map[k]["faces"].append(f)
 		tri_vertex_keys[f] = keys
 		
 		# register edges (undirected) for adjacency & for original-vertex adjacency later
@@ -89,7 +90,7 @@ func _init(input_vertices: PackedVector3Array, radius: float = 1.0):
 		var angle_list: Array = []
 		angle_list.resize(0)
 		for fi in face_indices:
-			var dir_vec: Vector3 = (centroids[fi] - entry["pos"]).normalized()
+			var dir_vec: Vector3 = (centroids[fi] - vpos).normalized()
 			var x: float = dir_vec.dot(u)
 			var y: float = dir_vec.dot(v)
 			var ang: float = atan2(y, x)
@@ -97,7 +98,6 @@ func _init(input_vertices: PackedVector3Array, radius: float = 1.0):
 		
 		# sort by angle ascending (CCW)
 		angle_list.sort() # works because each element is [angle, fi], lexicographic sort
-		
 		# produce sorted face index list
 		var sorted_faces: Array = []
 		sorted_faces.resize(0)
