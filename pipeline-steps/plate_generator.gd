@@ -2,7 +2,7 @@
 extends SimulationStep
 class_name PlateGenerator
 
-@export var n_plates : int = 16
+@export var n_plates : int = 25
 @export var ocean_ratio := 0.6
 @export var spread_chance : float = 0.2
 var plates : Array[int] # array of int where 0 = continental, 1 = oceanic

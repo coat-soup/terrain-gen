@@ -1,6 +1,8 @@
 shader_type spatial;
 
 uniform sampler2D height_gradient;
+uniform sampler2D water_gradient;
+uniform sampler2D stress_gradient;
 
 uniform sampler2D data_tex;
 uniform int data_tex_size;
@@ -74,8 +76,9 @@ vec4 color_from_plate_data(float plate_id) {
 }
 
 vec4 color_from_height_data(float height) {
-	if (height <= 0.0) return vec4(0.107, 0.211, 0.255, 0.0);
-	return texture(height_gradient, vec2(height, 0.0));
+	//if (height <= 0.0) return vec4(0.107, 0.211, 0.255, 0.0);
+	if (height <= 0.0) return texture(water_gradient, vec2(max(0.0, 1.0 - height), 0.0));
+	return texture(height_gradient, vec2(min(0.999, height), 0.0));
 }
 
 
@@ -90,10 +93,10 @@ void fragment() {
 void vertex() {
 	uint face_id = decode_id(COLOR);
 	float data = get_data(int(face_id));
-	
+
 	if (vis_type == 0) COLOR = vec4(COLOR.a);
 	if (vis_type == 1) COLOR = color_from_plate_data(data);
 	if (vis_type == 2) COLOR = vec4(data);
-	if (vis_type == 3) COLOR = mix(vec4(0.255, 0.187, 0.0,0.0), vec4(0.024, 0.0, 0.255,0.0), data + 0.5 / 2.0);
-	if (vis_type == 4) COLOR = color_from_height_data(data);
+	if (vis_type == 3) COLOR = texture(stress_gradient, vec2(min(1.0, data / 2.0 + 0.5), 0.0));
+	if (vis_type == 4){ COLOR = color_from_height_data(data);}//VERTEX += NORMAL * data / 20.0;}
 }

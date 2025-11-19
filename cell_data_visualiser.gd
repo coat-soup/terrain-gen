@@ -3,7 +3,10 @@ extends Node
 class_name CellDataVisualiser
 
 enum VisualisationType {CELL_ID, PLATE_ID, CELL_POSITION, PLATE_STRESS, CELL_HEIGHT}
-@export var vis_type : VisualisationType
+@export var vis_type : VisualisationType:
+	set(new_vis_type):
+		vis_type = new_vis_type
+		colour_mesh()
 
 @export_tool_button("ColourMesh", "SphereMesh") var colour_action = colour_mesh
 
