@@ -37,7 +37,6 @@ func simulate(cells : Array[CellData]) -> Array[CellData]:
 				if cells[neighbour_id].plate_id != -1 and randf() < spread_chance:
 					cells[i].plate_id = cells[neighbour_id].plate_id
 					cells[i].is_oceanic = plates[cells[i].plate_id] == 1
-					print("set cell oceanic to: ", cells[i].is_oceanic, " from plate type ", plates[cells[i].plate_id], " (plate ", cells[i].plate_id, ")")
 					assigned_cells += 1
 					break
 	

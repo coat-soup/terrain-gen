@@ -2,7 +2,7 @@
 extends Node
 class_name CellDataVisualiser
 
-enum VisualisationType {CELL_ID, PLATE_ID, CELL_POSITION, PLATE_STRESS, CELL_HEIGHT}
+enum VisualisationType {CELL_ID, PLATE_ID, CELL_POSITION, PLATE_STRESS, CELL_HEIGHT, CELL_TEMPERATURE}
 @export var vis_type : VisualisationType:
 	set(new_vis_type):
 		vis_type = new_vis_type
@@ -29,6 +29,7 @@ func colour_mesh():
 			2: data.append(simulator.cells[i].unit_pos.y/2 + 0.5)
 			3: data.append(simulator.cells[i].debug_neighbour_stress)
 			4: data.append(simulator.cells[i].height)
+			5: data.append(simulator.cells[i].temperature if not simulator.cells[i].is_oceanic else -999.0)
 	
 	while data.size() % 4 != 0.0:
 		data.append(0.0)

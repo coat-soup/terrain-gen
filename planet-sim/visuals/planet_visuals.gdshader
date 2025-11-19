@@ -3,6 +3,7 @@ shader_type spatial;
 uniform sampler2D height_gradient;
 uniform sampler2D water_gradient;
 uniform sampler2D stress_gradient;
+uniform sampler2D temperature_gradient;
 
 uniform sampler2D data_tex;
 uniform int data_tex_size;
@@ -81,6 +82,10 @@ vec4 color_from_height_data(float height) {
 	return texture(height_gradient, vec2(min(0.999, height), 0.0));
 }
 
+vec4 color_from_temperature_data(float temperature) {
+	if (temperature == -999.0) return vec4(0.0);
+	return texture(temperature_gradient, vec2(clamp((temperature / 50.0)/2.0 + 0.5, 0.01, 0.99)));
+}
 
 // DO NOT DECODE ID IN FRAGMENT
 // IT REALLY DOESNT LIKE IT
@@ -99,4 +104,5 @@ void vertex() {
 	if (vis_type == 2) COLOR = vec4(data);
 	if (vis_type == 3) COLOR = texture(stress_gradient, vec2(min(1.0, data / 2.0 + 0.5), 0.0));
 	if (vis_type == 4){ COLOR = color_from_height_data(data);}//VERTEX += NORMAL * data / 20.0;}
+	if (vis_type == 5) COLOR = color_from_temperature_data(data);
 }
