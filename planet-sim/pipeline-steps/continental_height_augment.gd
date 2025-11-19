@@ -7,7 +7,7 @@ class_name ContinentalHeightAugment
 
 @export var noise : FastNoiseLite
 
-func simulate(cells : Array[CellData]) -> Array[CellData]:
+func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellData]:
 	noise.seed = randi()
 	
 	for cell in cells:

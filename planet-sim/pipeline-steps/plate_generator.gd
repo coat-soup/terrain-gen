@@ -8,7 +8,7 @@ class_name PlateGenerator
 var plates : Array[int] # array of int where 0 = continental, 1 = oceanic
 
 
-func simulate(cells : Array[CellData]) -> Array[CellData]:
+func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellData]:
 	assert(n_plates <= cells.size())
 	
 	var assigned_cells : int = 0

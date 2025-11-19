@@ -82,6 +82,14 @@ vec4 color_from_height_data(float height) {
 	return texture(height_gradient, vec2(min(0.999, height), 0.0));
 }
 
+vec4 color_from_ocean_current_data(float data){
+	if(data == -1.0) return vec4(0.0,0.0,1.0,0.0); // base ocean
+	if(data == -2.0) return vec4(0.0,1.0,0.0,0.0); //base land
+	if(data == 0.0) return vec4(0.0,0.0,0.0,0.0); // neutral current
+	if(data == 1.0) return vec4(1.0,0.0,0.0,0.0); // warm current
+	if(data == 2.0) return vec4(0.0,0.0,0.5,0.0); // cold current
+}
+
 vec4 color_from_temperature_data(float temperature) {
 	if (temperature == -999.0) return vec4(0.0);
 	return texture(temperature_gradient, vec2(clamp((temperature / 50.0)/2.0 + 0.5, 0.01, 0.99)));
@@ -105,4 +113,5 @@ void vertex() {
 	if (vis_type == 3) COLOR = texture(stress_gradient, vec2(min(1.0, data / 2.0 + 0.5), 0.0));
 	if (vis_type == 4){ COLOR = color_from_height_data(data);}//VERTEX += NORMAL * data / 20.0;}
 	if (vis_type == 5) COLOR = color_from_temperature_data(data);
+	if (vis_type == 6) COLOR = color_from_ocean_current_data(data);
 }

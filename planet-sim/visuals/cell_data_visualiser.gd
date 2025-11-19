@@ -2,7 +2,7 @@
 extends Node
 class_name CellDataVisualiser
 
-enum VisualisationType {CELL_ID, PLATE_ID, CELL_POSITION, PLATE_STRESS, CELL_HEIGHT, CELL_TEMPERATURE}
+enum VisualisationType {CELL_ID, PLATE_ID, CELL_POSITION, PLATE_STRESS, CELL_HEIGHT, CELL_TEMPERATURE, OCEAN_CURRENTS}
 @export var vis_type : VisualisationType:
 	set(new_vis_type):
 		vis_type = new_vis_type
@@ -30,6 +30,7 @@ func colour_mesh():
 			3: data.append(simulator.cells[i].debug_neighbour_stress)
 			4: data.append(simulator.cells[i].height)
 			5: data.append(simulator.cells[i].temperature if not simulator.cells[i].is_oceanic else -999.0)
+	if vis_type == 6: data = data_from_ocean_currents(simulator)
 	
 	while data.size() % 4 != 0.0:
 		data.append(0.0)
@@ -60,3 +61,20 @@ func create_data_texture(data: PackedFloat32Array, tex_size : int) -> Texture2D:
 			i += 4
 	
 	return ImageTexture.create_from_image(img)
+
+
+func data_from_ocean_currents(simulator : SimulationPipeline):
+	print("visualising currents from ", simulator.ocean_currents)
+	var data := PackedFloat32Array()
+	data.resize(simulator.cells.size())
+	
+	for i in range(simulator.cells.size()):
+		data[i] = -1.0 if simulator.cells[i].height >= 0 else -2.0
+	
+	#return data
+	
+	for i in range(simulator.ocean_currents.size()):
+		for c in simulator.ocean_currents[i].cells:
+			data[c] =  simulator.ocean_currents[i].type
+	
+	return data

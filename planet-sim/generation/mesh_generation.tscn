@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=4 uid="uid://cn81luggn5t73"]
+[gd_scene load_steps=20 format=4 uid="uid://cn81luggn5t73"]
 
 [ext_resource type="Material" uid="uid://bkqil5aru5nt" path="res://planet-sim/visuals/cell_data_visualiser_mat.tres" id="1_7is13"]
 [ext_resource type="Script" uid="uid://cktxdie0uqsn0" path="res://planet-sim/generation/mesh_generator.gd" id="2_ykdo0"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://dfgjdkc60354l" path="res://planet-sim/pipeline-steps/height_calculator.gd" id="8_nvhqj"]
 [ext_resource type="Script" uid="uid://buokvcd8tekf1" path="res://planet-sim/pipeline-steps/continental_height_augment.gd" id="9_27our"]
 [ext_resource type="Script" uid="uid://tgqbp6bhaucd" path="res://planet-sim/pipeline-steps/temperature_calculator.gd" id="10_ykdo0"]
+[ext_resource type="Script" uid="uid://cvcsnwqgkrtl6" path="res://planet-sim/pipeline-steps/ocean_current_generator.gd" id="11_wh2la"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_ykdo0"]
 _surfaces = [{
@@ -41,7 +42,7 @@ continent_blur_steps = 2
 metadata/_custom_type_script = "uid://dfgjdkc60354l"
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_wqit5"]
-seed = -1031320264
+seed = -170985342
 frequency = 1.0
 
 [sub_resource type="Resource" id="Resource_f46qa"]
@@ -58,11 +59,15 @@ equator_temp = 50.0
 height_effect = 30.0
 metadata/_custom_type_script = "uid://tgqbp6bhaucd"
 
+[sub_resource type="Resource" id="Resource_oxh7t"]
+script = ExtResource("11_wh2la")
+metadata/_custom_type_script = "uid://cvcsnwqgkrtl6"
+
 [node name="MeshGeneration" type="Node3D"]
-transform = Transform3D(-0.523124, 0, 0.852257, 0, 1, 0, -0.852257, 0, -0.523124, 0, 0, 0)
+transform = Transform3D(-0.487387, 0, -0.873186, 0, 1, 0, 0.873186, 0, -0.487387, 0, 0, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(-0.115596, 0, 0.993296, 0, 1, 0, -0.993296, 0, -0.115596, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 material_override = ExtResource("1_7is13")
 mesh = SubResource("ArrayMesh_ykdo0")
 
@@ -73,10 +78,10 @@ n_subdivisons = 5
 
 [node name="CellDataVisualiser" type="Node" parent="."]
 script = ExtResource("3_wh2la")
-vis_type = 5
+vis_type = 6
 
 [node name="SimulationPipeline" type="Node" parent="." node_paths=PackedStringArray("mesh", "visualiser")]
 script = ExtResource("4_oxh7t")
 mesh = NodePath("../MeshGenerator")
 visualiser = NodePath("../CellDataVisualiser")
-pipeline = Array[ExtResource("5_37hj5")]([SubResource("Resource_na7qb"), SubResource("Resource_hr14s"), SubResource("Resource_1oiaf"), SubResource("Resource_f46qa"), SubResource("Resource_wh2la")])
+pipeline = Array[ExtResource("5_37hj5")]([SubResource("Resource_na7qb"), SubResource("Resource_hr14s"), SubResource("Resource_1oiaf"), SubResource("Resource_f46qa"), SubResource("Resource_wh2la"), SubResource("Resource_oxh7t")])

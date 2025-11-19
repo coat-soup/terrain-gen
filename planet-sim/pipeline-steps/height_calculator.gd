@@ -5,7 +5,7 @@ class_name HeightCalculator
 @export var continent_blur_steps : int = 2
 
 
-func simulate(cells : Array[CellData]) -> Array[CellData]:
+func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellData]:
 	for cell in cells:
 		cell.height = -0.5 if cell.is_oceanic else 0.5
 	

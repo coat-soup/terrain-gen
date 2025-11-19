@@ -7,7 +7,7 @@ class_name TemperatureCalculator
 @export var height_effect : float = 20.0
 
 
-func simulate(cells : Array[CellData]) -> Array[CellData]:
+func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellData]:
 	for cell in cells:
 		cell.temperature = lerp(equator_temp, polar_temp, abs(cell.unit_pos.y))
 		if cell.height > 0: cell.temperature -= cell.height * height_effect

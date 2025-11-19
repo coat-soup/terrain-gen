@@ -12,6 +12,7 @@ signal finished
 @export_tool_button("Simulate", "SphereMesh") var simulate_action = run_pipeline
 
 var cells : Array[CellData]
+var ocean_currents : Array[OceanCurrent]
 
 
 func init_cells() -> Array[CellData]:
@@ -29,7 +30,7 @@ func run_pipeline():
 	init_cells()
 	
 	for step in pipeline:
-		step.simulate(cells)
+		step.simulate(cells, self)
 	
 	finished.emit()
 

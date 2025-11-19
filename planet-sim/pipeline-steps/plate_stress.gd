@@ -5,7 +5,7 @@ class_name PlateStress
 @export_range(1, 10) var neighbour_reach : int = 2
 @export_range(0,10) var falloff : float = 3
 
-func simulate(cells : Array[CellData]) -> Array[CellData]:
+func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellData]:
 	var plate_rotations : Array[Vector3] = []
 	
 	for cell in cells:
