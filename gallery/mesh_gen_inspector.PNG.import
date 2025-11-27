@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b56hxkn2rxp4o"
-path="res://.godot/imported/planet_demo_01.png-769abc3dbfec72192aec29c6ac1a0bfd.ctex"
+uid="uid://b3rw84p00g402"
+path="res://.godot/imported/mesh_gen_inspector.PNG-043f572fe1147a955c27c687f4bfab09.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://gallery/planet_demo_01.png"
-dest_files=["res://.godot/imported/planet_demo_01.png-769abc3dbfec72192aec29c6ac1a0bfd.ctex"]
+source_file="res://gallery/mesh_gen_inspector.PNG"
+dest_files=["res://.godot/imported/mesh_gen_inspector.PNG-043f572fe1147a955c27c687f4bfab09.ctex"]
 
 [params]
 
