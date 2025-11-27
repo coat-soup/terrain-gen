@@ -28,22 +28,22 @@ In the mesh generation scene, the three nodes that control the simulation are `M
 ## Simulating a planet:
 1. Select the `MeshGenerator` node, and press the `Generate` button in the inspector. Planetary resolution can be controlled by the parameter `N Subdivisions`; recommended range is 4-6. Going beyond 7 subdivisions is not recommended unless you are running on a very powerful device, and may otherwise cause the editor to freeze.
 <p align="center">
-  <img src="gallery/mesh_gen_inspector.png?raw=true">
+  <img src="gallery/mesh_gen_inspector.PNG?raw=true">
 </p>
 
 2. Select the `SimulationPipeline` node, and press `Simulate`. Simulation parameters can be tweaked by selecting the individual pipeline steps and changing parameters. You can resimulate the planet freely without generating a new mesh as in step 1
 <p align="center">
-  <img src="gallery/simulation_pipeline_inspector.png?raw=true">
+  <img src="gallery/simulation_pipeline_inspector.PNG?raw=true">
 </p>
 
 3. Select the `CellDataVisualiser` node, and display different pipeline/data layers by changing the `Vis Type` parameter. The `ColourMesh` button will regenerate the visualisation if needed.
 <p align="center">
-  <img src="gallery/cell_data_vis_inspector.png?raw=true">
+  <img src="gallery/cell_data_vis_inspector.PNG?raw=true">
 </p>
 
 4. Enjoy your simulated planet :)
 <p align="center">
-  <img src="gallery/planet_demo_02.png?raw=true">
+  <img src="gallery/planet_demo_02.PNG?raw=true">
 </p>
 
 
