@@ -16,6 +16,24 @@ func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellDa
 	
 	print("set initial equator cell to ", equator_cell)
 	
+	var dir_multiplier : float = 1.0 if cells[equator_cell].height > 0 else -1.0
+	
+	print("dirmult: ", dir_multiplier)
+	
+	for i in range(500):
+		var c = OceanCurrent.get_neighbour_in_direction(cells[equator_cell].unit_pos.cross(dir_multiplier * Vector3.UP), cells[equator_cell], cells)
+		if dir_multiplier > 0:
+			equator_cell = c
+			if cells[c].height < 0: break
+		else:
+			if cells[c].height >= 0: break
+			equator_cell = c
+		
+		equator_cell = c
+	
 	sim.ocean_currents.append(OceanCurrent.new())
 	sim.ocean_currents[0].cells.append(equator_cell)
+	
+	sim.ocean_currents[0].flow(cells)
+	
 	return cells

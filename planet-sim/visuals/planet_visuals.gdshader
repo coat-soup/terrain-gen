@@ -83,8 +83,8 @@ vec4 color_from_height_data(float height) {
 }
 
 vec4 color_from_ocean_current_data(float data){
-	if(data == -1.0) return vec4(0.0,0.0,1.0,0.0); // base ocean
-	if(data == -2.0) return vec4(0.0,1.0,0.0,0.0); //base land
+	if(data == -2.0) return vec4(0.0,0.0,1.0,0.0); // base ocean
+	if(data == -1.0) return vec4(0.0,1.0,0.0,0.0); //base land
 	if(data == 0.0) return vec4(0.0,0.0,0.0,0.0); // neutral current
 	if(data == 1.0) return vec4(1.0,0.0,0.0,0.0); // warm current
 	if(data == 2.0) return vec4(0.0,0.0,0.5,0.0); // cold current
