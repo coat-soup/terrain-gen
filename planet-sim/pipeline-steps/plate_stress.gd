@@ -20,6 +20,8 @@ func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellDa
 	for cell in cells:
 		var stress := 0.0
 		
+		var dist_to_fault = neighbour_reach
+		
 		var neighbours = get_stressing_neighbours(cells, cell.id)
 		# assume weight is 1/falloff^n where n is depth (eg immediate neighbours weight = 1, 1 gap neighbours = 1/2, 2 gap neighbours = 1/4, etc.)
 		var total_weight := 0.0
@@ -27,14 +29,16 @@ func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellDa
 		for i in range(neighbours.size()):
 			for j in range(neighbours[i].size()):
 				if cells[neighbours[i][j]].plate_id == cell.plate_id: continue
-				stress += cell.stress_rotation_direction.dot(cells[neighbours[i][j]].stress_rotation_direction) / pow(falloff,i)
-				total_weight += 1.0# if i == 0 else 0.3#/pow(falloff,i*2)
+				stress += cell.stress_rotation_direction.dot(cells[neighbours[i][j]].stress_rotation_direction)# / pow(falloff,i)
+				total_weight += 1.0#/pow(falloff,i)
+				if dist_to_fault > i:
+					dist_to_fault = i
+					#print("setting plate dist: ", i)
+		#print()
 		
 		cell.debug_neighbour_stress = stress / max(1, total_weight)
-		cell.debug_neighbour_stress *= 1.0 if neighbour_reach <= 2 else 2.5
-	
-	for i in range(3):
-		print("falloff ", falloff, " for i ", i, ": ", pow(falloff,i))
+		#cell.debug_neighbour_stress *= 1.0 if neighbour_reach <= 2 else 2
+		cell.debug_neighbour_stress *= 1.0 - (float(dist_to_fault)/float(neighbour_reach))
 	
 	return cells
 

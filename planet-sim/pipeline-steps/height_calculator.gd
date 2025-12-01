@@ -3,7 +3,7 @@ extends SimulationStep
 class_name HeightCalculator
 
 @export var continent_blur_steps : int = 2
-
+@export var stress_height : float = 1.0
 
 func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellData]:
 	for cell in cells:
@@ -14,7 +14,7 @@ func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellDa
 	
 	for i in range(cells.size()):
 		# plate stress
-		cells[i].height += cells[i].debug_neighbour_stress * 2
+		cells[i].height += cells[i].debug_neighbour_stress * stress_height
 	
 	return cells
 
