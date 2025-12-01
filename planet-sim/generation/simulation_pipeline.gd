@@ -23,6 +23,8 @@ func init_cells() -> Array[CellData]:
 		for j in mesh.polyhedron.adjacency[i].size():
 			cells[i].neighbours.append(mesh.polyhedron.adjacency[i][j])
 	
+	ocean_currents.clear()
+	
 	return cells
 
 

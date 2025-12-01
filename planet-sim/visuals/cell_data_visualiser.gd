@@ -64,7 +64,6 @@ func create_data_texture(data: PackedFloat32Array, tex_size : int) -> Texture2D:
 
 
 func data_from_ocean_currents(simulator : SimulationPipeline):
-	print("visualising currents from ", simulator.ocean_currents)
 	var data := PackedFloat32Array()
 	data.resize(simulator.cells.size())
 	
