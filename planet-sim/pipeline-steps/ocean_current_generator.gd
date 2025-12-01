@@ -3,6 +3,8 @@ extends SimulationStep
 class_name OceanCurrentGenerator
 
 @export var equatorial_counter_current_distance : float = 0.3
+@export var min_current_length : int = 10
+@export_range(0.0,1.0) var polwards_current_momentum : float = 0.5
 
 func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellData]:
 	var equator_mid : int = 0
@@ -19,9 +21,36 @@ func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellDa
 		# it's ok if 0 is an equator cell we skip, there will be other cells on the equator
 	
 	
-	make_equatorial_band(find_ocean_start_from_equator(equator_mid, cells), 1.0, cells, sim)
+	#make_equatorial_band(find_ocean_start_from_equator(equator_mid, cells), 1.0, cells, sim)
 	make_equatorial_band(find_ocean_start_from_equator(equator_north, cells), -1.0, cells, sim)
-	make_equatorial_band(find_ocean_start_from_equator(equator_south, cells), -1.0, cells, sim)
+	#make_equatorial_band(find_ocean_start_from_equator(equator_south, cells), -1.0, cells, sim)
+	
+	# remove small currents
+	for i in range(sim.ocean_currents.size() - 1, -1, -1):
+		if sim.ocean_currents[i].cells.size() < min_current_length:
+			sim.ocean_currents.remove_at(i)
+	
+	
+	# make polward currents
+	var n_equatorial = sim.ocean_currents.size()
+	for i in range(n_equatorial):
+		for start_cell in [sim.ocean_currents[i].cells[min_current_length/2], sim.ocean_currents[i].cells[-min_current_length/2]]:
+			for dir_mult in [1.0, -1.0]:
+				var current_n : OceanCurrent = OceanCurrent.new()
+				sim.ocean_currents.append(current_n)
+				current_n.type = OceanCurrent.CurrentType.WARM
+				current_n.cells.append(start_cell)
+				current_n.flow(cells, lerp(cells[start_cell].unit_pos.cross(dir_mult * Vector3.UP), -Vector3.UP, polwards_current_momentum))
+	
+	
+	# make returning currents
+	for i in range(n_equatorial, sim.ocean_currents.size()):
+		var current : OceanCurrent = OceanCurrent.new()
+		sim.ocean_currents.append(current)
+		current.type = OceanCurrent.CurrentType.COLD
+		current.cells.append(sim.ocean_currents[i].cells[-1])
+		var dir_mult = -1.0 if cells[current.cells[0]].unit_pos.y > 0 else 1.0
+		current.flow(cells, lerp(cells[current.cells[0]].unit_pos.cross(dir_mult * Vector3.UP), Vector3.UP, polwards_current_momentum / 2))
 	
 	return cells
 
@@ -33,9 +62,9 @@ func find_ocean_start_from_equator(pointer_cell : int, cells) -> int:
 		var c = OceanCurrent.get_neighbour_in_direction(cells[pointer_cell].unit_pos.cross(dir_multiplier * Vector3.UP), cells[pointer_cell], cells)
 		if dir_multiplier > 0:
 			pointer_cell = c
-			if cells[c].height < 0: break
+			if cells[c].height <= 0: break
 		else:
-			if cells[c].height >= 0: break
+			if cells[c].height > 0: break
 			pointer_cell = c
 		
 		var path_iter = OceanCurrent.get_neighbour_bresenham(cells[pointer_cell].unit_pos.cross(dir_multiplier * Vector3.UP), cells[pointer_cell], cells, path_error)
@@ -61,6 +90,7 @@ func make_equatorial_band(starting_cell : int, direction: float, cells : Array[C
 			sim.ocean_currents.append(current)
 			current.cells.append(pointer_cell)
 			current.flow(cells, Vector3.UP * direction)
+			
 			# update pointer
 			i += sim.ocean_currents[-1].cells.size()
 			pointer_cell = current.cells[-1]
