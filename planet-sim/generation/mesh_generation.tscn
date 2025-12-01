@@ -42,7 +42,7 @@ continent_blur_steps = 2
 metadata/_custom_type_script = "uid://dfgjdkc60354l"
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_wqit5"]
-seed = 1062924733
+seed = -655435676
 frequency = 1.0
 
 [sub_resource type="Resource" id="Resource_f46qa"]
@@ -61,6 +61,7 @@ metadata/_custom_type_script = "uid://tgqbp6bhaucd"
 
 [sub_resource type="Resource" id="Resource_oxh7t"]
 script = ExtResource("11_wh2la")
+equatorial_counter_current_distance = 0.2
 metadata/_custom_type_script = "uid://cvcsnwqgkrtl6"
 
 [node name="MeshGeneration" type="Node3D"]
