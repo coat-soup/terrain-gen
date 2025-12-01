@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=4 uid="uid://cn81luggn5t73"]
+[gd_scene load_steps=22 format=4 uid="uid://cn81luggn5t73"]
 
 [ext_resource type="Material" uid="uid://bkqil5aru5nt" path="res://planet-sim/visuals/cell_data_visualiser_mat.tres" id="1_7is13"]
 [ext_resource type="Script" uid="uid://cktxdie0uqsn0" path="res://planet-sim/generation/mesh_generator.gd" id="2_ykdo0"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://dfgjdkc60354l" path="res://planet-sim/pipeline-steps/height_calculator.gd" id="8_nvhqj"]
 [ext_resource type="Script" uid="uid://buokvcd8tekf1" path="res://planet-sim/pipeline-steps/continental_height_augment.gd" id="9_27our"]
 [ext_resource type="Script" uid="uid://tgqbp6bhaucd" path="res://planet-sim/pipeline-steps/temperature_calculator.gd" id="10_ykdo0"]
+[ext_resource type="Script" uid="uid://byhgxvyy8jmeh" path="res://planet-sim/pipeline-steps/wind_calculator.gd" id="11_oxh7t"]
 [ext_resource type="Script" uid="uid://cvcsnwqgkrtl6" path="res://planet-sim/pipeline-steps/ocean_current_generator.gd" id="11_wh2la"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_wh2la"]
@@ -42,7 +43,7 @@ continent_blur_steps = 2
 metadata/_custom_type_script = "uid://dfgjdkc60354l"
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_wqit5"]
-seed = 952675056
+seed = -287964269
 frequency = 1.0
 
 [sub_resource type="Resource" id="Resource_f46qa"]
@@ -66,6 +67,17 @@ min_current_length = 10
 polwards_current_momentum = 0.6
 metadata/_custom_type_script = "uid://cvcsnwqgkrtl6"
 
+[sub_resource type="Resource" id="Resource_37hj5"]
+script = ExtResource("11_oxh7t")
+n_cyclones = 6
+cyclone_latitude = 30.0
+cyclone_size = 0.3
+cyclone_falloff_distance = 0.5
+polar_cyclone_size = 0.2
+cyclone_lat_amplitude = 5.0
+slope_effect = 5.0
+metadata/_custom_type_script = "uid://byhgxvyy8jmeh"
+
 [node name="MeshGeneration" type="Node3D"]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
@@ -82,7 +94,7 @@ n_subdivisons = 5
 script = ExtResource("4_oxh7t")
 mesh = NodePath("../MeshGenerator")
 visualiser = NodePath("../CellDataVisualiser")
-pipeline = Array[ExtResource("5_37hj5")]([SubResource("Resource_na7qb"), SubResource("Resource_hr14s"), SubResource("Resource_1oiaf"), SubResource("Resource_f46qa"), SubResource("Resource_wh2la"), SubResource("Resource_oxh7t")])
+pipeline = Array[ExtResource("5_37hj5")]([SubResource("Resource_na7qb"), SubResource("Resource_hr14s"), SubResource("Resource_1oiaf"), SubResource("Resource_f46qa"), SubResource("Resource_wh2la"), SubResource("Resource_oxh7t"), SubResource("Resource_37hj5")])
 
 [node name="CellDataVisualiser" type="Node" parent="."]
 script = ExtResource("3_wh2la")

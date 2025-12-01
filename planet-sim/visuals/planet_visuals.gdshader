@@ -4,6 +4,7 @@ uniform sampler2D height_gradient;
 uniform sampler2D water_gradient;
 uniform sampler2D stress_gradient;
 uniform sampler2D temperature_gradient;
+uniform sampler2D wind_gradient;
 
 uniform sampler2D data_tex;
 uniform int data_tex_size;
@@ -96,7 +97,7 @@ vec4 color_from_temperature_data(float temperature) {
 }
 
 vec4 color_from_wind_data(float wind){
-	return vec4(wind);
+	return texture(wind_gradient, vec2(max(0.01, wind), 0.0));
 }
 
 // DO NOT DECODE ID IN FRAGMENT
