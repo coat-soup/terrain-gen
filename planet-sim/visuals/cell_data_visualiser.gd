@@ -2,7 +2,7 @@
 extends Node
 class_name CellDataVisualiser
 
-enum VisualisationType {CELL_ID, PLATE_ID, CELL_POSITION, PLATE_STRESS, CELL_HEIGHT, CELL_TEMPERATURE, OCEAN_CURRENTS}
+enum VisualisationType {CELL_ID, PLATE_ID, CELL_POSITION, PLATE_STRESS, CELL_HEIGHT, CELL_TEMPERATURE, OCEAN_CURRENTS, WIND}
 @export var vis_type : VisualisationType:
 	set(new_vis_type):
 		vis_type = new_vis_type
@@ -30,7 +30,9 @@ func colour_mesh():
 			3: data.append(simulator.cells[i].debug_neighbour_stress)
 			4: data.append(simulator.cells[i].height)
 			5: data.append(simulator.cells[i].temperature if not simulator.cells[i].is_oceanic else -999.0)
+			7: data.append(simulator.cells[i].height)
 	if vis_type == 6: data = data_from_ocean_currents(simulator)
+	if vis_type == 7: visualise_wind(simulator)
 	
 	while data.size() % 4 != 0.0:
 		data.append(0.0)
@@ -41,6 +43,13 @@ func colour_mesh():
 	$"../MeshInstance3D".material_override.set_shader_parameter("data_tex", tex)
 	$"../MeshInstance3D".material_override.set_shader_parameter("data_tex_size", tex_size)
 	$"../MeshInstance3D".material_override.set_shader_parameter("vis_type", vis_type)
+
+
+func _process(delta: float) -> void:
+	if vis_type == 7:
+		pass
+		# do wind arrows
+		DebugDraw3D.draw_arrow(Vector3.ZERO, Vector3.ONE * 5)
 
 
 func create_data_texture(data: PackedFloat32Array, tex_size : int) -> Texture2D:
@@ -77,3 +86,8 @@ func data_from_ocean_currents(simulator : SimulationPipeline):
 			data[c] =  simulator.ocean_currents[i].type
 	
 	return data
+
+
+func visualise_wind(simulator : SimulationPipeline):
+	# draw 3d arrows
+	pass

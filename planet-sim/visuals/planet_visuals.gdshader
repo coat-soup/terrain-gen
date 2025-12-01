@@ -95,6 +95,10 @@ vec4 color_from_temperature_data(float temperature) {
 	return texture(temperature_gradient, vec2(clamp((temperature / 50.0)/2.0 + 0.5, 0.01, 0.99)));
 }
 
+vec4 color_from_wind_data(float wind){
+	return vec4(wind);
+}
+
 // DO NOT DECODE ID IN FRAGMENT
 // IT REALLY DOESNT LIKE IT
 void fragment() {
@@ -114,4 +118,5 @@ void vertex() {
 	if (vis_type == 4){ COLOR = color_from_height_data(data);}//VERTEX += NORMAL * data / 20.0;}
 	if (vis_type == 5) COLOR = color_from_temperature_data(data);
 	if (vis_type == 6) COLOR = color_from_ocean_current_data(data);
+	if (vis_type == 7) COLOR = color_from_wind_data(data);
 }

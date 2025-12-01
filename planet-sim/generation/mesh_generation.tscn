@@ -42,7 +42,7 @@ continent_blur_steps = 2
 metadata/_custom_type_script = "uid://dfgjdkc60354l"
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_wqit5"]
-seed = -220054669
+seed = 952675056
 frequency = 1.0
 
 [sub_resource type="Resource" id="Resource_f46qa"]
@@ -86,4 +86,4 @@ pipeline = Array[ExtResource("5_37hj5")]([SubResource("Resource_na7qb"), SubReso
 
 [node name="CellDataVisualiser" type="Node" parent="."]
 script = ExtResource("3_wh2la")
-vis_type = 6
+vis_type = 7

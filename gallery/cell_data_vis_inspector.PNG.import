@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dlthdrlney1ju"
-path="res://.godot/imported/cell_data_vis_inspector.png-802f3a7e9b78b041a0311a40b9c41839.ctex"
+path="res://.godot/imported/cell_data_vis_inspector.PNG-c680139aebf77a1b83bc8909491685d1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://gallery/cell_data_vis_inspector.png"
-dest_files=["res://.godot/imported/cell_data_vis_inspector.png-802f3a7e9b78b041a0311a40b9c41839.ctex"]
+source_file="res://gallery/cell_data_vis_inspector.PNG"
+dest_files=["res://.godot/imported/cell_data_vis_inspector.PNG-c680139aebf77a1b83bc8909491685d1.ctex"]
 
 [params]
 
