@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://mpk1r0npsy0n"
-path="res://.godot/imported/simulation_pipeline_inspector.png-ca69e8acc9ccd9b6782e075061e52f8d.ctex"
+path="res://.godot/imported/simulation_pipeline_inspector.PNG-8e16f7bf81486588f1aad6c181f0a691.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://gallery/simulation_pipeline_inspector.png"
-dest_files=["res://.godot/imported/simulation_pipeline_inspector.png-ca69e8acc9ccd9b6782e075061e52f8d.ctex"]
+source_file="res://gallery/simulation_pipeline_inspector.PNG"
+dest_files=["res://.godot/imported/simulation_pipeline_inspector.PNG-8e16f7bf81486588f1aad6c181f0a691.ctex"]
 
 [params]
 
