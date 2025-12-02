@@ -17,5 +17,8 @@ func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellDa
 			for n_id in cell.neighbours:
 				if cells[n_id].distance_to_ocean_boundary == i:
 					cell.distance_to_ocean_boundary = i + 1
+					break
+			if i == distance_cuttoff - 1 and cell.distance_to_ocean_boundary == -1:
+				cell.distance_to_ocean_boundary = distance_cuttoff
 	
 	return cells

@@ -45,7 +45,7 @@ func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellDa
 			var equator_lerp = clamp((b_dist - cyclone_size) / cyclone_falloff_distance, 0.0, 1.0)
 			if abs(cell.unit_pos.y) > abs(cyclones[closest_cyclone].y): equator_lerp *= 0
 			cell.wind_dir = lerp(cyclone_dir, cell.unit_pos.cross(cell.unit_pos.cross(Vector3.UP * equator_mult)), equator_lerp).normalized()
-		cell.wind_dir = (cell.wind_dir + cell_height_gradient(cell, cells) * slope_effect).normalized() # add height gradient
+		cell.wind_dir = (cell.wind_dir + cell.height_gradient * slope_effect).normalized() # add height gradient
 		cell.wind_dir = (cell.wind_dir - cell.unit_pos * cell.wind_dir.dot(cell.unit_pos)).normalized() # project back onto surface
 		
 		# speed calcs
@@ -64,20 +64,3 @@ static func lat_lon_to_vec(lat_deg: float, lon_deg: float) -> Vector3:
 	var y = sin(lat)
 	var z = cos(lat) * sin(lon)
 	return Vector3(x, y, z).normalized()
-
-
-static func cell_height_gradient(cell : CellData, cells : Array[CellData]):
-	var gradient = Vector3.ZERO
-	for n_id in cell.neighbours:
-		var n = cells[n_id]
-		var n_pos = n.unit_pos
-		var nh = max(0, n.height)
-		
-		var dir = (n_pos - cell.unit_pos).normalized()
-		var dh = nh - max(0, cell.height)     # >0 = uphill, <0 = downhill
-	
-		# accumulate downhill directions
-		if dh < 0:
-			gradient += dir * abs(dh)
-	
-	return gradient

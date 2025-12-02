@@ -98,7 +98,14 @@ vec4 color_from_temperature_data(float temperature) {
 }
 
 vec4 color_from_wind_data(float wind){
-	return texture(wind_gradient, vec2(max(0.01, wind), 0.0));
+	vec4 c = texture(wind_gradient, vec2(max(0.01, abs(wind)), 0.0));
+	if (wind < 0.0) c *= 0.8;
+	return c;
+}
+
+vec4 color_from_precipitation_data(float precipitation) {
+	if (precipitation < 0.0) return vec4(0.0); // black out water
+	return texture(wind_gradient, vec2(clamp(precipitation, 0.001, 0.999), 0.0));
 }
 
 // DO NOT DECODE ID IN FRAGMENT
@@ -121,6 +128,7 @@ void vertex() {
 	if (vis_type == 5) COLOR = color_from_temperature_data(data); // temp
 	if (vis_type == 6) COLOR = color_from_ocean_current_data(data); // currents
 	if (vis_type == 7) COLOR = color_from_wind_data(data); // wind
-	if (vis_type == 8) COLOR = texture(precipitation_gradient, vec2(data, 0.0)); // ocean boundary
-	if (vis_type == 9) COLOR = texture(precipitation_gradient, vec2(data, 0.0)); // precipitation
+	if (vis_type == 8) COLOR = texture(wind_gradient, vec2(clamp(data, 0.001, 0.999), 0.0)); // ocean boundary
+	if (vis_type == 9) COLOR = color_from_precipitation_data(data); // precipitation
+	if (vis_type == 10) COLOR = texture(wind_gradient, vec2(clamp(data, 0.001, 0.999), 0.0)); // slope
 }

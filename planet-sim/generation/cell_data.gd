@@ -17,6 +17,7 @@ var current_type : int = -100
 var wind_dir : Vector3 = Vector3.ZERO
 var precipitation : float = 0
 var distance_to_ocean_boundary : int = -1
+var height_gradient : Vector3
 
 func _init(cell_id : int, pos : Vector3) -> void:
 	id = cell_id
