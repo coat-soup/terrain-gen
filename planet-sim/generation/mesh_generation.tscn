@@ -46,7 +46,7 @@ continent_blur_steps = 2
 metadata/_custom_type_script = "uid://dfgjdkc60354l"
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_wqit5"]
-seed = 535531207
+seed = -326715271
 frequency = 1.0
 
 [sub_resource type="Resource" id="Resource_f46qa"]
@@ -96,10 +96,10 @@ itcz_width = 0.3
 metadata/_custom_type_script = "uid://byj0yjlw3d0nx"
 
 [node name="MeshGeneration" type="Node3D"]
-transform = Transform3D(0.774072, 0.510858, 0.373946, 0, 0.590662, -0.806919, -0.633097, 0.624614, 0.457215, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(-0.544115, -0.49217, -0.679493, 0.644937, 0.272667, -0.71394, 0.536656, -0.826696, 0.169057, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 material_override = ExtResource("1_7is13")
 mesh = SubResource("ArrayMesh_8qm1f")
 

@@ -15,9 +15,10 @@ func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellDa
 		var ocean_dir = HeightGradientCalculator.get_boundary_dir(cell, cells).normalized()
 		cell.precipitation = (
 			(cell.wind_dir.length()
-			* (1.0 - float(cell.distance_to_ocean_boundary)/cutoff*2))
+			* (1.0 - float(cell.distance_to_ocean_boundary)/cutoff))
 			* cell.height_gradient.length()
-			* max(0, ocean_dir.dot(-cell.wind_dir.normalized()))
+			* max(0.0001, ocean_dir.dot(-cell.wind_dir.normalized()))
+			* 4
 		)
 		
 		#cell.precipitation = cell.height_gradient.normalized().dot(cell.wind_dir) * cell.height_gradient.length() ** 2
@@ -26,8 +27,8 @@ func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellDa
 		
 		#cell.precipitation = 1.0 if (ocean_dir.dot(-cell.wind_dir.normalized()) > 0.0) else 0.0
 		
-	#blur(cells)
-	fill(cells)
+	#fill(cells)
+	blur(cells)
 		
 	return cells
 

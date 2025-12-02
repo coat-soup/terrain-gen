@@ -105,7 +105,7 @@ vec4 color_from_wind_data(float wind){
 
 vec4 color_from_precipitation_data(float precipitation) {
 	if (precipitation < 0.0) return vec4(0.0); // black out water
-	return texture(wind_gradient, vec2(clamp(precipitation, 0.001, 0.999), 0.0));
+	return texture(wind_gradient, vec2(clamp(precipitation, 0.00, 0.999), 0.0));
 }
 
 // DO NOT DECODE ID IN FRAGMENT
