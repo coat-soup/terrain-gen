@@ -5,6 +5,7 @@ uniform sampler2D water_gradient;
 uniform sampler2D stress_gradient;
 uniform sampler2D temperature_gradient;
 uniform sampler2D wind_gradient;
+uniform sampler2D precipitation_gradient;
 
 uniform sampler2D data_tex;
 uniform int data_tex_size;
@@ -112,12 +113,14 @@ void vertex() {
 	uint face_id = decode_id(COLOR);
 	float data = get_data(int(face_id));
 
-	if (vis_type == 0) COLOR = vec4(COLOR.a);
-	if (vis_type == 1) COLOR = color_from_plate_data(data);
-	if (vis_type == 2) COLOR = vec4(data);
-	if (vis_type == 3) COLOR = texture(stress_gradient, vec2(min(1.0, data / 2.0 + 0.5), 0.0));
+	if (vis_type == 0) COLOR = vec4(COLOR.a); // cell id
+	if (vis_type == 1) COLOR = color_from_plate_data(data); // plate id
+	if (vis_type == 2) COLOR = vec4(data); // cell position
+	if (vis_type == 3) COLOR = texture(stress_gradient, vec2(min(1.0, data / 2.0 + 0.5), 0.0)); // plate stress
 	if (vis_type == 4){ COLOR = color_from_height_data(data);}//VERTEX += NORMAL * data / 20.0;}
-	if (vis_type == 5) COLOR = color_from_temperature_data(data);
-	if (vis_type == 6) COLOR = color_from_ocean_current_data(data);
-	if (vis_type == 7) COLOR = color_from_wind_data(data);
+	if (vis_type == 5) COLOR = color_from_temperature_data(data); // temp
+	if (vis_type == 6) COLOR = color_from_ocean_current_data(data); // currents
+	if (vis_type == 7) COLOR = color_from_wind_data(data); // wind
+	if (vis_type == 8) COLOR = texture(precipitation_gradient, vec2(data, 0.0)); // ocean boundary
+	if (vis_type == 9) COLOR = texture(precipitation_gradient, vec2(data, 0.0)); // precipitation
 }
