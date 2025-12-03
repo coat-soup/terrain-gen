@@ -7,6 +7,8 @@ uniform sampler2D temperature_gradient;
 uniform sampler2D wind_gradient;
 uniform sampler2D precipitation_gradient;
 
+uniform vec4 climate_zone_colours[16] : source_color;
+
 uniform sampler2D data_tex;
 uniform int data_tex_size;
 uniform int vis_type;
@@ -105,7 +107,7 @@ vec4 color_from_wind_data(float wind){
 
 vec4 color_from_precipitation_data(float precipitation) {
 	if (precipitation < 0.0) return vec4(0.0); // black out water
-	return texture(wind_gradient, vec2(clamp(precipitation, 0.00, 0.999), 0.0));
+	return texture(wind_gradient, vec2(clamp(precipitation, 0.002, 0.999), 0.0));
 }
 
 // DO NOT DECODE ID IN FRAGMENT
@@ -131,4 +133,5 @@ void vertex() {
 	if (vis_type == 8) COLOR = texture(wind_gradient, vec2(clamp(data, 0.001, 0.999), 0.0)); // ocean boundary
 	if (vis_type == 9) COLOR = color_from_precipitation_data(data); // precipitation
 	if (vis_type == 10) COLOR = texture(wind_gradient, vec2(clamp(data, 0.001, 0.999), 0.0)); // slope
+	if (vis_type == 11) COLOR = data != -1.0? climate_zone_colours[int(data)] : vec4(0.0);
 }
