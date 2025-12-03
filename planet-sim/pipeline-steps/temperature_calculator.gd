@@ -9,6 +9,11 @@ class_name TemperatureCalculator
 
 func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellData]:
 	for cell in cells:
-		cell.temperature = lerp(equator_temp, polar_temp, abs(cell.unit_pos.y))
+		cell.temperature = lerp(equator_temp, polar_temp, abs(latitude(cell)) / 90)
 		if cell.height > 0: cell.temperature -= cell.height * height_effect
 	return cells
+
+
+func latitude(cell : CellData) -> float:
+	var lat_rad = asin(cell.unit_pos.y)
+	return rad_to_deg(lat_rad)

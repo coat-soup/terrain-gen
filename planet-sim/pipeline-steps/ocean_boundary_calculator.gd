@@ -2,7 +2,7 @@
 extends SimulationStep
 class_name OceanBoundaryCalculator
 
-@export_range(0,8) var distance_cuttoff : int = 8
+@export_range(0,30) var distance_cutoff : int = 8
 
 func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellData]:
 	for cell in cells:
@@ -11,14 +11,14 @@ func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellDa
 				cell.distance_to_ocean_boundary = 0
 				break
 	
-	for i in range(distance_cuttoff):
+	for i in range(distance_cutoff):
 		for cell in cells:
 			if cell.distance_to_ocean_boundary != -1: continue
 			for n_id in cell.neighbours:
 				if cells[n_id].distance_to_ocean_boundary == i:
 					cell.distance_to_ocean_boundary = i + 1
 					break
-			if i == distance_cuttoff - 1 and cell.distance_to_ocean_boundary == -1:
-				cell.distance_to_ocean_boundary = distance_cuttoff
+			if i == distance_cutoff - 1 and cell.distance_to_ocean_boundary == -1:
+				cell.distance_to_ocean_boundary = distance_cutoff
 	
 	return cells
