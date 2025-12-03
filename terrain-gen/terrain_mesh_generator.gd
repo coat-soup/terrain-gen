@@ -26,13 +26,13 @@ func generate_mesh():
 	init_data()
 	
 	#populate_random()
-	#populate_sphere()
-	populate_noise()
+	populate_sphere()
+	#populate_noise()
 	
-	var verts = MarchingCubes.marching_cubes(sample_data, size, iso)
+	var mc = MarchingCubes.marching_cubes(sample_data, size, iso)	
 	
-	
-	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_VERTEX] = mc["vertices"]
+	arrays[Mesh.ARRAY_NORMAL] = mc["normals"]
 	
 	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	mesh_instance.mesh = arr_mesh
@@ -80,7 +80,7 @@ func populate_sphere():
 			for x in range(size.x):
 				var pos = Vector3(x, y, z)
 				var dist2 = pos.distance_squared_to(center)
-				var value = 1.0 if dist2 <= r2 else 0.0
+				var value = r2/dist2/5
 				data[grid_to_idx(x, y, z)] = value
 
 
