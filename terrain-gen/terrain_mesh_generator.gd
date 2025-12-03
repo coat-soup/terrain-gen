@@ -6,6 +6,8 @@ class_name TerrainMeshGenerator
 @export var size : Vector3i = Vector3i.ONE * 10
 @export var iso : float = 0.5
 
+@export var planet_radius : int = 5
+
 @export var debug_data : bool = false
 
 @export var debug_noise : FastNoiseLite
@@ -26,8 +28,9 @@ func generate_mesh():
 	init_data()
 	
 	#populate_random()
-	populate_sphere()
+	#populate_sphere()
 	#populate_noise()
+	populate_planet_data()
 	
 	var mc = MarchingCubes.marching_cubes(sample_data, size, iso)	
 	
@@ -36,6 +39,8 @@ func generate_mesh():
 	
 	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	mesh_instance.mesh = arr_mesh
+	
+	mesh_instance.global_position = -size /2.0
 
 
 func _process(delta: float) -> void:
@@ -45,7 +50,7 @@ func _process(delta: float) -> void:
 			for x in range(size.x):
 				if data[grid_to_idx(x,y,z)] > iso:
 					var color : Color = lerp(Color.BLACK, Color.WHITE, data[grid_to_idx(x,y,z)])
-					DebugDraw3D.draw_square(Vector3(x,y,z), 0.2, color)
+					DebugDraw3D.draw_square(Vector3(x,y,z) -size /2.0, 0.2, color)
 
 
 func init_data():
@@ -89,3 +94,59 @@ func populate_noise():
 		for y in range(size.y):
 			for x in range(size.x):
 				data[grid_to_idx(x,y,z)] = debug_noise.get_noise_3dv(Vector3(x,y,z))
+
+
+func populate_planet_data():
+	var cells : Array[CellData] = PlanetSimSaveData.load_save()
+	var center : Vector3 = Vector3(size) / 2.0
+	for z in range(size.z):
+		for y in range(size.y):
+			for x in range(size.x):
+				
+				var pos = Vector3(x, y, z)
+				var offset = pos - center
+				var r = offset.length()
+				
+				if r == 0.0:
+					data[grid_to_idx(x,y,z)] = -1.0
+					continue
+				
+				var normal = offset / r
+				
+				# Find the closest Goldbert cell for this direction
+				var cell_id = get_planet_cell_from_normal(normal, cells)
+				var cell = cells[cell_id]
+				
+				# Planet surface height at this direction
+				var surface_radius = planet_radius + cell.height
+				#if cell.height > 0: surface_radius += cell.height
+				
+				# Density for marching cubes:
+				# >0 = solid
+				# <0 = air
+				var density = surface_radius - r
+				
+				data[grid_to_idx(x,y,z)] = density
+				
+				# TODO: can later implement chunking and start search from cell of neighbouring chunk (close chunks will have close corresponding cells)
+				
+
+func get_planet_cell_from_normal(normal : Vector3, cells : Array[CellData], start_cell: int = 0) -> int:
+	var id : int = start_cell
+	var best_dot : float = normal.dot(cells[start_cell].unit_pos)
+	
+	while true:
+		var improved = false
+		
+		for n_id in cells[id].neighbours:
+			var d = normal.dot(cells[n_id].unit_pos)
+			if d > best_dot:
+				best_dot = d
+				id = n_id
+				improved = true
+				break
+			
+		if not improved:
+			return id
+	
+	return id
