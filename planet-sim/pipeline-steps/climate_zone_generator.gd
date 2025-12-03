@@ -10,9 +10,14 @@ func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellDa
 		var climate : ClimateZone = climate_zones[i]
 		for cell in cells:
 			var lat = latitude(cell)
-			if abs(lat) > climate.latitude_range: continue
+			if abs(lat) < climate.latitude_range.x or abs(lat) > climate.latitude_range.y: continue
 			if cell.temperature < climate.temperature_range.x or cell.temperature > climate.temperature_range.y: continue
 			if cell.precipitation < climate.precipitation_range.x or cell.precipitation > climate.precipitation_range.y: continue
+			
+			var advanced_climate = climate as ClimateZoneAdvanced
+			if advanced_climate:
+				if cell.distance_to_ocean_boundary < advanced_climate.ocean_distance_limit.x or cell.distance_to_ocean_boundary > advanced_climate.ocean_distance_limit.y: continue
+			
 			cell.climate_zone_id = i
 	
 	return cells
