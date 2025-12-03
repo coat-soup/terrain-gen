@@ -12,6 +12,10 @@ signal finished
 @export_tool_button("Simulate", "SphereMesh") var simulate_action = run_pipeline
 @export var pipeline_start_stage : int = 0
 
+@export_group("Save and load")
+@export_tool_button("Save planet data", "Save") var save_data_action = save_sim_data
+@export_tool_button("Load planet data", "Load") var load_data_action = load_sim_data
+
 var cells : Array[CellData]
 var ocean_currents : Array[OceanCurrent]
 
@@ -38,5 +42,13 @@ func run_pipeline():
 	finished.emit()
 
 
-func get_face_center_pos():
-	pass
+func save_sim_data():
+	print("Saving simulation data to ", OS.get_data_dir())
+	PlanetSimSaveData.write_save(cells)
+
+
+func load_sim_data():
+	print("Loading simulation data")
+	init_cells()
+	PlanetSimSaveData.load_save(cells)
+	finished.emit()
