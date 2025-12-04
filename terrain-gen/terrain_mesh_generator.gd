@@ -2,17 +2,22 @@
 extends Node
 class_name TerrainMeshGenerator
 
+@export var camera : Node3D
+var camera_chunk_pos : Vector3i
+
 @export var planet_radius : int = 10
 
-var chunks : Array[TerrainChunk]
-@export var chunk_size : int = 16
-@export var n_chunks_cubed : int = 2
+var chunks : Dictionary = {}
+@export var chunk_size : int = 8
+@export var render_distance : int = 2
 
 @export var material : Material
 
 @export_tool_button("Generate", "SphereMesh") var generate_action = generate_mesh
 
 var sim_cells : Array[CellData]
+
+@export var debug_run_chunking_in_editor : bool = false
 
 
 func _ready() -> void:
@@ -28,26 +33,64 @@ func generate_mesh():
 	
 	sim_cells = PlanetSimSaveData.load_save()
 	
-	chunks.resize(n_chunks_cubed*n_chunks_cubed*n_chunks_cubed)
+	material.set("shader_parameter/base_height", planet_radius)
 	
-	for x in range(n_chunks_cubed):
-		for y in range(n_chunks_cubed):
-			for z in range(n_chunks_cubed):
-				var chunk : TerrainChunk = TerrainChunk.new()
-				chunks[grid_to_idx(x,y,z)] = chunk
-				add_child(chunk)
-				chunk.owner = get_tree().edited_scene_root
-				var half = float(n_chunks_cubed - 1) / 2.0
-				chunk.position = (Vector3(x, y, z) - Vector3(half, half, half)) * chunk_size
-				chunk.chunk_pos = Vector3i(x,y,z)
-				chunk.size = Vector3i(chunk_size+1,chunk_size+1,chunk_size+1)
-				chunk.sim_cell = sim_cells[get_planet_cell_from_normal(chunk.position, sim_cells, get_chunk_sim_search_starting_cell(chunk))]
-				chunk.planet_radius = planet_radius
-				chunk.terrain_mesh_generator = self
-				
-				chunk.material_overlay = material
-				
-				chunk.generate_mesh()
+	generate_chunks_around_camera()
+
+
+func load_chunk(position : Vector3i):
+	var chunk : TerrainChunk = TerrainChunk.new()
+	chunks[position] = chunk
+	chunk.position = position * chunk_size
+	chunk.chunk_pos = position
+	chunk.size = Vector3i(chunk_size+1,chunk_size+1,chunk_size+1)
+	chunk.sim_cell = sim_cells[get_planet_cell_from_normal(chunk.position, sim_cells, get_chunk_sim_search_starting_cell(chunk))]
+	chunk.planet_radius = planet_radius
+	chunk.terrain_mesh_generator = self
+	
+	chunk.material_overlay = material
+	
+	#var thread = Thread.new()
+	#thread.start(chunk.generate_mesh)
+	chunk.generate_mesh_complete()
+	#while(chunk_thread.is_started()):
+		#await get_tree().process_frame
+	
+	#chunk.generate_mesh.call_deferred()
+	
+	#chunk_thread.start.call_deferred(chunk.generate_mesh)
+	#chunk_thread.wait_to_finish()
+	
+	add_child.call_deferred(chunk)
+
+
+func unload_chunk(position : Vector3i):
+	chunks[position].queue_free.call_deferred()
+	chunks.erase(position)
+
+
+func generate_chunks_around_camera():
+	camera_chunk_pos = Vector3i(camera.global_position / chunk_size)
+	
+	for chunk_pos in chunks.keys():
+		if (abs(chunk_pos.x - camera_chunk_pos.x) > render_distance or
+			abs(chunk_pos.y - camera_chunk_pos.y) > render_distance or
+			abs(chunk_pos.z - camera_chunk_pos.z) > render_distance):
+				unload_chunk(chunk_pos)
+	
+	for dx in range(-render_distance, render_distance + 1):
+		for dy in range(-render_distance, render_distance + 1):
+			for dz in range(-render_distance, render_distance + 1):
+				if not chunks.has(camera_chunk_pos + Vector3i(dx,dy,dz)):
+					load_chunk(camera_chunk_pos + Vector3i(dx,dy,dz))
+
+
+func _process(delta: float) -> void:
+	if Engine.is_editor_hint() and not debug_run_chunking_in_editor: return
+	
+	var c_pos = Vector3i(camera.global_position / chunk_size)
+	if c_pos != camera_chunk_pos:
+		generate_chunks_around_camera()
 
 
 func get_chunk_sim_search_starting_cell(chunk : TerrainChunk) -> int:
@@ -55,9 +98,9 @@ func get_chunk_sim_search_starting_cell(chunk : TerrainChunk) -> int:
 		for dy in [-1,0,1]:
 			for dz in [-1,0,1]:
 				if dx == 0 and dy == 0 and dz == 0: continue
-				var n_chunk_id = grid_to_idx(chunk.chunk_pos.x + dx, chunk.chunk_pos.y + dy, chunk.chunk_pos.z + dz)
-				if n_chunk_id != -1 and chunks[n_chunk_id]:
-					return chunks[n_chunk_id].sim_cell.id
+				var d = Vector3i(chunk.chunk_pos.x + dx, chunk.chunk_pos.y + dy, chunk.chunk_pos.z + dz)
+				if chunks.has(d):
+					return chunks[d].sim_cell.id
 	return 0
 
 
@@ -80,19 +123,3 @@ static func get_planet_cell_from_normal(normal : Vector3, cells : Array[CellData
 			return id
 	
 	return id
-
-
-func grid_to_idx(x : int, y : int, z : int) -> int:
-	if x < 0 or y < 0 or z < 0: return -1
-	if x >= n_chunks_cubed or y >= n_chunks_cubed or z >= n_chunks_cubed: return -1
-	return x + y * n_chunks_cubed + z * n_chunks_cubed * n_chunks_cubed
-
-
-func world_to_chunk(world_pos: Vector3) -> Vector3i:
-	var half = float(n_chunks_cubed - 1) * 0.5
-	var chunk_pos_f = world_pos / chunk_size + Vector3(half, half, half)
-	return Vector3i(
-		floor(chunk_pos_f.x),
-		floor(chunk_pos_f.y),
-		floor(chunk_pos_f.z)
-	)

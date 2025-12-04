@@ -2,6 +2,8 @@
 extends MeshInstance3D
 class_name TerrainChunk
 
+signal finished_generating
+
 var sim_cell : CellData
 
 var data : PackedFloat32Array
@@ -11,20 +13,26 @@ var planet_radius : float
 
 var terrain_mesh_generator : TerrainMeshGenerator
 
+var data_thread : Thread
 
-func generate_mesh():
-	var arr_mesh = ArrayMesh.new()
-	var arrays = []
-	arrays.resize(Mesh.ARRAY_MAX)
-	
-	init_data()
+func _ready() -> void:
+	owner = get_tree().edited_scene_root
+
+func generate_mesh_complete():
+	data.clear()
+	data = PackedFloat32Array()
+	data.resize(size.x * size.y * size.z)
 	
 	populate_planet_data()
 	
 	var mc = MarchingCubes.marching_cubes(sample_data, size, 0.0)
 	
+	var arr_mesh = ArrayMesh.new()
+	var arrays = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	
 	if mc["vertices"].size() < 3:
-		print("chunk has no solid datapoints")
+		#print("chunk has no solid datapoints")
 		return
 	
 	arrays[Mesh.ARRAY_VERTEX] = mc["vertices"]
@@ -32,12 +40,45 @@ func generate_mesh():
 	
 	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	mesh = arr_mesh
+	
+	finished_generating.emit()
 
 
-func init_data():
+func generate_mesh():
 	data.clear()
 	data = PackedFloat32Array()
 	data.resize(size.x * size.y * size.z)
+	
+	populate_planet_data()
+	
+	data_thread.start(run_data_thread)
+
+
+func run_data_thread():
+	var mc = MarchingCubes.marching_cubes(sample_data, size, 0.0)
+	data_thread_finished.call_deferred()
+	return mc
+
+
+func data_thread_finished():
+	var mc = data_thread.wait_to_finish()
+	
+	var arr_mesh = ArrayMesh.new()
+	var arrays = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	
+	
+	if mc["vertices"].size() < 3:
+		#print("chunk has no solid datapoints")
+		return
+	
+	arrays[Mesh.ARRAY_VERTEX] = mc["vertices"]
+	arrays[Mesh.ARRAY_NORMAL] = mc["normals"]
+	
+	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	mesh = arr_mesh
+	
+	finished_generating.emit()
 
 
 func sample_data(x : int, y : int, z : int) -> float:
@@ -54,6 +95,8 @@ func populate_planet_data():
 	for z in range(size.z):
 		for y in range(size.y):
 			for x in range(size.x):
+				data[grid_to_idx(x,y,z)] = 1.0
+				
 				var world_pos = position + Vector3(x, y, z)
 				var offset = world_pos
 				var r = offset.length()
@@ -70,3 +113,9 @@ func populate_planet_data():
 				var density = surface_radius - r
 
 				data[grid_to_idx(x,y,z)] = density
+
+
+func _exit_tree() -> void:
+	return # thread is handled by terrainmeshgen class
+	if data_thread.is_started():
+		data_thread.wait_to_finish()

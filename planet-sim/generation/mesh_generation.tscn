@@ -136,4 +136,4 @@ pipeline = Array[ExtResource("5_37hj5")]([SubResource("Resource_na7qb"), SubReso
 
 [node name="CellDataVisualiser" type="Node" parent="."]
 script = ExtResource("3_wh2la")
-vis_type = 4
+vis_type = 9
