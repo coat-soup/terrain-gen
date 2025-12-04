@@ -19,10 +19,39 @@ var sim_cells : Array[CellData]
 
 @export var debug_run_chunking_in_editor : bool = false
 
+var chunk_threads : Array[Thread] = []
+
 
 func _ready() -> void:
 	pass
 	#generate_mesh()
+
+
+func _process(delta: float) -> void:
+	if Engine.is_editor_hint() and not debug_run_chunking_in_editor: return
+	
+	var c_pos = Vector3i(camera.global_position / chunk_size)
+	if c_pos != camera_chunk_pos:
+		camera_chunk_pos = Vector3i(camera.global_position / chunk_size)
+		
+		print("wait iters")
+		var wait_iters : int = 0
+		while chunk_threads.size() > 1:
+			wait_iters += 1
+			if wait_iters > 5000:
+				for thread in chunk_threads:
+					thread.wait_to_finish()
+				chunk_threads.clear()
+			else:
+				await get_tree().process_frame
+			print("waiting for chunk overthread")
+		
+		var new_thread = Thread.new()
+		chunk_threads.append(new_thread)
+		
+		new_thread.start(generate_chunks_around_camera)
+		#chunk_load_task_id = WorkerThreadPool.add_task(generate_chunks_around_camera)
+		#WorkerThreadPool.wait_for_task_completion.call_deferred(task_id)
 
 
 func generate_mesh():
@@ -50,16 +79,9 @@ func load_chunk(position : Vector3i):
 	
 	chunk.material_overlay = material
 	
-	#var thread = Thread.new()
-	#thread.start(chunk.generate_mesh)
-	chunk.generate_mesh_complete()
-	#while(chunk_thread.is_started()):
-		#await get_tree().process_frame
-	
-	#chunk.generate_mesh.call_deferred()
-	
-	#chunk_thread.start.call_deferred(chunk.generate_mesh)
-	#chunk_thread.wait_to_finish()
+	chunk.generate_mesh_complete(0)
+	#WorkerThreadPool.add_group_task(chunk.generate_mesh_complete, 1, 1)
+	#chunk.generate_mesh()
 	
 	add_child.call_deferred(chunk)
 
@@ -70,7 +92,9 @@ func unload_chunk(position : Vector3i):
 
 
 func generate_chunks_around_camera():
-	camera_chunk_pos = Vector3i(camera.global_position / chunk_size)
+	if chunk_threads.size() > 1 and chunk_threads[0].is_started():
+		chunk_threads[0].wait_to_finish()
+		chunk_threads.remove_at(0)
 	
 	for chunk_pos in chunks.keys():
 		if (abs(chunk_pos.x - camera_chunk_pos.x) > render_distance or
@@ -83,14 +107,6 @@ func generate_chunks_around_camera():
 			for dz in range(-render_distance, render_distance + 1):
 				if not chunks.has(camera_chunk_pos + Vector3i(dx,dy,dz)):
 					load_chunk(camera_chunk_pos + Vector3i(dx,dy,dz))
-
-
-func _process(delta: float) -> void:
-	if Engine.is_editor_hint() and not debug_run_chunking_in_editor: return
-	
-	var c_pos = Vector3i(camera.global_position / chunk_size)
-	if c_pos != camera_chunk_pos:
-		generate_chunks_around_camera()
 
 
 func get_chunk_sim_search_starting_cell(chunk : TerrainChunk) -> int:
@@ -123,3 +139,9 @@ static func get_planet_cell_from_normal(normal : Vector3, cells : Array[CellData
 			return id
 	
 	return id
+
+
+func _exit_tree() -> void:
+	for thread in chunk_threads:
+		if thread.is_started():
+			thread.wait_to_finish()

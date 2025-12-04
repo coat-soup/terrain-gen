@@ -12,13 +12,14 @@ var size : Vector3i
 var planet_radius : float
 
 var terrain_mesh_generator : TerrainMeshGenerator
+var mc : Dictionary
 
-var data_thread : Thread
 
 func _ready() -> void:
 	owner = get_tree().edited_scene_root
 
-func generate_mesh_complete():
+
+func generate_mesh_complete(group_work_id : int):
 	data.clear()
 	data = PackedFloat32Array()
 	data.resize(size.x * size.y * size.z)
@@ -51,17 +52,21 @@ func generate_mesh():
 	
 	populate_planet_data()
 	
-	data_thread.start(run_data_thread)
+	#data_thread.start(run_data_thread)
+	
+	var task_id = WorkerThreadPool.add_task(run_data_thread)
+	WorkerThreadPool.wait_for_task_completion(task_id)
+	data_thread_finished()
 
 
 func run_data_thread():
 	var mc = MarchingCubes.marching_cubes(sample_data, size, 0.0)
-	data_thread_finished.call_deferred()
+	#data_thread_finished.call_deferred()
 	return mc
 
 
 func data_thread_finished():
-	var mc = data_thread.wait_to_finish()
+	#var mc = data_thread.wait_to_finish()
 	
 	var arr_mesh = ArrayMesh.new()
 	var arrays = []
@@ -111,11 +116,5 @@ func populate_planet_data():
 				
 				var surface_radius = planet_radius + terrain_mesh_generator.sim_cells[cell].height
 				var density = surface_radius - r
-
+				
 				data[grid_to_idx(x,y,z)] = density
-
-
-func _exit_tree() -> void:
-	return # thread is handled by terrainmeshgen class
-	if data_thread.is_started():
-		data_thread.wait_to_finish()
