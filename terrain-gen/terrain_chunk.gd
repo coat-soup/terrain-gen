@@ -9,11 +9,10 @@ var sim_cell : CellData
 var data : PackedFloat32Array
 var chunk_pos : Vector3i
 var size : Vector3i
-var planet_radius : float
 
 var terrain_mesh_generator : TerrainMeshGenerator
 var mc : Dictionary
-
+var marching_cubes_cs  = preload("res://terrain-gen/MarchingCubes.cs")
 
 func _ready() -> void:
 	owner = get_tree().edited_scene_root
@@ -26,7 +25,9 @@ func generate_mesh_complete(group_work_id : int):
 	
 	populate_planet_data()
 	
-	var mc = MarchingCubes.marching_cubes(sample_data, size, 0.0)
+	#var mc = MarchingCubes.marching_cubes(sample_data, size, 0.0)
+	
+	var mc = marching_cubes_cs.Generate(data, size, 0.0, 1.0)
 	
 	var arr_mesh = ArrayMesh.new()
 	var arrays = []
@@ -114,7 +115,7 @@ func populate_planet_data():
 				
 				var cell = TerrainMeshGenerator.get_planet_cell_from_normal(offset, terrain_mesh_generator.sim_cells, sim_cell.id)
 				
-				var surface_radius = planet_radius + terrain_mesh_generator.sim_cells[cell].height
+				var surface_radius = terrain_mesh_generator.planet_radius + terrain_mesh_generator.sim_cells[cell].height * terrain_mesh_generator.terrain_height
 				var density = surface_radius - r
 				
 				data[grid_to_idx(x,y,z)] = density

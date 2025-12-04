@@ -6,6 +6,7 @@ class_name TerrainMeshGenerator
 var camera_chunk_pos : Vector3i
 
 @export var planet_radius : int = 10
+@export var terrain_height : float = 10.0
 
 var chunks : Dictionary = {}
 @export var chunk_size : int = 8
@@ -21,6 +22,8 @@ var sim_cells : Array[CellData]
 
 var chunk_threads : Array[Thread] = []
 
+@export var run_threaded : bool = true
+
 
 func _ready() -> void:
 	pass
@@ -34,7 +37,6 @@ func _process(delta: float) -> void:
 	if c_pos != camera_chunk_pos:
 		camera_chunk_pos = Vector3i(camera.global_position / chunk_size)
 		
-		print("wait iters")
 		var wait_iters : int = 0
 		while chunk_threads.size() > 1:
 			wait_iters += 1
@@ -46,12 +48,17 @@ func _process(delta: float) -> void:
 				await get_tree().process_frame
 			print("waiting for chunk overthread")
 		
-		var new_thread = Thread.new()
-		chunk_threads.append(new_thread)
 		
-		new_thread.start(generate_chunks_around_camera)
+		if run_threaded: run_chunk_thread()
+		else: generate_chunks_around_camera()
 		#chunk_load_task_id = WorkerThreadPool.add_task(generate_chunks_around_camera)
 		#WorkerThreadPool.wait_for_task_completion.call_deferred(task_id)
+
+
+func run_chunk_thread():
+	var new_thread = Thread.new()
+	chunk_threads.append(new_thread)
+	new_thread.start(generate_chunks_around_camera)
 
 
 func generate_mesh():
@@ -62,9 +69,11 @@ func generate_mesh():
 	
 	sim_cells = PlanetSimSaveData.load_save()
 	
-	material.set("shader_parameter/base_height", planet_radius)
+	material.set("shader_parameter/planet_radius", planet_radius)
+	material.set("shader_parameter/terrain_height", terrain_height)
 	
-	generate_chunks_around_camera()
+	if run_threaded: run_chunk_thread()
+	else: generate_chunks_around_camera()
 
 
 func load_chunk(position : Vector3i):
@@ -74,7 +83,6 @@ func load_chunk(position : Vector3i):
 	chunk.chunk_pos = position
 	chunk.size = Vector3i(chunk_size+1,chunk_size+1,chunk_size+1)
 	chunk.sim_cell = sim_cells[get_planet_cell_from_normal(chunk.position, sim_cells, get_chunk_sim_search_starting_cell(chunk))]
-	chunk.planet_radius = planet_radius
 	chunk.terrain_mesh_generator = self
 	
 	chunk.material_overlay = material
