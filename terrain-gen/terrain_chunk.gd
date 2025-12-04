@@ -1,0 +1,72 @@
+@tool
+extends MeshInstance3D
+class_name TerrainChunk
+
+var sim_cell : CellData
+
+var data : PackedFloat32Array
+var chunk_pos : Vector3i
+var size : Vector3i
+var planet_radius : float
+
+var terrain_mesh_generator : TerrainMeshGenerator
+
+
+func generate_mesh():
+	var arr_mesh = ArrayMesh.new()
+	var arrays = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	
+	init_data()
+	
+	populate_planet_data()
+	
+	var mc = MarchingCubes.marching_cubes(sample_data, size, 0.0)
+	
+	if mc["vertices"].size() < 3:
+		print("chunk has no solid datapoints")
+		return
+	
+	arrays[Mesh.ARRAY_VERTEX] = mc["vertices"]
+	arrays[Mesh.ARRAY_NORMAL] = mc["normals"]
+	
+	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	mesh = arr_mesh
+
+
+func init_data():
+	data.clear()
+	data = PackedFloat32Array()
+	data.resize(size.x * size.y * size.z)
+
+
+func sample_data(x : int, y : int, z : int) -> float:
+	if x < 0 or y < 0 or z < 0: return 0.0
+	if x >= size.x or y >= size.y or z >= size.z: return 0.0
+	return data[grid_to_idx(x,y,z)]
+
+
+func grid_to_idx(x : int, y : int, z : int) -> int:
+	return x + y * size.x + z * size.x * size.y
+
+
+func populate_planet_data():
+	for z in range(size.z):
+		for y in range(size.y):
+			for x in range(size.x):
+				var world_pos = position + Vector3(x, y, z)
+				var offset = world_pos
+				var r = offset.length()
+				
+				if r == 0.0:
+					data[grid_to_idx(x,y,z)] = -1.0
+					continue
+				
+				var normal = offset / r
+				
+				var cell = TerrainMeshGenerator.get_planet_cell_from_normal(offset, terrain_mesh_generator.sim_cells, sim_cell.id)
+				
+				var surface_radius = planet_radius + terrain_mesh_generator.sim_cells[cell].height
+				var density = surface_radius - r
+
+				data[grid_to_idx(x,y,z)] = density

@@ -2,136 +2,66 @@
 extends Node
 class_name TerrainMeshGenerator
 
-@export var mesh_instance : MeshInstance3D
-@export var size : Vector3i = Vector3i.ONE * 10
-@export var iso : float = 0.5
+@export var planet_radius : int = 10
 
-@export var planet_radius : int = 5
+var chunks : Array[TerrainChunk]
+@export var chunk_size : int = 16
+@export var n_chunks_cubed : int = 2
 
-@export var debug_data : bool = false
-
-@export var debug_noise : FastNoiseLite
+@export var material : Material
 
 @export_tool_button("Generate", "SphereMesh") var generate_action = generate_mesh
 
-var data : PackedFloat32Array
+var sim_cells : Array[CellData]
+
 
 func _ready() -> void:
-	generate_mesh()
+	pass
+	#generate_mesh()
 
 
 func generate_mesh():
-	var arr_mesh = ArrayMesh.new()
-	var arrays = []
-	arrays.resize(Mesh.ARRAY_MAX)
+	print("generating chunks")
+	for child in get_children():
+		child.queue_free()
+	chunks.clear()
 	
-	init_data()
+	sim_cells = PlanetSimSaveData.load_save()
 	
-	#populate_random()
-	#populate_sphere()
-	#populate_noise()
-	populate_planet_data()
+	chunks.resize(n_chunks_cubed*n_chunks_cubed*n_chunks_cubed)
 	
-	var mc = MarchingCubes.marching_cubes(sample_data, size, iso)	
-	
-	arrays[Mesh.ARRAY_VERTEX] = mc["vertices"]
-	arrays[Mesh.ARRAY_NORMAL] = mc["normals"]
-	
-	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	mesh_instance.mesh = arr_mesh
-	
-	mesh_instance.global_position = -size /2.0
-
-
-func _process(delta: float) -> void:
-	if not debug_data: return
-	for z in range(size.z):
-		for y in range(size.y):
-			for x in range(size.x):
-				if data[grid_to_idx(x,y,z)] > iso:
-					var color : Color = lerp(Color.BLACK, Color.WHITE, data[grid_to_idx(x,y,z)])
-					DebugDraw3D.draw_square(Vector3(x,y,z) -size /2.0, 0.2, color)
-
-
-func init_data():
-	data.clear()
-	data = PackedFloat32Array()
-	data.resize(size.x * size.y * size.z)
-
-
-func sample_data(x : int, y : int, z : int) -> float:
-	if x < 0 or y < 0 or z < 0: return 0.0
-	if x >= size.x or y >= size.y or z >= size.y: return 0.0
-	return data[grid_to_idx(x,y,z)]
-
-
-func grid_to_idx(x : int, y : int, z : int) -> int:
-	return x + y * size.x + z * size.x * size.y
-
-
-func populate_random():
-	for z in range(size.z):
-		for y in range(size.y):
-			for x in range(size.x):
-				data[grid_to_idx(x,y,z)] = randf()
-
-
-func populate_sphere():
-	var center = Vector3(size) / 2.0
-	var r2 = (min(size.x, size.y, size.z) / 3) ** 2
-	
-	for z in range(size.z):
-		for y in range(size.y):
-			for x in range(size.x):
-				var pos = Vector3(x, y, z)
-				var dist2 = pos.distance_squared_to(center)
-				var value = r2/dist2/5
-				data[grid_to_idx(x, y, z)] = value
-
-
-func populate_noise():
-	for z in range(size.z):
-		for y in range(size.y):
-			for x in range(size.x):
-				data[grid_to_idx(x,y,z)] = debug_noise.get_noise_3dv(Vector3(x,y,z))
-
-
-func populate_planet_data():
-	var cells : Array[CellData] = PlanetSimSaveData.load_save()
-	var center : Vector3 = Vector3(size) / 2.0
-	for z in range(size.z):
-		for y in range(size.y):
-			for x in range(size.x):
+	for x in range(n_chunks_cubed):
+		for y in range(n_chunks_cubed):
+			for z in range(n_chunks_cubed):
+				var chunk : TerrainChunk = TerrainChunk.new()
+				chunks[grid_to_idx(x,y,z)] = chunk
+				add_child(chunk)
+				chunk.owner = get_tree().edited_scene_root
+				var half = float(n_chunks_cubed - 1) / 2.0
+				chunk.position = (Vector3(x, y, z) - Vector3(half, half, half)) * chunk_size
+				chunk.chunk_pos = Vector3i(x,y,z)
+				chunk.size = Vector3i(chunk_size+1,chunk_size+1,chunk_size+1)
+				chunk.sim_cell = sim_cells[get_planet_cell_from_normal(chunk.position, sim_cells, get_chunk_sim_search_starting_cell(chunk))]
+				chunk.planet_radius = planet_radius
+				chunk.terrain_mesh_generator = self
 				
-				var pos = Vector3(x, y, z)
-				var offset = pos - center
-				var r = offset.length()
+				chunk.material_overlay = material
 				
-				if r == 0.0:
-					data[grid_to_idx(x,y,z)] = -1.0
-					continue
-				
-				var normal = offset / r
-				
-				# Find the closest Goldbert cell for this direction
-				var cell_id = get_planet_cell_from_normal(normal, cells)
-				var cell = cells[cell_id]
-				
-				# Planet surface height at this direction
-				var surface_radius = planet_radius + cell.height
-				#if cell.height > 0: surface_radius += cell.height
-				
-				# Density for marching cubes:
-				# >0 = solid
-				# <0 = air
-				var density = surface_radius - r
-				
-				data[grid_to_idx(x,y,z)] = density
-				
-				# TODO: can later implement chunking and start search from cell of neighbouring chunk (close chunks will have close corresponding cells)
-				
+				chunk.generate_mesh()
 
-func get_planet_cell_from_normal(normal : Vector3, cells : Array[CellData], start_cell: int = 0) -> int:
+
+func get_chunk_sim_search_starting_cell(chunk : TerrainChunk) -> int:
+	for dx in [-1,0,1]:
+		for dy in [-1,0,1]:
+			for dz in [-1,0,1]:
+				if dx == 0 and dy == 0 and dz == 0: continue
+				var n_chunk_id = grid_to_idx(chunk.chunk_pos.x + dx, chunk.chunk_pos.y + dy, chunk.chunk_pos.z + dz)
+				if n_chunk_id != -1 and chunks[n_chunk_id]:
+					return chunks[n_chunk_id].sim_cell.id
+	return 0
+
+
+static func get_planet_cell_from_normal(normal : Vector3, cells : Array[CellData], start_cell: int = 0) -> int:
 	var id : int = start_cell
 	var best_dot : float = normal.dot(cells[start_cell].unit_pos)
 	
@@ -150,3 +80,19 @@ func get_planet_cell_from_normal(normal : Vector3, cells : Array[CellData], star
 			return id
 	
 	return id
+
+
+func grid_to_idx(x : int, y : int, z : int) -> int:
+	if x < 0 or y < 0 or z < 0: return -1
+	if x >= n_chunks_cubed or y >= n_chunks_cubed or z >= n_chunks_cubed: return -1
+	return x + y * n_chunks_cubed + z * n_chunks_cubed * n_chunks_cubed
+
+
+func world_to_chunk(world_pos: Vector3) -> Vector3i:
+	var half = float(n_chunks_cubed - 1) * 0.5
+	var chunk_pos_f = world_pos / chunk_size + Vector3(half, half, half)
+	return Vector3i(
+		floor(chunk_pos_f.x),
+		floor(chunk_pos_f.y),
+		floor(chunk_pos_f.z)
+	)

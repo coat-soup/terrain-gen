@@ -6,7 +6,7 @@ uniform float base_height;
 uniform vec3 world_center;
 
 void vertex() {
-	float height = length(VERTEX - world_center) - base_height;
+	float height = length((MODEL_MATRIX * vec4(VERTEX.rgb, 1.0)).rgb - world_center) - base_height;
 	if (height <= 0.0) COLOR = texture(water_gradient, vec2(1.0 - height, 0));
 	else COLOR = texture(height_gradient, vec2(min(0.999, height), 0));
 }
