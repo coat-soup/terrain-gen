@@ -115,20 +115,72 @@ func populate_planet_data():
 			for x in range(size.x):
 				data[grid_to_idx(x,y,z)] = 1.0
 				
-				var world_pos = position + Vector3(x, y, z) * pow(2, lod_level)
-				var offset = world_pos
-				var r = offset.length()
+				var world_pos : Vector3 = position + Vector3(x, y, z) * pow(2, lod_level)
+				var r : float = world_pos.length()
 				
 				if r == 0.0:
 					data[grid_to_idx(x,y,z)] = -1.0
 					continue
 				
-				var normal = offset / r
+				var normal : Vector3 = world_pos.normalized()
 				
-				var cell = TerrainMeshGenerator.get_planet_cell_from_normal(offset, terrain_mesh_generator.sim_cells, sim_cell.id)
+				var cell = TerrainMeshGenerator.get_planet_cell_from_normal(normal, terrain_mesh_generator.sim_cells, sim_cell.id)
 				
-				var surface_radius = terrain_mesh_generator.planet_radius + terrain_mesh_generator.sim_cells[cell].height * terrain_mesh_generator.terrain_height
+				var height : float = interpolate_value(normal, cell)
+				
+				var surface_radius = terrain_mesh_generator.planet_radius + height * terrain_mesh_generator.terrain_height
 				var density = surface_radius - r
 				
 				data[grid_to_idx(x,y,z)] = density
 				if density > 0: is_chunk_empty = false
+
+
+func interpolate_value(position : Vector3, closest : int) -> float:
+	var cells = find_delaunay_triangle(closest, position)
+	if cells.size() < 3:
+		return terrain_mesh_generator.sim_cells[closest].height
+	
+	var total_weight := 0.0
+	var value := 0.0
+	
+	for i in cells:
+		var cell = terrain_mesh_generator.sim_cells[i]
+		var d = position.distance_to(cell.unit_pos)
+	
+		var w = 1.0 / max(d, 0.00001)
+	
+		total_weight += w
+		value += cell.height * w
+	
+	return value / total_weight
+
+
+func point_in_spherical_triangle(p: Vector3, a: Vector3, b: Vector3, c: Vector3) -> bool:
+	# All vectors should already be normalized.
+	var ab = a.cross(b)
+	var bc = b.cross(c)
+	var ca = c.cross(a)
+	
+	# p must lie on the "inner" side of all great circles
+	var s1 = ab.dot(p)
+	var s2 = bc.dot(p)
+	var s3 = ca.dot(p)
+	
+	# all must have same sign (all ≥0 or all ≤0)
+	return (s1 >= 0.0 and s2 >= 0.0 and s3 >= 0.0) \
+		or (s1 <= 0.0 and s2 <= 0.0 and s3 <= 0.0)
+
+
+func find_delaunay_triangle(closest: int, p: Vector3) -> Array[int]:
+	var sim : Array[CellData] = terrain_mesh_generator.sim_cells
+	var center = sim[closest].unit_pos.normalized()
+	var neighbours = sim[closest].neighbours    # MAKE SURE THIS IS SORTED RIGHT
+	
+	for n_id in neighbours:
+		var b = sim[n_id].unit_pos.normalized()
+		var c = sim[(n_id+1) % neighbours.size()].unit_pos.normalized()
+	
+		if point_in_spherical_triangle(p, center, b, c):
+			return [closest, n_id, (n_id+1) % neighbours.size()]
+	
+	return [closest, neighbours[0], neighbours[1]]

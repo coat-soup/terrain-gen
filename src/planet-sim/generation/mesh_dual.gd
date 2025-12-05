@@ -145,12 +145,16 @@ func _init(input_vertices: PackedVector3Array, radius: float = 1.0):
 				adjacency[pb].append(pa)
 			if not pb in adjacency[pa]:
 				adjacency[pa].append(pb)
+	
+	sort_neighbours()
 
 
 func _vkey(v: Vector3) -> String:
 	# quantized string key to avoid small floating point differences
 	# 6 decimal should be enough, but tweak as needed
 	return ("%.6f|%.6f|%.6f" % [v.x, v.y, v.z])
+
+
 
 func _tangent_basis_from_normal(n: Vector3) -> Dictionary:
 	var up: Vector3 = Vector3(0.0, 1.0, 0.0)
@@ -159,3 +163,27 @@ func _tangent_basis_from_normal(n: Vector3) -> Dictionary:
 	var u: Vector3 = (up - n * n.dot(up)).normalized()
 	var v: Vector3 = n.cross(u).normalized()
 	return {"u": u, "v": v}
+
+
+func sort_neighbours():
+	for i in range(adjacency.size()):
+		var center = centroids[i].normalized()
+		var basis = _tangent_basis_from_normal(center)
+		var u = basis["u"]
+		var v = basis["v"]
+		
+		var ang_list = []
+		for nb in adjacency[i]:
+			var p = centroids[nb].normalized()
+			var x = p.dot(u)
+			var y = p.dot(v)
+			var ang = atan2(y, x)
+			ang_list.append([ang, nb])
+		
+		ang_list.sort_custom(func(a, b): return a[0] < b[0])
+		
+		var ordered = []
+		for pair in ang_list:
+			ordered.append(pair[1])
+
+		adjacency[i] = ordered
