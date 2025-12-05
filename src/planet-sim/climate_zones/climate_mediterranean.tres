@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ClimateZoneAdvanced" load_steps=2 format=3 uid="uid://bwdkyefae485"]
+
+[ext_resource type="Script" uid="uid://cdxitjkdfbask" path="res://planet-sim/generation/climate_zone_advanced.gd" id="1_aih2s"]
+
+[resource]
+script = ExtResource("1_aih2s")
+ocean_distance_limit = Vector2(0, 6)
+zone_name = "mediterranean"
+latitude_range = Vector2(10, 100)
+temperature_range = Vector2(10, 30)
+precipitation_range = Vector2(0.1, 100)
+metadata/_custom_type_script = "uid://cdxitjkdfbask"
