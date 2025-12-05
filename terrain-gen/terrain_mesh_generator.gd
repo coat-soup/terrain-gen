@@ -11,7 +11,7 @@ var camera_chunk_pos : Vector3i
 var chunks : Dictionary = {}
 @export var chunk_size : int = 8
 @export var render_distance : int = 2
-
+@export var lod_band_sizes : Array[int] = [2]
 @export var material : Material
 
 @export_tool_button("Generate", "SphereMesh") var generate_action = generate_mesh
@@ -76,16 +76,18 @@ func generate_mesh():
 	else: generate_chunks_around_camera()
 
 
-func load_chunk(position : Vector3i):
+func load_chunk(position : Vector3i, lod : int):
 	var chunk : TerrainChunk = TerrainChunk.new()
 	chunks[position] = chunk
 	chunk.position = position * chunk_size
 	chunk.chunk_pos = position
-	chunk.size = Vector3i(chunk_size+1,chunk_size+1,chunk_size+1)
+	chunk.size = Vector3i(chunk_size,chunk_size,chunk_size)
 	chunk.sim_cell = sim_cells[get_planet_cell_from_normal(chunk.position, sim_cells, get_chunk_sim_search_starting_cell(chunk))]
 	chunk.terrain_mesh_generator = self
 	
 	chunk.material_overlay = material
+	
+	chunk.lod_level = lod
 	
 	chunk.generate_mesh_complete(0)
 	#WorkerThreadPool.add_group_task(chunk.generate_mesh_complete, 1, 1)
@@ -104,17 +106,37 @@ func generate_chunks_around_camera():
 		chunk_threads[0].wait_to_finish()
 		chunk_threads.remove_at(0)
 	
+	var total_view_distance = 0
+	for i in range(lod_band_sizes.size()): total_view_distance += lod_band_sizes[i] * pow(2,i) # in each consecutive band, chunks are twice as big 
+	
 	for chunk_pos in chunks.keys():
-		if (abs(chunk_pos.x - camera_chunk_pos.x) > render_distance or
-			abs(chunk_pos.y - camera_chunk_pos.y) > render_distance or
-			abs(chunk_pos.z - camera_chunk_pos.z) > render_distance):
+		if (abs(chunk_pos.x - camera_chunk_pos.x) > total_view_distance or
+			abs(chunk_pos.y - camera_chunk_pos.y) > total_view_distance or
+			abs(chunk_pos.z - camera_chunk_pos.z) > total_view_distance):
 				unload_chunk(chunk_pos)
 	
-	for dx in range(-render_distance, render_distance + 1):
-		for dy in range(-render_distance, render_distance + 1):
-			for dz in range(-render_distance, render_distance + 1):
-				if not chunks.has(camera_chunk_pos + Vector3i(dx,dy,dz)):
-					load_chunk(camera_chunk_pos + Vector3i(dx,dy,dz))
+	var band_end : int = 0
+	var band_start : int = 0
+	for i in range(lod_band_sizes.size()):
+		#var cur_band_size = lod_band_sizes[i]
+		#for j in range(i): cur_band_size += lod_band_sizes[j] / pow(2,i-j)
+		# cur_band_size is total number of lod(i) sized chunks from center at this ring level
+		
+		band_end += lod_band_sizes[i] << i #* pow(2,i)
+		
+		var step = 1 << i # 2^i
+		for dx in range(-band_end, band_end, step):
+			for dy in range(-band_end, band_end, step):
+				for dz in range(-band_end, band_end, step):
+					if abs(dx) < band_start and abs(dy) < band_start and abs(dz) < band_start: continue # skip middle bit for all lods (is already filled by lower lods)
+					if not chunks.has(camera_chunk_pos + Vector3i(dx,dy,dz)):
+						load_chunk(camera_chunk_pos + Vector3i(dx,dy,dz), i)
+					else:
+						# TODO: update chunk lods if already there
+						continue
+						chunks[camera_chunk_pos + Vector3i(dx,dy,dz)].lod_level = i
+						chunks[camera_chunk_pos + Vector3i(dx,dy,dz)].generate_mesh_complete(0)
+		band_start = band_end
 
 
 func get_chunk_sim_search_starting_cell(chunk : TerrainChunk) -> int:

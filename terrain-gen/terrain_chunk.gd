@@ -14,20 +14,32 @@ var terrain_mesh_generator : TerrainMeshGenerator
 var mc : Dictionary
 var marching_cubes_cs  = preload("res://terrain-gen/MarchingCubes.cs")
 
+var lod_level : int = 0
+
+var is_chunk_empty : bool = true
+
 func _ready() -> void:
 	owner = get_tree().edited_scene_root
 
 
 func generate_mesh_complete(group_work_id : int):
+	
+	#size /= pow(2, lod_level) # grid size will be same for all chunks. far away chunks will just take up multiple chunks instead
+	size += Vector3i.ONE # chunk padding
+	
 	data.clear()
 	data = PackedFloat32Array()
 	data.resize(size.x * size.y * size.z)
 	
 	populate_planet_data()
 	
+	if is_chunk_empty:
+		print("chunk is empty, skipping")
+		return
+	
 	#var mc = MarchingCubes.marching_cubes(sample_data, size, 0.0)
 	
-	var mc = marching_cubes_cs.Generate(data, size, 0.0, 1.0)
+	var mc = marching_cubes_cs.Generate(data, size, 0.0, pow(2, lod_level))
 	
 	var arr_mesh = ArrayMesh.new()
 	var arrays = []
@@ -103,7 +115,7 @@ func populate_planet_data():
 			for x in range(size.x):
 				data[grid_to_idx(x,y,z)] = 1.0
 				
-				var world_pos = position + Vector3(x, y, z)
+				var world_pos = position + Vector3(x, y, z) * pow(2, lod_level)
 				var offset = world_pos
 				var r = offset.length()
 				
@@ -119,3 +131,4 @@ func populate_planet_data():
 				var density = surface_radius - r
 				
 				data[grid_to_idx(x,y,z)] = density
+				if density > 0: is_chunk_empty = false
