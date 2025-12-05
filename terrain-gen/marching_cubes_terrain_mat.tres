@@ -23,5 +23,5 @@ shader = ExtResource("1_436cy")
 shader_parameter/height_gradient = SubResource("GradientTexture1D_436cy")
 shader_parameter/water_gradient = SubResource("GradientTexture1D_1b8io")
 shader_parameter/planet_radius = 0.0
-shader_parameter/terrain_height = 100.0
+shader_parameter/terrain_height = 1000.0
 shader_parameter/world_center = Vector3(0, 0, 0)

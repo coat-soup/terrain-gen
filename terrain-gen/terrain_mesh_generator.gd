@@ -4,15 +4,17 @@ class_name TerrainMeshGenerator
 
 @export var camera : Node3D
 var camera_chunk_pos : Vector3i
+var cached_camera_pos : Vector3 # scene node .pos cannot be accessed from thread
 
 @export var planet_radius : int = 10
 @export var terrain_height : float = 10.0
 
-var chunks : Dictionary = {}
+var chunk_octree : ChunkOctreeNode
 @export var chunk_size : int = 8
-@export var render_distance : int = 2
-@export var lod_band_sizes : Array[int] = [2]
 @export var material : Material
+
+@export var octree_subdivide_distance_chunks : float = 0.5
+@export var max_rendered_lod : int = 6
 
 @export_tool_button("Generate", "SphereMesh") var generate_action = generate_mesh
 
@@ -30,12 +32,30 @@ func _ready() -> void:
 	#generate_mesh()
 
 
+func generate_mesh():
+	print("generating chunks")
+	for child in get_children():
+		child.queue_free()
+	
+	sim_cells = PlanetSimSaveData.load_save()
+	
+	init_chunk_octree()
+	
+	material.set("shader_parameter/planet_radius", planet_radius)
+	material.set("shader_parameter/terrain_height", terrain_height)
+	
+	cached_camera_pos = camera.position
+	if run_threaded: run_chunk_thread()
+	else: generate_chunks_around_camera()
+
+
 func _process(delta: float) -> void:
 	if Engine.is_editor_hint() and not debug_run_chunking_in_editor: return
 	
 	var c_pos = Vector3i(camera.global_position / chunk_size)
 	if c_pos != camera_chunk_pos:
 		camera_chunk_pos = Vector3i(camera.global_position / chunk_size)
+		cached_camera_pos = camera.position
 		
 		var wait_iters : int = 0
 		while chunk_threads.size() > 1:
@@ -56,98 +76,75 @@ func _process(delta: float) -> void:
 
 
 func run_chunk_thread():
+	cached_camera_pos = camera.position
+	
 	var new_thread = Thread.new()
 	chunk_threads.append(new_thread)
 	new_thread.start(generate_chunks_around_camera)
+	print("sent via thread")
 
 
-func generate_mesh():
-	print("generating chunks")
-	for child in get_children():
-		child.queue_free()
-	chunks.clear()
+func generate_chunks_around_camera():
+	if chunk_threads.size() > 1 and chunk_threads[0].is_started():
+		print("waiting for thread")
+		chunk_threads[0].wait_to_finish()
+		chunk_threads.remove_at(0)
 	
-	sim_cells = PlanetSimSaveData.load_save()
-	
-	material.set("shader_parameter/planet_radius", planet_radius)
-	material.set("shader_parameter/terrain_height", terrain_height)
-	
-	if run_threaded: run_chunk_thread()
-	else: generate_chunks_around_camera()
+	build_octree(chunk_octree)
 
 
-func load_chunk(position : Vector3i, lod : int):
+func build_octree(node: ChunkOctreeNode, parent = null):
+	#await get_tree().process_frame
+	
+	var center = node.position + Vector3.ONE * node.size/2
+	var distance = (cached_camera_pos - center).length()
+	
+	if node.should_subdivide(cached_camera_pos, chunk_size, octree_subdivide_distance_chunks):
+		if node.mesh:
+			node.mesh.queue_free.call_deferred()
+			node.mesh = null
+		
+		if node.children.is_empty():
+			node.children = []
+			for offset in [Vector3(0,0,0), Vector3(1,0,0), Vector3(0,1,0), Vector3(1,1,0), Vector3(0,0,1), Vector3(1,0,1), Vector3(0,1,1), Vector3(1,1,1)]:
+				var child = ChunkOctreeNode.new(node.position + (offset * node.size/2), node.lod - 1, chunk_size)
+				node.children.append(child)
+		
+		for child in node.children:
+			#await get_tree().process_frame
+			build_octree(child, node)
+	else:
+		if ! node.children.is_empty(): collapse_children(node)
+		
+		if not node.mesh and node.lod <= max_rendered_lod: load_octree_chunk(node, parent) # sets node.mesh
+
+
+func collapse_children(node : ChunkOctreeNode):
+	if node.mesh: node.mesh.queue_free.call_deferred()
+	if not node.children.is_empty():
+		for child in node.children:
+			collapse_children(child)
+		node.children.clear()
+
+
+func load_octree_chunk(node : ChunkOctreeNode, parent : ChunkOctreeNode = null):
 	var chunk : TerrainChunk = TerrainChunk.new()
-	chunks[position] = chunk
-	chunk.position = position * chunk_size
-	chunk.chunk_pos = position
+	node.mesh = chunk
+	chunk.position = node.position
+	chunk.chunk_pos = node.position / chunk_size
 	chunk.size = Vector3i(chunk_size,chunk_size,chunk_size)
-	chunk.sim_cell = sim_cells[get_planet_cell_from_normal(chunk.position, sim_cells, get_chunk_sim_search_starting_cell(chunk))]
+	chunk.sim_cell = sim_cells[get_planet_cell_from_normal(chunk.position, sim_cells, parent.mesh.sim_cell if parent and parent.mesh else 0)]
 	chunk.terrain_mesh_generator = self
 	
 	chunk.material_overlay = material
 	
-	chunk.lod_level = lod
+	chunk.lod_level = node.lod
 	
 	chunk.generate_mesh_complete(0)
 	#WorkerThreadPool.add_group_task(chunk.generate_mesh_complete, 1, 1)
 	#chunk.generate_mesh()
 	
 	add_child.call_deferred(chunk)
-
-
-func unload_chunk(position : Vector3i):
-	chunks[position].queue_free.call_deferred()
-	chunks.erase(position)
-
-
-func generate_chunks_around_camera():
-	if chunk_threads.size() > 1 and chunk_threads[0].is_started():
-		chunk_threads[0].wait_to_finish()
-		chunk_threads.remove_at(0)
-	
-	var total_view_distance = 0
-	for i in range(lod_band_sizes.size()): total_view_distance += lod_band_sizes[i] * pow(2,i) # in each consecutive band, chunks are twice as big 
-	
-	for chunk_pos in chunks.keys():
-		if (abs(chunk_pos.x - camera_chunk_pos.x) > total_view_distance or
-			abs(chunk_pos.y - camera_chunk_pos.y) > total_view_distance or
-			abs(chunk_pos.z - camera_chunk_pos.z) > total_view_distance):
-				unload_chunk(chunk_pos)
-	
-	var band_end : int = 0
-	var band_start : int = 0
-	for i in range(lod_band_sizes.size()):
-		#var cur_band_size = lod_band_sizes[i]
-		#for j in range(i): cur_band_size += lod_band_sizes[j] / pow(2,i-j)
-		# cur_band_size is total number of lod(i) sized chunks from center at this ring level
-		
-		band_end += lod_band_sizes[i] << i #* pow(2,i)
-		
-		var step = 1 << i # 2^i
-		for dx in range(-band_end, band_end, step):
-			for dy in range(-band_end, band_end, step):
-				for dz in range(-band_end, band_end, step):
-					if abs(dx) < band_start and abs(dy) < band_start and abs(dz) < band_start: continue # skip middle bit for all lods (is already filled by lower lods)
-					if not chunks.has(camera_chunk_pos + Vector3i(dx,dy,dz)):
-						load_chunk(camera_chunk_pos + Vector3i(dx,dy,dz), i)
-					else:
-						# TODO: update chunk lods if already there
-						continue
-						chunks[camera_chunk_pos + Vector3i(dx,dy,dz)].lod_level = i
-						chunks[camera_chunk_pos + Vector3i(dx,dy,dz)].generate_mesh_complete(0)
-		band_start = band_end
-
-
-func get_chunk_sim_search_starting_cell(chunk : TerrainChunk) -> int:
-	for dx in [-1,0,1]:
-		for dy in [-1,0,1]:
-			for dz in [-1,0,1]:
-				if dx == 0 and dy == 0 and dz == 0: continue
-				var d = Vector3i(chunk.chunk_pos.x + dx, chunk.chunk_pos.y + dy, chunk.chunk_pos.z + dz)
-				if chunks.has(d):
-					return chunks[d].sim_cell.id
-	return 0
 
 
 static func get_planet_cell_from_normal(normal : Vector3, cells : Array[CellData], start_cell: int = 0) -> int:
@@ -169,6 +166,23 @@ static func get_planet_cell_from_normal(normal : Vector3, cells : Array[CellData
 			return id
 	
 	return id
+
+
+func init_chunk_octree():
+	var margin : float = terrain_height * 1.5
+	var diameter :float = 2.0 * planet_radius + 2.0 * margin  # side length we must cover
+	
+	# start at smallest chunk
+	var s := float(chunk_size)
+	var lod := 0
+	# increase lod until good
+	while s < diameter:
+		s *= 2.0
+		lod += 1
+	
+	var root_pos := -Vector3.ONE * s / 2
+	
+	chunk_octree = ChunkOctreeNode.new(root_pos, lod, chunk_size)
 
 
 func _exit_tree() -> void:
