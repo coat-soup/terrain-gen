@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ClimateZone" load_steps=2 format=3 uid="uid://c5r2e1h7uv14s"]
+
+[ext_resource type="Script" uid="uid://bsfdq7sqejeij" path="res://planet-sim/generation/climate_zone.gd" id="1_xgvd5"]
+
+[resource]
+script = ExtResource("1_xgvd5")
+zone_name = "hot_desert"
+latitude_range = 100.0
+temperature_range = Vector2(30, 100)
+precipitation_range = Vector2(0, 0.005)
+metadata/_custom_type_script = "uid://bsfdq7sqejeij"

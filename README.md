@@ -13,7 +13,8 @@ This is a project exploring algorithmic terrain generation based on real-world e
 
 
 # Installation & Setup
-This project runs entirely within the Godot editor, built with version 4.4.1, which can be downloaded here: https://godotengine.org/download/archive/4.4.1-stable/
+This project runs entirely within the Godot editor, built with version 4.4.1 (.NET), which can be downloaded here: https://godotengine.org/download/archive/4.4.1-stable/
+> Please note it is important to install the .NET enabled version of Godot.
 
 Once opening the project with Godot, navigate to the scene `planet-sim/generation/mesh_generation.tscn` and open it in the editor.
 

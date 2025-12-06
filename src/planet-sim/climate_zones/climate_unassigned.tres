@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ClimateZone" load_steps=2 format=3 uid="uid://doc8tnodxwirj"]
+
+[ext_resource type="Script" uid="uid://bsfdq7sqejeij" path="res://planet-sim/generation/climate_zone.gd" id="1_i3ubx"]
+
+[resource]
+script = ExtResource("1_i3ubx")
+zone_name = "WARN_UNNASSIGNED"
+latitude_range = 100.0
+temperature_range = Vector2(-100, 100)
+precipitation_range = Vector2(-100, 100)
+metadata/_custom_type_script = "uid://bsfdq7sqejeij"
