@@ -13,6 +13,7 @@ var size : Vector3i
 var terrain_mesh_generator : TerrainMeshGenerator
 var mc : Dictionary
 var marching_cubes_cs  = preload("res://terrain-gen/MarchingCubes.cs")
+var sampler_cs = preload("res://terrain-gen/ChunkVoxelSampler.cs")
 
 var lod_level : int = 0
 
@@ -33,9 +34,16 @@ func generate_mesh_complete(group_work_id : int):
 	
 	populate_planet_data()
 	
-	if is_chunk_empty:
+	#data = sampler_cs.PopulatePlanetData(position, size, lod_level,
+	#	terrain_mesh_generator.save_data.unit_pos,
+	#	terrain_mesh_generator.save_data.height,
+	#	terrain_mesh_generator.save_data.neighbours,
+	#	sim_cell.id, terrain_mesh_generator.planet_radius, terrain_mesh_generator.terrain_height)
+	
+	if is_chunk_empty: #data.size() == 0:
 		print("chunk is empty, skipping")
 		return
+	else: print("generating chunk")
 	
 	#var mc = MarchingCubes.marching_cubes(sample_data, size, 0.0)
 	

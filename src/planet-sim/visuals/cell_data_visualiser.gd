@@ -14,10 +14,10 @@ var generator: MeshGenerator
 var simulator: SimulationPipeline
 
 func _ready() -> void:
-	colour_mesh()
 	$"../SimulationPipeline".finished.connect(colour_mesh)
 	generator = $"../MeshGenerator"
 	simulator = $"../SimulationPipeline"
+	colour_mesh()
 
 
 func colour_mesh():

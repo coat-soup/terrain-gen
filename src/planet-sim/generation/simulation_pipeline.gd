@@ -25,6 +25,8 @@ func init_cells() -> Array[CellData]:
 	cells.resize(mesh.polyhedron.faces.size())
 	for i in range(cells.size()):
 		cells[i] = CellData.new(i, mesh.polyhedron.centroids[mesh.polyhedron.faces[i][0]].normalized())
+		#cells[i].id = i
+		#cells[i].unit_pos = mesh.polyhedron.centroids[mesh.polyhedron.faces[i][0]].normalized()
 		for j in mesh.polyhedron.adjacency[i].size():
 			cells[i].neighbours.append(mesh.polyhedron.adjacency[i][j])
 	
@@ -49,6 +51,6 @@ func save_sim_data():
 
 func load_sim_data():
 	print("Loading simulation data")
-	init_cells()
-	PlanetSimSaveData.load_save(cells)
+	var save = PlanetSimSaveData.load_save()
+	cells = save.parse_cells()
 	finished.emit()

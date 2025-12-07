@@ -19,6 +19,7 @@ var chunk_octree : ChunkOctreeNode
 @export_tool_button("Generate", "SphereMesh") var generate_action = generate_mesh
 
 var sim_cells : Array[CellData]
+var save_data : PlanetSimSaveData
 
 @export var debug_run_chunking_in_editor : bool = false
 
@@ -37,7 +38,8 @@ func generate_mesh():
 	for child in get_children():
 		child.queue_free()
 	
-	sim_cells = PlanetSimSaveData.load_save()
+	save_data = PlanetSimSaveData.load_save()
+	sim_cells = save_data.parse_cells()
 	
 	init_chunk_octree()
 	
@@ -90,7 +92,10 @@ func generate_chunks_around_camera():
 		chunk_threads[0].wait_to_finish()
 		chunk_threads.remove_at(0)
 	
+	var time = Time.get_unix_time_from_system()
+	
 	build_octree(chunk_octree)
+	print("finished generating in ", Time.get_unix_time_from_system()-time, " seconds")
 
 
 func build_octree(node: ChunkOctreeNode, parent = null):

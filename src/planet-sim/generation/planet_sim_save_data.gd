@@ -1,3 +1,4 @@
+@tool
 extends Resource
 class_name PlanetSimSaveData
 
@@ -70,30 +71,35 @@ static func write_save(cells : Array[CellData]):
 	ResourceSaver.save(save_data, SAVE_PATH)
 
 
-static func load_save(cells : Array[CellData] = []) -> Array[CellData]:
+static func load_save() -> PlanetSimSaveData:
 	if not ResourceLoader.exists(SAVE_PATH):
 		push_warning("Cannot load planet data. No save file found at ", SAVE_PATH)
-		return []
+		return null
 	var save_data : PlanetSimSaveData = ResourceLoader.load(SAVE_PATH)
-	
+	return save_data
+
+
+func parse_cells(cells : Array[CellData] = []):
 	if cells.size() <= 0:
-		cells.resize(save_data.height.size())
+		cells.resize(height.size())
 		for i in range(cells.size()):
-			cells[i] = CellData.new(i, save_data.unit_pos[i])
+			cells[i] = CellData.new(i, unit_pos[i])
+			#cells[i].id = i
+			#cells[i].unit_pos = unit_pos[i]
 	
 	for i in range(cells.size()):
-		cells[i].neighbours = save_data.neighbours[i]
-		cells[i].height = save_data.height[i]
-		cells[i].plate_id = save_data.plate_id[i]
-		cells[i].is_oceanic = save_data.is_oceanic[i]
-		cells[i].stress_rotation_direction = save_data.stress_rotation_direction[i]
-		cells[i].debug_neighbour_stress = save_data.debug_neighbour_stress[i]
-		cells[i].temperature = save_data.temperature[i]
-		cells[i].current_type = save_data.current_type[i]
-		cells[i].wind_dir = save_data.wind_dir[i]
-		cells[i].precipitation = save_data.precipitation[i]
-		cells[i].distance_to_ocean_boundary = save_data.distance_to_ocean_boundary[i]
-		cells[i].height_gradient = save_data.height_gradient[i]
-		cells[i].climate_zone_id = save_data.climate_zone_id[i]
+		cells[i].neighbours = neighbours[i]
+		cells[i].height = height[i]
+		cells[i].plate_id = plate_id[i]
+		cells[i].is_oceanic = is_oceanic[i]
+		cells[i].stress_rotation_direction = stress_rotation_direction[i]
+		cells[i].debug_neighbour_stress = debug_neighbour_stress[i]
+		cells[i].temperature = temperature[i]
+		cells[i].current_type = current_type[i]
+		cells[i].wind_dir = wind_dir[i]
+		cells[i].precipitation = precipitation[i]
+		cells[i].distance_to_ocean_boundary = distance_to_ocean_boundary[i]
+		cells[i].height_gradient = height_gradient[i]
+		cells[i].climate_zone_id = climate_zone_id[i]
 	
 	return cells

@@ -3,8 +3,8 @@
 [ext_resource type="Material" uid="uid://bkqil5aru5nt" path="res://planet-sim/visuals/cell_data_visualiser_mat.tres" id="1_7is13"]
 [ext_resource type="Script" uid="uid://cktxdie0uqsn0" path="res://planet-sim/generation/mesh_generator.gd" id="2_ykdo0"]
 [ext_resource type="Script" uid="uid://dlpm0fpvwbn0n" path="res://planet-sim/visuals/cell_data_visualiser.gd" id="3_wh2la"]
+[ext_resource type="Script" uid="uid://v106plbnt4f1" path="res://planet-sim/pipeline-steps/simulation_step.gd" id="4_0b1tj"]
 [ext_resource type="Script" uid="uid://v3s8o1rtsco7" path="res://planet-sim/generation/simulation_pipeline.gd" id="4_oxh7t"]
-[ext_resource type="Script" uid="uid://v106plbnt4f1" path="res://planet-sim/pipeline-steps/simulation_step.gd" id="5_37hj5"]
 [ext_resource type="Script" uid="uid://dyn8tcxuuwahj" path="res://planet-sim/pipeline-steps/plate_generator.gd" id="6_ggwfc"]
 [ext_resource type="Script" uid="uid://b15tyu644a6r5" path="res://planet-sim/pipeline-steps/plate_stress.gd" id="7_8qm1f"]
 [ext_resource type="Script" uid="uid://dfgjdkc60354l" path="res://planet-sim/pipeline-steps/height_calculator.gd" id="8_nvhqj"]
@@ -63,7 +63,7 @@ continent_blur_steps = 2
 metadata/_custom_type_script = "uid://dfgjdkc60354l"
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_wqit5"]
-seed = 625267531
+seed = -1293111155
 frequency = 1.0
 
 [sub_resource type="Resource" id="Resource_f46qa"]
@@ -132,7 +132,7 @@ n_subdivisons = 4
 script = ExtResource("4_oxh7t")
 mesh = NodePath("../MeshGenerator")
 visualiser = NodePath("../CellDataVisualiser")
-pipeline = Array[ExtResource("5_37hj5")]([SubResource("Resource_na7qb"), SubResource("Resource_hr14s"), SubResource("Resource_1oiaf"), SubResource("Resource_f46qa"), SubResource("Resource_nvhqj"), SubResource("Resource_wh2la"), SubResource("Resource_oxh7t"), SubResource("Resource_37hj5"), SubResource("Resource_8qm1f"), SubResource("Resource_ggwfc"), SubResource("Resource_vgcf2")])
+pipeline = Array[ExtResource("4_0b1tj")]([SubResource("Resource_na7qb"), SubResource("Resource_hr14s"), SubResource("Resource_1oiaf"), SubResource("Resource_f46qa"), SubResource("Resource_nvhqj"), SubResource("Resource_wh2la"), SubResource("Resource_oxh7t"), SubResource("Resource_37hj5"), SubResource("Resource_8qm1f"), SubResource("Resource_ggwfc"), SubResource("Resource_vgcf2")])
 
 [node name="CellDataVisualiser" type="Node" parent="."]
 script = ExtResource("3_wh2la")
