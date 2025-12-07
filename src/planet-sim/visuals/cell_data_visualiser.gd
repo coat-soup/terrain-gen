@@ -2,7 +2,7 @@
 extends Node
 class_name CellDataVisualiser
 
-enum VisualisationType {CELL_ID, PLATE_ID, CELL_POSITION, PLATE_STRESS, CELL_HEIGHT, CELL_TEMPERATURE, OCEAN_CURRENTS, WIND, OCEAN_BOUNDARY, PRECIPITATION, SLOPE, CLIMATE_ZONES}
+enum VisualisationType {CELL_ID, PLATE_ID, CELL_POSITION, PLATE_STRESS, CELL_HEIGHT, CELL_TEMPERATURE, OCEAN_CURRENTS, WIND, OCEAN_BOUNDARY, PRECIPITATION, SLOPE, CLIMATE_ZONES, DEBUG_NEIGHBOUR_ORDER}
 @export var vis_type : VisualisationType:
 	set(new_vis_type):
 		vis_type = new_vis_type
@@ -40,6 +40,7 @@ func colour_mesh():
 			10: data.append(simulator.cells[i].height_gradient.length())
 			11: data.append(simulator.cells[i].climate_zone_id if simulator.cells[i].height > 0 else -1)
 	if vis_type == 6: data = data_from_ocean_currents(simulator)
+	if vis_type == 12: data = data_from_debug_neighbour_ordering(simulator)
 	
 	while data.size() % 4 != 0.0:
 		data.append(0.0)
@@ -98,5 +99,21 @@ func data_from_ocean_currents(simulator : SimulationPipeline):
 	for i in range(simulator.ocean_currents.size()):
 		for c in simulator.ocean_currents[i].cells:
 			data[c] =  simulator.ocean_currents[i].type
+	
+	return data
+
+
+func data_from_debug_neighbour_ordering(simulator : SimulationPipeline):
+	const focused_cell_id : int = 20
+	
+	var data := PackedFloat32Array()
+	data.resize(simulator.cells.size())
+	
+	for i in range(simulator.cells.size()):
+		data[i] = -1.0
+	
+	data[focused_cell_id] = -2
+	for i in range(simulator.cells[focused_cell_id].neighbours.size()):
+		data[simulator.cells[focused_cell_id].neighbours[i]] = i/6.0
 	
 	return data

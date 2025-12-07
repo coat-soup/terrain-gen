@@ -134,4 +134,5 @@ void vertex() {
 	if (vis_type == 9) COLOR = color_from_precipitation_data(data); // precipitation
 	if (vis_type == 10) COLOR = texture(wind_gradient, vec2(clamp(data, 0.001, 0.999), 0.0)); // slope
 	if (vis_type == 11) COLOR = data != -1.0? climate_zone_colours[int(data)] : vec4(0.0);
+	if (vis_type == 12) COLOR = data == -1.0? vec4(0.0) : data == -2.0? vec4(1.0,0.0,0.0,0.0) : vec4(data);
 }

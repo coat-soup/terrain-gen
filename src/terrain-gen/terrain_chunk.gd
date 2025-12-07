@@ -126,7 +126,7 @@ func populate_planet_data():
 				
 				var cell = TerrainMeshGenerator.get_planet_cell_from_normal(normal, terrain_mesh_generator.sim_cells, sim_cell.id)
 				
-				var height : float = interpolate_value(normal, cell)
+				var height : float = interpolate_value_barycentric(normal, cell)
 				
 				var surface_radius = terrain_mesh_generator.planet_radius + height * terrain_mesh_generator.terrain_height
 				var density = surface_radius - r
@@ -156,7 +156,7 @@ func interpolate_value(position : Vector3, closest : int) -> float:
 
 
 func point_in_spherical_triangle(p: Vector3, a: Vector3, b: Vector3, c: Vector3) -> bool:
-	# All vectors should already be normalized.
+	# all vectors should already be normalized.
 	var ab = a.cross(b)
 	var bc = b.cross(c)
 	var ca = c.cross(a)
@@ -167,20 +167,57 @@ func point_in_spherical_triangle(p: Vector3, a: Vector3, b: Vector3, c: Vector3)
 	var s3 = ca.dot(p)
 	
 	# all must have same sign (all ≥0 or all ≤0)
-	return (s1 >= 0.0 and s2 >= 0.0 and s3 >= 0.0) \
-		or (s1 <= 0.0 and s2 <= 0.0 and s3 <= 0.0)
+	return (s1 >= 0.0 and s2 >= 0.0 and s3 >= 0.0) or (s1 <= 0.0 and s2 <= 0.0 and s3 <= 0.0)
 
 
 func find_delaunay_triangle(closest: int, p: Vector3) -> Array[int]:
-	var sim : Array[CellData] = terrain_mesh_generator.sim_cells
-	var center = sim[closest].unit_pos.normalized()
-	var neighbours = sim[closest].neighbours    # MAKE SURE THIS IS SORTED RIGHT
+	var sim_cells : Array[CellData] = terrain_mesh_generator.sim_cells
+	var center = sim_cells[closest].unit_pos
+	var neighbours = sim_cells[closest].neighbours    # MAKE SURE THIS IS SORTED RIGHT
 	
-	for n_id in neighbours:
-		var b = sim[n_id].unit_pos.normalized()
-		var c = sim[(n_id+1) % neighbours.size()].unit_pos.normalized()
+	for i in range(neighbours.size()):
+		var b = sim_cells[neighbours[i]].unit_pos
+		var c = sim_cells[neighbours[(i+1) % neighbours.size()]].unit_pos
 	
 		if point_in_spherical_triangle(p, center, b, c):
-			return [closest, n_id, (n_id+1) % neighbours.size()]
+			return [closest, neighbours[i], neighbours[(i+1) % neighbours.size()]]
 	
 	return [closest, neighbours[0], neighbours[1]]
+
+
+func interpolate_value_barycentric(position: Vector3, closest: int) -> float:
+	var cells = find_delaunay_triangle(closest, position)
+	if cells.size() < 3:
+		return terrain_mesh_generator.sim_cells[closest].height
+
+	# normalized triangle verts
+	var A = terrain_mesh_generator.sim_cells[cells[0]].unit_pos
+	var B = terrain_mesh_generator.sim_cells[cells[1]].unit_pos
+	var C = terrain_mesh_generator.sim_cells[cells[2]].unit_pos
+
+	var P = position.normalized()
+
+	# areas
+	var area_total = tri_area(A, B, C)
+	var areaA = tri_area(P, B, C)
+	var areaB = tri_area(A, P, C)
+	var areaC = tri_area(A, B, P)
+
+	# barycentric weights
+	var wA = areaA / area_total
+	var wB = areaB / area_total
+	var wC = areaC / area_total
+
+	# interpolate
+	var hA = terrain_mesh_generator.sim_cells[cells[0]].height
+	var hB = terrain_mesh_generator.sim_cells[cells[1]].height
+	var hC = terrain_mesh_generator.sim_cells[cells[2]].height
+
+	return hA * wA + hB * wB + hC * wC
+
+
+func tri_area(a: Vector3, b: Vector3, c: Vector3) -> float:
+	return atan2(
+		a.dot(b.cross(c)),
+		1.0 + a.dot(b) + b.dot(c) + c.dot(a)
+	)

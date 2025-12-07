@@ -165,16 +165,38 @@ func _tangent_basis_from_normal(n: Vector3) -> Dictionary:
 	return {"u": u, "v": v}
 
 
+static func _stable_tangent_basis_from_normal(n: Vector3) -> Dictionary:
+	# Choose the axis least parallel to n
+	var ax = abs(n.x)
+	var ay = abs(n.y)
+	var az = abs(n.z)
+
+	var up: Vector3
+	if ax <= ay and ax <= az:
+		up = Vector3(1, 0, 0)  # x is least aligned
+	elif ay <= ax and ay <= az:
+		up = Vector3(0, 1, 0)  # y is least aligned
+	else:
+		up = Vector3(0, 0, 1)  # z is least aligned
+
+	var u = (up - n * n.dot(up)).normalized()
+	var v = n.cross(u).normalized()
+
+	# Now (u, v, n) is guaranteed right-handed, stable, and non-flipping
+	return {"u": u, "v": v}
+
+
+
 func sort_neighbours():
 	for i in range(adjacency.size()):
-		var center = centroids[i].normalized()
-		var basis = _tangent_basis_from_normal(center)
+		var center = centroids[faces[i][0]].normalized()
+		var basis = _stable_tangent_basis_from_normal(center)
 		var u = basis["u"]
 		var v = basis["v"]
 		
 		var ang_list = []
 		for nb in adjacency[i]:
-			var p = centroids[nb].normalized()
+			var p = centroids[faces[nb][0]].normalized()
 			var x = p.dot(u)
 			var y = p.dot(v)
 			var ang = atan2(y, x)
