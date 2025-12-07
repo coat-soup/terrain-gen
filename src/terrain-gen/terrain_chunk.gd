@@ -135,6 +135,8 @@ func populate_planet_data():
 				var cell = TerrainMeshGenerator.get_planet_cell_from_normal(normal, terrain_mesh_generator.sim_cells, sim_cell.id)
 				
 				var height : float = interpolate_value_barycentric(normal, cell)
+				height += terrain_mesh_generator.noise.get_noise_3dv(normal * terrain_mesh_generator.planet_radius) * terrain_mesh_generator.noise_strength
+				height *= abs(terrain_mesh_generator.height_curve.sample(height))
 				
 				var surface_radius = terrain_mesh_generator.planet_radius + height * terrain_mesh_generator.terrain_height
 				var density = surface_radius - r

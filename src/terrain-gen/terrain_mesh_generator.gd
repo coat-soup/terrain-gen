@@ -26,6 +26,9 @@ var save_data : PlanetSimSaveData
 var chunk_threads : Array[Thread] = []
 
 @export var run_threaded : bool = true
+@export var noise : FastNoiseLite
+@export var noise_strength : float = 0.2
+@export var height_curve : Curve
 
 
 func _ready() -> void:

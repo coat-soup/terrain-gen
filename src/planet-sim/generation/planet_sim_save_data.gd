@@ -67,7 +67,7 @@ static func write_save(cells : Array[CellData]):
 	save_data.climate_zone_id.resize(n_cells)
 	for i in range(cells.size()): save_data.climate_zone_id[i] = cells[i].climate_zone_id
 	
-	
+	print("saved ", n_cells, " cells")
 	ResourceSaver.save(save_data, SAVE_PATH)
 
 
@@ -79,13 +79,13 @@ static func load_save() -> PlanetSimSaveData:
 	return save_data
 
 
-func parse_cells(cells : Array[CellData] = []):
-	if cells.size() <= 0:
-		cells.resize(height.size())
-		for i in range(cells.size()):
-			cells[i] = CellData.new(i, unit_pos[i])
-			#cells[i].id = i
-			#cells[i].unit_pos = unit_pos[i]
+func parse_cells():
+	var cells : Array[CellData] = []
+	cells.resize(height.size())
+	for i in range(cells.size()):
+		cells[i] = CellData.new(i, unit_pos[i])
+		#cells[i].id = i
+		#cells[i].unit_pos = unit_pos[i]
 	
 	for i in range(cells.size()):
 		cells[i].neighbours = neighbours[i]
