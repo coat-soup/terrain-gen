@@ -32,8 +32,8 @@ var chunk_threads : Array[Thread] = []
 
 
 func _ready() -> void:
-	pass
-	#generate_mesh()
+	if not Engine.is_editor_hint():
+		generate_mesh()
 
 
 func generate_mesh():
@@ -55,7 +55,7 @@ func generate_mesh():
 
 
 func _process(delta: float) -> void:
-	if Engine.is_editor_hint() and not debug_run_chunking_in_editor: return
+	if not debug_run_chunking_in_editor: return
 	
 	var c_pos = Vector3i(camera.global_position / chunk_size)
 	if c_pos != camera_chunk_pos:

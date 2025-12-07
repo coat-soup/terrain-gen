@@ -21,6 +21,8 @@ var is_chunk_empty : bool = true
 
 func _ready() -> void:
 	owner = get_tree().edited_scene_root
+	
+
 
 
 func generate_mesh_complete(group_work_id : int):
@@ -62,6 +64,22 @@ func generate_mesh_complete(group_work_id : int):
 	
 	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	mesh = arr_mesh
+	
+	if lod_level == 0:
+		var box_debug = CSGBox3D.new()
+		add_child(box_debug)
+		box_debug.owner = self
+		
+		print("making collider")
+		var body = StaticBody3D.new()
+		var col_shape = CollisionShape3D.new()
+		var shape : ConcavePolygonShape3D = ConcavePolygonShape3D.new()
+		shape.set_faces(mc["vertices"])
+		col_shape.shape = shape
+		add_child(body)
+		body.owner = self
+		body.add_child(col_shape)
+		col_shape.owner = body
 	
 	finished_generating.emit()
 
