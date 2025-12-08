@@ -19,6 +19,10 @@ var lod_level : int = 0
 
 var is_chunk_empty : bool = true
 
+var is_unload_queued : bool = false
+var is_finished_generating : bool = false
+
+
 func _ready() -> void:
 	owner = get_tree().edited_scene_root
 	
@@ -80,7 +84,17 @@ func generate_mesh_complete(group_work_id : int):
 		body.add_child(col_shape)
 		col_shape.owner = body
 	
+	is_finished_generating = true
 	finished_generating.emit()
+
+
+func queue_unload():
+	is_unload_queued = true
+	if not is_finished_generating:
+		await finished_generating
+	
+	if is_instance_valid(self):
+		queue_free.call_deferred()
 
 
 func generate_mesh():
@@ -138,6 +152,8 @@ func populate_planet_data():
 	for z in range(size.z):
 		for y in range(size.y):
 			for x in range(size.x):
+				if is_unload_queued: return
+				
 				data[grid_to_idx(x,y,z)] = 1.0
 				
 				var world_pos : Vector3 = position + Vector3(x, y, z) * pow(2, lod_level)
