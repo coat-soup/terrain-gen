@@ -10,6 +10,9 @@ var data : PackedFloat32Array
 var chunk_pos : Vector3i
 var size : Vector3i
 
+var octree_parent : ChunkOctreeNode
+var octree_node : ChunkOctreeNode
+
 var terrain_mesh_generator : TerrainMeshGenerator
 var mc : Dictionary
 var marching_cubes_cs  = preload("res://terrain-gen/MarchingCubes.cs")
@@ -21,6 +24,7 @@ var is_chunk_empty : bool = true
 
 var is_unload_queued : bool = false
 var is_finished_generating : bool = false
+enum UnloadReason {COLLAPSE, SUBDIVIDE, CULL}
 
 
 func _ready() -> void:
@@ -47,6 +51,8 @@ func generate_mesh_complete(group_work_id : int):
 	
 	if is_chunk_empty: #data.size() == 0:
 		print("chunk is empty, skipping")
+		is_finished_generating = true
+		finished_generating.emit()
 		return
 	else: print("generating chunk")
 	
@@ -60,6 +66,8 @@ func generate_mesh_complete(group_work_id : int):
 	
 	if mc["vertices"].size() < 3:
 		#print("chunk has no solid datapoints")
+		is_finished_generating = true
+		finished_generating.emit()
 		return
 	
 	arrays[Mesh.ARRAY_VERTEX] = mc["vertices"]
@@ -69,10 +77,6 @@ func generate_mesh_complete(group_work_id : int):
 	mesh = arr_mesh
 	
 	if lod_level == 0:
-		var box_debug = CSGBox3D.new()
-		add_child(box_debug)
-		box_debug.owner = self
-		
 		print("making collider")
 		var body = StaticBody3D.new()
 		var col_shape = CollisionShape3D.new()
@@ -88,13 +92,49 @@ func generate_mesh_complete(group_work_id : int):
 	finished_generating.emit()
 
 
-func queue_unload():
+## TODO: move to when child/parent finished_generating is emitted, so it's only called when actually relevant -> no while loops needed
+func queue_unload(reason : UnloadReason):
 	is_unload_queued = true
 	if not is_finished_generating:
 		await finished_generating
 	
+	if reason == UnloadReason.COLLAPSE: while true:
+		if not octree_parent: break
+		if not octree_parent.should_be_loaded: break
+		if not is_inside_tree(): break
+		if not octree_parent.mesh:
+			await get_tree().create_timer(0.2).timeout
+			continue
+		if octree_parent.mesh.is_unload_queued: break
+		if octree_parent.mesh.is_finished_generating: break
+		await octree_parent.mesh.is_finished_generating
+	
+	var finished : bool
+	if reason == UnloadReason.SUBDIVIDE: while true:
+		finished = true
+		for c in octree_node.children:
+			if not c: continue
+			elif not c.should_be_loaded: continue
+			elif not is_inside_tree(): continue
+			elif not c.mesh: finished = false
+			elif c.mesh.is_unload_queued: continue
+			elif not c.mesh.is_finished_generating:
+				print("waiting for mesh to finish generating")
+				await get_tree().create_timer(0.2).timeout
+				#finished = false
+				continue
+		if finished:
+			break
+			print("properly awaited subdivision")
+		else: await get_tree().create_timer(0.2).timeout
+	
 	if is_instance_valid(self):
-		queue_free.call_deferred()
+		queue_free()
+
+
+func fake_finished_generating():
+	is_finished_generating = true
+	finished_generating.emit()
 
 
 func generate_mesh():

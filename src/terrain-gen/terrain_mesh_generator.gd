@@ -164,20 +164,24 @@ func build_octree(node: ChunkOctreeNode, parent = null):
 	var distance = (cached_camera_pos - center).length()
 	
 	if node.should_subdivide(cached_camera_pos, chunk_size, octree_subdivide_distance_chunks):
-		if node.mesh:
-			node.mesh.queue_unload()
-			node.mesh = null
+		node.should_be_loaded = false
 		
 		if node.children.is_empty():
 			node.children = []
 			for offset in [Vector3(0,0,0), Vector3(1,0,0), Vector3(0,1,0), Vector3(1,1,0), Vector3(0,0,1), Vector3(1,0,1), Vector3(0,1,1), Vector3(1,1,1)]:
 				var child = ChunkOctreeNode.new(node.position + (offset * node.size/2), node.lod - 1, chunk_size)
+				#child.should_be_loaded = true # so parent mesh isn't immediately unloaded. will be set properly in build_octree(child, node)
 				node.children.append(child)
+		
+		if node.mesh:
+			node.mesh.queue_unload(TerrainChunk.UnloadReason.SUBDIVIDE)
+			node.mesh = null
 		
 		for child in node.children:
 			#await get_tree().process_frame
 			build_octree(child, node)
 	else:
+		node.should_be_loaded = node.lod <= max_rendered_lod
 		if !node.children.is_empty(): collapse_children(node)
 		
 		var thread_group : int = 0
@@ -189,7 +193,7 @@ func build_octree(node: ChunkOctreeNode, parent = null):
 
 
 func collapse_children(node : ChunkOctreeNode):
-	if node.mesh: node.mesh.queue_unload()
+	if node.mesh: node.mesh.queue_unload(TerrainChunk.UnloadReason.COLLAPSE)
 	if not node.children.is_empty():
 		for child in node.children:
 			collapse_children(child)
@@ -199,6 +203,8 @@ func collapse_children(node : ChunkOctreeNode):
 func load_octree_chunk(node : ChunkOctreeNode, parent : ChunkOctreeNode = null):
 	var chunk : TerrainChunk = TerrainChunk.new()
 	node.mesh = chunk
+	chunk.octree_node = node
+	chunk.octree_parent = parent
 	chunk.position = node.position
 	chunk.chunk_pos = node.position / chunk_size
 	chunk.size = Vector3i(chunk_size,chunk_size,chunk_size)

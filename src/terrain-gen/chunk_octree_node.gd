@@ -7,6 +7,7 @@ var lod : int
 var children: Array
 var bounds : AABB
 var mesh : TerrainChunk
+var should_be_loaded : bool = true
 
 
 func _init(pos: Vector3, lod_level : int, base_chunk_size : int) -> void:
