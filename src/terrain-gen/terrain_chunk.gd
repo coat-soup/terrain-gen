@@ -24,7 +24,6 @@ func _ready() -> void:
 	
 
 
-
 func generate_mesh_complete(group_work_id : int):
 	
 	#size /= pow(2, lod_level) # grid size will be same for all chunks. far away chunks will just take up multiple chunks instead
@@ -152,7 +151,9 @@ func populate_planet_data():
 				
 				var cell = TerrainMeshGenerator.get_planet_cell_from_normal(normal, terrain_mesh_generator.sim_cells, sim_cell.id)
 				
-				var height : float = interpolate_value_barycentric(normal, cell)
+				var height : float 
+				if lod_level > terrain_mesh_generator.lod_interp_level: height = terrain_mesh_generator.sim_cells[cell].height
+				else: height = interpolate_value_barycentric(normal, cell)
 				height += terrain_mesh_generator.noise.get_noise_3dv(normal * terrain_mesh_generator.planet_radius) * terrain_mesh_generator.noise_strength
 				height *= abs(terrain_mesh_generator.height_curve.sample(height))
 				

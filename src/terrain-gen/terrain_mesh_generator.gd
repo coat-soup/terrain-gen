@@ -15,6 +15,8 @@ var chunk_octree : ChunkOctreeNode
 
 @export var octree_subdivide_distance_chunks : float = 0.5
 @export var max_rendered_lod : int = 6
+## LOD level at which voxels should interpolate between simulation cell data
+@export var lod_interp_level : int = 3
 
 @export_tool_button("Generate", "SphereMesh") var generate_action = generate_mesh
 
@@ -29,6 +31,8 @@ var chunk_threads : Array[Thread] = []
 @export var noise : FastNoiseLite
 @export var noise_strength : float = 0.2
 @export var height_curve : Curve
+
+var chunk_load_queue : Array[Array] # in form[[node, parent], [node, parent], [node, parent]...] for each chunk to load
 
 
 func _ready() -> void:
@@ -97,7 +101,13 @@ func generate_chunks_around_camera():
 	
 	var time = Time.get_unix_time_from_system()
 	
+	chunk_load_queue = []
 	build_octree(chunk_octree)
+	chunk_load_queue.sort_custom(func(a, b): return a[0].lod < b[0].lod) # sort chunks lods ascending
+	
+	for chunk in chunk_load_queue:
+		load_octree_chunk(chunk[0], chunk[1])
+	
 	print("finished generating in ", Time.get_unix_time_from_system()-time, " seconds")
 
 
@@ -124,7 +134,8 @@ func build_octree(node: ChunkOctreeNode, parent = null):
 	else:
 		if ! node.children.is_empty(): collapse_children(node)
 		
-		if not node.mesh and node.lod <= max_rendered_lod: load_octree_chunk(node, parent) # sets node.mesh
+		if not node.mesh and node.lod <= max_rendered_lod: chunk_load_queue.append([node, parent])
+		#if not node.mesh and node.lod <= max_rendered_lod: load_octree_chunk(node, parent) # sets node.mesh
 
 
 func collapse_children(node : ChunkOctreeNode):

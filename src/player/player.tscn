@@ -34,4 +34,5 @@ skeleton = NodePath("../..")
 
 [node name="GroundCheck" type="RayCast3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0125004, 0)
-target_position = Vector3(0, -0.3, 0)
+target_position = Vector3(0, -0.5, 0)
+hit_from_inside = true
