@@ -98,7 +98,7 @@ func queue_unload(reason : UnloadReason):
 	if not is_finished_generating:
 		await finished_generating
 	
-	if reason == UnloadReason.COLLAPSE: while true:
+	if false and reason == UnloadReason.COLLAPSE: while true:
 		if not octree_parent: break
 		if not octree_parent.should_be_loaded: break
 		if not is_inside_tree(): break
@@ -110,7 +110,7 @@ func queue_unload(reason : UnloadReason):
 		await octree_parent.mesh.is_finished_generating
 	
 	var finished : bool
-	if reason == UnloadReason.SUBDIVIDE: while true:
+	if false and reason == UnloadReason.SUBDIVIDE: while true:
 		finished = true
 		for c in octree_node.children:
 			if not c: continue
