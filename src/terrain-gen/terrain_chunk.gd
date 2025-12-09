@@ -10,6 +10,9 @@ var data : PackedFloat32Array
 var chunk_pos : Vector3i
 var size : Vector3i
 
+var octree_parent : ChunkOctreeNode
+var octree_node : ChunkOctreeNode
+
 var terrain_mesh_generator : TerrainMeshGenerator
 var mc : Dictionary
 var marching_cubes_cs  = preload("res://terrain-gen/MarchingCubes.cs")
@@ -19,8 +22,14 @@ var lod_level : int = 0
 
 var is_chunk_empty : bool = true
 
+var is_unload_queued : bool = false
+var is_finished_generating : bool = false
+enum UnloadReason {COLLAPSE, SUBDIVIDE, CULL}
+
+
 func _ready() -> void:
 	owner = get_tree().edited_scene_root
+	
 
 
 func generate_mesh_complete(group_work_id : int):
@@ -42,6 +51,8 @@ func generate_mesh_complete(group_work_id : int):
 	
 	if is_chunk_empty: #data.size() == 0:
 		print("chunk is empty, skipping")
+		is_finished_generating = true
+		finished_generating.emit()
 		return
 	else: print("generating chunk")
 	
@@ -55,6 +66,8 @@ func generate_mesh_complete(group_work_id : int):
 	
 	if mc["vertices"].size() < 3:
 		#print("chunk has no solid datapoints")
+		is_finished_generating = true
+		finished_generating.emit()
 		return
 	
 	arrays[Mesh.ARRAY_VERTEX] = mc["vertices"]
@@ -63,6 +76,64 @@ func generate_mesh_complete(group_work_id : int):
 	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	mesh = arr_mesh
 	
+	if lod_level == 0:
+		print("making collider")
+		var body = StaticBody3D.new()
+		var col_shape = CollisionShape3D.new()
+		var shape : ConcavePolygonShape3D = ConcavePolygonShape3D.new()
+		shape.set_faces(mc["vertices"])
+		col_shape.shape = shape
+		add_child(body)
+		body.owner = self
+		body.add_child(col_shape)
+		col_shape.owner = body
+	
+	is_finished_generating = true
+	finished_generating.emit()
+
+
+## TODO: move to when child/parent finished_generating is emitted, so it's only called when actually relevant -> no while loops needed
+func queue_unload(reason : UnloadReason):
+	is_unload_queued = true
+	if not is_finished_generating:
+		await finished_generating
+	
+	if false and reason == UnloadReason.COLLAPSE: while true:
+		if not octree_parent: break
+		if not octree_parent.should_be_loaded: break
+		if not is_inside_tree(): break
+		if not octree_parent.mesh:
+			await get_tree().create_timer(0.2).timeout
+			continue
+		if octree_parent.mesh.is_unload_queued: break
+		if octree_parent.mesh.is_finished_generating: break
+		await octree_parent.mesh.is_finished_generating
+	
+	var finished : bool
+	if false and reason == UnloadReason.SUBDIVIDE: while true:
+		finished = true
+		for c in octree_node.children:
+			if not c: continue
+			elif not c.should_be_loaded: continue
+			elif not is_inside_tree(): continue
+			elif not c.mesh: finished = false
+			elif c.mesh.is_unload_queued: continue
+			elif not c.mesh.is_finished_generating:
+				print("waiting for mesh to finish generating")
+				await get_tree().create_timer(0.2).timeout
+				#finished = false
+				continue
+		if finished:
+			break
+			print("properly awaited subdivision")
+		else: await get_tree().create_timer(0.2).timeout
+	
+	if is_instance_valid(self):
+		queue_free()
+
+
+func fake_finished_generating():
+	is_finished_generating = true
 	finished_generating.emit()
 
 
@@ -121,6 +192,8 @@ func populate_planet_data():
 	for z in range(size.z):
 		for y in range(size.y):
 			for x in range(size.x):
+				if is_unload_queued: return
+				
 				data[grid_to_idx(x,y,z)] = 1.0
 				
 				var world_pos : Vector3 = position + Vector3(x, y, z) * pow(2, lod_level)
@@ -134,7 +207,9 @@ func populate_planet_data():
 				
 				var cell = TerrainMeshGenerator.get_planet_cell_from_normal(normal, terrain_mesh_generator.sim_cells, sim_cell.id)
 				
-				var height : float = interpolate_value_barycentric(normal, cell)
+				var height : float 
+				if lod_level > terrain_mesh_generator.lod_interp_level: height = terrain_mesh_generator.sim_cells[cell].height
+				else: height = interpolate_value_barycentric(normal, cell)
 				height += terrain_mesh_generator.noise.get_noise_3dv(normal * terrain_mesh_generator.planet_radius) * terrain_mesh_generator.noise_strength
 				height *= abs(terrain_mesh_generator.height_curve.sample(height))
 				

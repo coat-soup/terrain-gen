@@ -2,6 +2,8 @@
 extends Node
 class_name TerrainMeshGenerator
 
+signal chunk_thread_finished
+
 @export var camera : Node3D
 var camera_chunk_pos : Vector3i
 var cached_camera_pos : Vector3 # scene node .pos cannot be accessed from thread
@@ -15,6 +17,8 @@ var chunk_octree : ChunkOctreeNode
 
 @export var octree_subdivide_distance_chunks : float = 0.5
 @export var max_rendered_lod : int = 6
+## LOD level at which voxels should interpolate between simulation cell data
+@export var lod_interp_level : int = 3
 
 @export_tool_button("Generate", "SphereMesh") var generate_action = generate_mesh
 
@@ -23,17 +27,25 @@ var save_data : PlanetSimSaveData
 
 @export var debug_run_chunking_in_editor : bool = false
 
-var chunk_threads : Array[Thread] = []
+var chunk_threads : Array[Thread]
+var terminate_thread_flags : Array[bool]
 
-@export var run_threaded : bool = true
+## Thread 0 starts at LOD array[0], thread 1 starts at LOD array[1], etc.
+@export var thread_lod_starts : Array[int] = [0, 2, 5]
+
 @export var noise : FastNoiseLite
 @export var noise_strength : float = 0.2
 @export var height_curve : Curve
 
+var chunk_load_queue : Array[Array] # in form[[[node, parent], [node, parent]...], [[node, parent]...], ...] for each chunk to load for each lod group
+var load_timer : int
+
 
 func _ready() -> void:
-	pass
-	#generate_mesh()
+	if not Engine.is_editor_hint():
+		generate_mesh()
+	
+	chunk_thread_finished.connect(on_chunk_thread_finished)
 
 
 func generate_mesh():
@@ -49,33 +61,37 @@ func generate_mesh():
 	material.set("shader_parameter/planet_radius", planet_radius)
 	material.set("shader_parameter/terrain_height", terrain_height)
 	
+	if chunk_threads.size() == 0:
+		chunk_load_queue = []
+		terminate_thread_flags = []
+		chunk_threads = []
+		
+		for i in range(thread_lod_starts.size()):
+			chunk_threads.append(null)
+			terminate_thread_flags.append(false)
+			chunk_load_queue.append([])
+	
+		for i in range(chunk_threads.size()):
+			terminate_thread_flags[i] = false
+			chunk_threads[i] = Thread.new()
+			chunk_threads[i].start(load_chunk_queue_group_threaded.bind(i))
+	
+	print(chunk_threads)
+	
 	cached_camera_pos = camera.position
-	if run_threaded: run_chunk_thread()
-	else: generate_chunks_around_camera()
+	run_chunk_thread()
 
 
 func _process(delta: float) -> void:
-	if Engine.is_editor_hint() and not debug_run_chunking_in_editor: return
+	if not debug_run_chunking_in_editor: return
 	
 	var c_pos = Vector3i(camera.global_position / chunk_size)
 	if c_pos != camera_chunk_pos:
 		camera_chunk_pos = Vector3i(camera.global_position / chunk_size)
 		cached_camera_pos = camera.position
 		
-		var wait_iters : int = 0
-		while chunk_threads.size() > 1:
-			wait_iters += 1
-			if wait_iters > 5000:
-				for thread in chunk_threads:
-					thread.wait_to_finish()
-				chunk_threads.clear()
-			else:
-				await get_tree().process_frame
-			print("waiting for chunk overthread")
 		
-		
-		if run_threaded: run_chunk_thread()
-		else: generate_chunks_around_camera()
+		run_chunk_thread()
 		#chunk_load_task_id = WorkerThreadPool.add_task(generate_chunks_around_camera)
 		#WorkerThreadPool.wait_for_task_completion.call_deferred(task_id)
 
@@ -83,22 +99,62 @@ func _process(delta: float) -> void:
 func run_chunk_thread():
 	cached_camera_pos = camera.position
 	
-	var new_thread = Thread.new()
-	chunk_threads.append(new_thread)
-	new_thread.start(generate_chunks_around_camera)
+	generate_chunks_around_camera()
+	
+	#var new_thread = Thread.new()
+	#chunk_threads.append(new_thread)
+	#new_thread.start(generate_chunks_around_camera)
 	print("sent via thread")
 
 
 func generate_chunks_around_camera():
-	if chunk_threads.size() > 1 and chunk_threads[0].is_started():
-		print("waiting for thread")
-		chunk_threads[0].wait_to_finish()
-		chunk_threads.remove_at(0)
+	load_timer = Time.get_unix_time_from_system()
 	
-	var time = Time.get_unix_time_from_system()
+	for i in range(terminate_thread_flags.size()):
+		terminate_thread_flags[i] = true
+		await get_tree().process_frame
+	
+	for i in range(chunk_load_queue.size()):
+		chunk_load_queue[i].clear()
 	
 	build_octree(chunk_octree)
-	print("finished generating in ", Time.get_unix_time_from_system()-time, " seconds")
+	
+	for i in range(chunk_load_queue.size()):
+		chunk_load_queue[i].sort_custom(func(a, b): if a and b: return a[0].lod < b[0].lod else: return 0) # sort chunks lods ascending
+	#return
+	
+	for i in range(terminate_thread_flags.size()):
+		terminate_thread_flags[i] = false
+
+
+func on_chunk_thread_finished():
+	for t in terminate_thread_flags: if not t: return
+	
+	print("finished generating in ", Time.get_unix_time_from_system()-load_timer, " seconds")
+
+
+func load_chunk_queue_group_threaded(group):
+	print("thread starting with group ", group)
+	while true:
+		if terminate_thread_flags[group] or group >= chunk_load_queue.size(): continue
+		var chunk = chunk_load_queue[group].pop_front()
+		if not chunk: continue
+		load_octree_chunk(chunk[0], chunk[1])
+		
+		if chunk_load_queue[group].size() == 0:
+			terminate_thread_flags[group] = true
+			chunk_thread_finished.emit.call_deferred()
+	
+	for i in range(chunk_load_queue[group].size()):
+		#await get_tree().process_frame
+		if terminate_thread_flags[group]:
+			print("thread terminated")
+			return
+		
+		load_octree_chunk(chunk_load_queue[group][i][0], chunk_load_queue[group][i][1])
+	
+	terminate_thread_flags[group] = true
+	chunk_thread_finished.emit.call_deferred()
 
 
 func build_octree(node: ChunkOctreeNode, parent = null):
@@ -108,27 +164,36 @@ func build_octree(node: ChunkOctreeNode, parent = null):
 	var distance = (cached_camera_pos - center).length()
 	
 	if node.should_subdivide(cached_camera_pos, chunk_size, octree_subdivide_distance_chunks):
-		if node.mesh:
-			node.mesh.queue_free.call_deferred()
-			node.mesh = null
+		node.should_be_loaded = false
 		
 		if node.children.is_empty():
 			node.children = []
 			for offset in [Vector3(0,0,0), Vector3(1,0,0), Vector3(0,1,0), Vector3(1,1,0), Vector3(0,0,1), Vector3(1,0,1), Vector3(0,1,1), Vector3(1,1,1)]:
 				var child = ChunkOctreeNode.new(node.position + (offset * node.size/2), node.lod - 1, chunk_size)
+				#child.should_be_loaded = true # so parent mesh isn't immediately unloaded. will be set properly in build_octree(child, node)
 				node.children.append(child)
+		
+		if node.mesh:
+			node.mesh.queue_unload(TerrainChunk.UnloadReason.SUBDIVIDE)
+			node.mesh = null
 		
 		for child in node.children:
 			#await get_tree().process_frame
 			build_octree(child, node)
 	else:
-		if ! node.children.is_empty(): collapse_children(node)
+		node.should_be_loaded = node.lod <= max_rendered_lod
+		if !node.children.is_empty(): collapse_children(node)
 		
-		if not node.mesh and node.lod <= max_rendered_lod: load_octree_chunk(node, parent) # sets node.mesh
+		var thread_group : int = 0
+		for i in range(thread_lod_starts.size()):
+			if thread_lod_starts[i] <= node.lod: thread_group = i
+		
+		if not node.mesh and node.lod <= max_rendered_lod: chunk_load_queue[thread_group].append([node, parent])
+		#if not node.mesh and node.lod <= max_rendered_lod: load_octree_chunk(node, parent) # sets node.mesh
 
 
 func collapse_children(node : ChunkOctreeNode):
-	if node.mesh: node.mesh.queue_free.call_deferred()
+	if node.mesh: node.mesh.queue_unload(TerrainChunk.UnloadReason.COLLAPSE)
 	if not node.children.is_empty():
 		for child in node.children:
 			collapse_children(child)
@@ -138,6 +203,8 @@ func collapse_children(node : ChunkOctreeNode):
 func load_octree_chunk(node : ChunkOctreeNode, parent : ChunkOctreeNode = null):
 	var chunk : TerrainChunk = TerrainChunk.new()
 	node.mesh = chunk
+	chunk.octree_node = node
+	chunk.octree_parent = parent
 	chunk.position = node.position
 	chunk.chunk_pos = node.position / chunk_size
 	chunk.size = Vector3i(chunk_size,chunk_size,chunk_size)
