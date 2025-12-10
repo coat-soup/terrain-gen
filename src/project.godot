@@ -30,7 +30,11 @@ project/assembly_name="Terrain Gen"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/script-ide/plugin.cfg")
+enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg", "res://addons/script-ide/plugin.cfg")
+
+[gdunit4]
+
+settings/common/update_notification_enabled=false
 
 [input]
 
