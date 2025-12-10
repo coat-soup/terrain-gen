@@ -14,4 +14,4 @@ jobs:
           paths: 'res://test'
           console-verbosity: 'normal'
           timeout: '10'
-          version: '5.0.3'
+          version: 'v5.0.3'
