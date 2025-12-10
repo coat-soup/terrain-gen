@@ -1,5 +1,7 @@
 name: GdUnit4 Tests
-on: [push, pull_request]
+on:
+  pull_request:
+    branches: [main]
 
 jobs:
   test:
