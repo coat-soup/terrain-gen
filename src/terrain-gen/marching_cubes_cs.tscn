@@ -1,0 +1,74 @@
+[gd_scene load_steps=12 format=3 uid="uid://f1o2row1elky"]
+
+[ext_resource type="Script" uid="uid://b360mtqi65fnp" path="res://terrain-gen/cs/save_data_loader.gd" id="1_8ubml"]
+[ext_resource type="Script" uid="uid://xmnrya6cfe2g" path="res://terrain-gen/cs/TerrainGenerator.cs" id="1_mmnf0"]
+[ext_resource type="Script" uid="uid://dk4nvr2mlh66l" path="res://terrain-gen/cs/octree_visualiser.gd" id="3_jdxrr"]
+[ext_resource type="PackedScene" uid="uid://k8an4yh1xw7p" path="res://player/player.tscn" id="4_abapg"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sblsk"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_od0dj"]
+sky_material = SubResource("ProceduralSkyMaterial_sblsk")
+
+[sub_resource type="Environment" id="Environment_av8b3"]
+background_mode = 2
+sky = SubResource("Sky_od0dj")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kj283"]
+albedo_color = Color(0, 1, 0, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_8uihq"]
+material = SubResource("StandardMaterial3D_kj283")
+top_radius = 0.0
+bottom_radius = 4.029
+height = 30.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_8kbu4"]
+radius = 50.0
+height = 100.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sblsk"]
+albedo_color = Color(0.248353, 0.511842, 0.822794, 1)
+
+[node name="MarchingCube" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_av8b3")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="TreeForScale" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30.373, 12434.6, -158.929)
+mesh = SubResource("CylinderMesh_8uihq")
+skeleton = NodePath("")
+
+[node name="TerrainGenerator" type="Node" parent="."]
+script = ExtResource("1_mmnf0")
+planetRadius = 6000.0
+terrainHeight = 500.0
+chunkSize = 64
+debug_tree_depth_limit = 8
+
+[node name="SaveDataLoader" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator")]
+script = ExtResource("1_8ubml")
+generator = NodePath("..")
+
+[node name="OctreeVisualiser" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator")]
+script = ExtResource("3_jdxrr")
+generator = NodePath("..")
+start_depth = 7
+enabled = false
+
+[node name="Player" parent="." instance=ExtResource("4_abapg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.7351, 11987.1, 1068.05)
+
+[node name="OceanSurface" type="MeshInstance3D" parent="."]
+transform = Transform3D(120.1, 0, 0, 0, 120.1, 0, 0, 0, 120.1, 0, 0, 0)
+mesh = SubResource("SphereMesh_8kbu4")
+surface_material_override/0 = SubResource("StandardMaterial3D_sblsk")
