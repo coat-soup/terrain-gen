@@ -3,7 +3,6 @@ using System.Linq;
 using Godot;
 using Godot.Collections;
 
-[Tool]
 public partial class TerrainGenerator : Node
 {
     [Export] public float planetRadius = 12000.0f;
@@ -20,6 +19,7 @@ public partial class TerrainGenerator : Node
     private int[] climateZoneIDs;
     
     OctreeNode tree;
+    private int n_nodes;
     
     
     public void CreateTreeFromDataArrays(Array<Array<int>> _neighbours, Vector3[] _positions, float[] _heights, Vector3[] _windDirs, float[] _precipitations, int[] _climateZoneIDs)
@@ -39,28 +39,34 @@ public partial class TerrainGenerator : Node
         int si = 0;
         while (s < diameter) { s *= 2.0f; si += 1;}
         Vector3 rootPos = -Vector3.One * s / 2.0f;
-        tree = new OctreeNode(rootPos, s, 0, si);
+        tree = new OctreeNode(rootPos, s, 0, si, 0);
+
+        double time = Time.GetUnixTimeFromSystem();
         
         GD.Print("Root node size: ", tree.size);
-        
+        n_nodes = 0;
         BuildTree(tree);
-        GD.Print("Tree finished");
+        GD.Print("Tree finished with " + n_nodes + " nodes in " + (Time.GetUnixTimeFromSystem() - time) + " seconds.");
     }
 
     
     public void BuildTree(OctreeNode node)
     {
+        n_nodes++;
+        
+        node.cell_id = CellIDFromNormal(node.position + Vector3.One * node.sideLength / 2.0f, node.cell_id);
+        
         if (node.size == 0) return;
         if (node.depth >= debug_tree_depth_limit) return;
         
         const float halfsqrt3 = 0.86602540378f; // Sqrt(3)/2
-        if (node.depth == 0 || Mathf.Abs(SampleSDF(node.position + Vector3.One * node.sideLength/2.0f)) <= node.sideLength * halfsqrt3)
+        if (node.depth == 0 || Mathf.Abs(SampleSDF(node.position + Vector3.One * node.sideLength/2.0f, node.cell_id)) <= node.sideLength * halfsqrt3)
         {
             Vector3[] childPositions = [new Vector3(0,0,0), new Vector3(0,0,1), new Vector3(0,1,0), new Vector3(0,1,1), new Vector3(1,0,0), new Vector3(1,0,1), new Vector3(1,1,0), new Vector3(1,1,1)];
             node.children = new  OctreeNode[8];
             for(int i = 0; i < 8; i++)
             {
-                node.children[i] = new OctreeNode(node.position + node.sideLength * childPositions[i] / 2.0f, node.sideLength / 2.0f, node.depth + 1, node.size - 1);
+                node.children[i] = new OctreeNode(node.position + node.sideLength * childPositions[i] / 2.0f, node.sideLength / 2.0f, node.depth + 1, node.size - 1, node.cell_id);
             }
             foreach(OctreeNode child in node.children) BuildTree(child);
         }
@@ -69,10 +75,9 @@ public partial class TerrainGenerator : Node
     
     public float SampleSDF(Vector3 position, int cell = -1)
     {
-        if (cell == -1) cell = CellIDFromNormal(position.Normalized());
-
         //return planetRadius - position.Length();
         
+        if (cell == -1) cell = CellIDFromNormal(position.Normalized());
         return planetRadius + terrainHeight * heights[cell] - position.Length();
     }
     

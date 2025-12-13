@@ -55,18 +55,19 @@ terrainHeight = 500.0
 chunkSize = 64
 debug_tree_depth_limit = 8
 
-[node name="SaveDataLoader" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator")]
+[node name="SaveDataLoader" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator", "visualiser")]
 script = ExtResource("1_8ubml")
 generator = NodePath("..")
+visualiser = NodePath("../OctreeVisualiser")
 
 [node name="OctreeVisualiser" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator")]
 script = ExtResource("3_jdxrr")
 generator = NodePath("..")
-start_depth = 7
-enabled = false
+start_depth = 8
+enabled = true
 
 [node name="Player" parent="." instance=ExtResource("4_abapg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.7351, 11987.1, 1068.05)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.7351, 6224.74, 547.28)
 
 [node name="OceanSurface" type="MeshInstance3D" parent="."]
 transform = Transform3D(120.1, 0, 0, 0, 120.1, 0, 0, 0, 120.1, 0, 0, 0)

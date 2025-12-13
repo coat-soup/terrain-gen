@@ -1,5 +1,6 @@
-@tool
 extends Node
+class_name OctreeVisualiser
+
 @export var generator : Node
 
 var positions : Array[Vector3]
@@ -7,9 +8,8 @@ var sizes : Array[float]
 var depths : Array[int]
 
 @export var start_depth : int = 4
-@export var enabled : bool = true
+@export var enabled : bool = false
 
-@export_tool_button("UpdateTree", "Callable") var action = parse_tree
 
 func parse_tree():
 	positions = []
@@ -25,6 +25,10 @@ func add_node_to_list(node):
 	depths.append(node.depth)
 	for c in node.children:
 		add_node_to_list(c)
+
+
+func _input(event: InputEvent) -> void:
+	if Input.is_key_pressed(KEY_V): enabled = !enabled
 
 
 func _process(delta: float) -> void:
