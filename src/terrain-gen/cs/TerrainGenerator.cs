@@ -8,18 +8,23 @@ public partial class TerrainGenerator : Node
     [Export] public float planetRadius = 12000.0f;
     [Export] public float terrainHeight = 1000.0f;
     [Export] public int chunkSize = 32;
-
+    [Export] public float renderDist = 100.0f;
+    
     [Export] public int debug_tree_depth_limit = 4;
     
-    private Array<Array<int>> neighbours;
-    private Vector3[] positions;
-    private float[] heights;
-    private Vector3[] windDirs;
-    private float[] precipitations;
-    private int[] climateZoneIDs;
+    public Array<Array<int>> neighbours;
+    public Vector3[] positions;
+    public float[] heights;
+    public Vector3[] windDirs;
+    public float[] precipitations;
+    public int[] climateZoneIDs;
     
     OctreeNode tree;
     private int n_nodes;
+    private int n_small_leaves;
+    private int n_loaded_chunks;
+
+    [Export] public Node3D camera;
     
     
     public void CreateTreeFromDataArrays(Array<Array<int>> _neighbours, Vector3[] _positions, float[] _heights, Vector3[] _windDirs, float[] _precipitations, int[] _climateZoneIDs)
@@ -45,14 +50,24 @@ public partial class TerrainGenerator : Node
         
         GD.Print("Root node size: ", tree.size);
         n_nodes = 0;
+        n_small_leaves = 0;
         BuildTree(tree);
-        GD.Print("Tree finished with " + n_nodes + " nodes in " + (Time.GetUnixTimeFromSystem() - time) + " seconds.");
+        GD.Print("Tree finished with " + n_nodes + " nodes (" + n_small_leaves + " size 0 leaves) in " + (Time.GetUnixTimeFromSystem() - time) + " seconds.");
     }
 
+    
+    public void LoadChunksAroundCamera()
+    {
+        double time = Time.GetUnixTimeFromSystem();
+        LoadChunks(tree, camera.Position);
+        GD.Print("Loaded " + n_loaded_chunks + " chunks in " + (Time.GetUnixTimeFromSystem() - time) + " seconds.");
+    }
+    
     
     public void BuildTree(OctreeNode node)
     {
         n_nodes++;
+        if (node.size == 0) n_small_leaves++;
         
         node.cell_id = CellIDFromNormal(node.position + Vector3.One * node.sideLength / 2.0f, node.cell_id);
         
@@ -63,7 +78,7 @@ public partial class TerrainGenerator : Node
         if (node.depth == 0 || Mathf.Abs(SampleSDF(node.position + Vector3.One * node.sideLength/2.0f, node.cell_id)) <= node.sideLength * halfsqrt3)
         {
             Vector3[] childPositions = [new Vector3(0,0,0), new Vector3(0,0,1), new Vector3(0,1,0), new Vector3(0,1,1), new Vector3(1,0,0), new Vector3(1,0,1), new Vector3(1,1,0), new Vector3(1,1,1)];
-            node.children = new  OctreeNode[8];
+            node.children = new OctreeNode[8];
             for(int i = 0; i < 8; i++)
             {
                 node.children[i] = new OctreeNode(node.position + node.sideLength * childPositions[i] / 2.0f, node.sideLength / 2.0f, node.depth + 1, node.size - 1, node.cell_id);
@@ -72,6 +87,33 @@ public partial class TerrainGenerator : Node
         }
     }
     
+    
+    public void LoadChunks(OctreeNode node, Vector3 cameraPos)
+    {
+        if (node.size == 0)
+        {
+            if ((node.position + Vector3.One * node.sideLength/2.0f).DistanceTo(cameraPos) <= renderDist)
+            {
+                if (node.chunk == null)
+                {
+                    n_loaded_chunks++;
+                    
+                    node.chunk = new TerrainChunk(node.position, chunkSize, this, node.cell_id);
+                    node.chunk.Load();
+                    Callable.From(() => { AddChild(node.chunk); }).CallDeferred();
+                    node.chunk.Position = node.position;
+                }
+            }
+            else if(node.chunk != null)
+            {
+                node.chunk.Unload();
+                node.chunk = null;
+            }
+        }
+        
+        if (node.children != null) foreach(OctreeNode child in node.children) LoadChunks(child, cameraPos);
+    }
+        
     
     public float SampleSDF(Vector3 position, int cell = -1)
     {

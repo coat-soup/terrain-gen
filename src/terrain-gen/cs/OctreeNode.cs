@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class OctreeNode : Node
+public partial class OctreeNode : RefCounted
 {
     public Vector3 position;
     public float sideLength;
@@ -9,7 +9,8 @@ public partial class OctreeNode : Node
     public OctreeNode[] children;
     public int size;
     public int cell_id;
-
+    public TerrainChunk chunk;
+    
     
     public OctreeNode(Vector3 pos, float length, int d, int s, int c_id)
     {
@@ -17,7 +18,6 @@ public partial class OctreeNode : Node
         sideLength = length;
         depth = d;
         size = s;
-        children = [];
         cell_id = c_id;
     }
 }

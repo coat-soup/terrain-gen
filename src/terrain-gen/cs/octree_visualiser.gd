@@ -4,26 +4,26 @@ class_name OctreeVisualiser
 @export var generator : Node
 
 var positions : Array[Vector3]
-var sizes : Array[float]
-var depths : Array[int]
+var world_sizes : Array[float]
+var node_sizes : Array[int]
 
-@export var start_depth : int = 4
+@export var size_limit : int = 0
 @export var enabled : bool = false
 
 
 func parse_tree():
 	positions = []
-	sizes = []
-	depths = []
+	world_sizes = []
+	node_sizes = []
 	
 	add_node_to_list(generator.tree)
 
 
 func add_node_to_list(node):
 	positions.append(node.position)
-	sizes.append(node.sideLength)
-	depths.append(node.depth)
-	for c in node.children:
+	world_sizes.append(node.sideLength)
+	node_sizes.append(node.size)
+	if node.children: for c in node.children:
 		add_node_to_list(c)
 
 
@@ -37,6 +37,6 @@ func _process(delta: float) -> void:
 	
 	DebugDraw3D.draw_box(Vector3.ZERO, Quaternion.IDENTITY, Vector3.ONE, Color.BROWN, false)
 	for i in range(positions.size()):
-		if depths[i] < start_depth: continue
-		DebugDraw3D.scoped_config().set_thickness(50.0 / pow(1.3, depths[i]))
-		DebugDraw3D.draw_box(positions[i], Quaternion.IDENTITY, Vector3.ONE * sizes[i], depth_colours[depths[i]] if depths[i] < depth_colours.size() else Color.RED, false)
+		if node_sizes[i] > size_limit: continue
+		DebugDraw3D.scoped_config().set_thickness(1.0 * pow(1.3, node_sizes[i]))
+		DebugDraw3D.draw_box(positions[i], Quaternion.IDENTITY, Vector3.ONE * world_sizes[i], depth_colours[node_sizes[i]] if node_sizes[i] < depth_colours.size() else Color.RED, false)

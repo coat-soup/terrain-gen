@@ -48,12 +48,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30.373, 12434.6, -158.929)
 mesh = SubResource("CylinderMesh_8uihq")
 skeleton = NodePath("")
 
-[node name="TerrainGenerator" type="Node" parent="."]
+[node name="TerrainGenerator" type="Node" parent="." node_paths=PackedStringArray("camera")]
 script = ExtResource("1_mmnf0")
-planetRadius = 6000.0
-terrainHeight = 500.0
-chunkSize = 64
-debug_tree_depth_limit = 8
+planetRadius = 3000.0
+terrainHeight = 250.0
+debug_tree_depth_limit = 9
+camera = NodePath("../Player")
 
 [node name="SaveDataLoader" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator", "visualiser")]
 script = ExtResource("1_8ubml")
@@ -63,13 +63,11 @@ visualiser = NodePath("../OctreeVisualiser")
 [node name="OctreeVisualiser" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator")]
 script = ExtResource("3_jdxrr")
 generator = NodePath("..")
-start_depth = 8
-enabled = true
 
 [node name="Player" parent="." instance=ExtResource("4_abapg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.7351, 6224.74, 547.28)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.7557, 3277.36, 130.985)
 
 [node name="OceanSurface" type="MeshInstance3D" parent="."]
-transform = Transform3D(120.1, 0, 0, 0, 120.1, 0, 0, 0, 120.1, 0, 0, 0)
+transform = Transform3D(60, 0, 0, 0, 60, 0, 0, 0, 60, 0, 0, 0)
 mesh = SubResource("SphereMesh_8kbu4")
 surface_material_override/0 = SubResource("StandardMaterial3D_sblsk")
