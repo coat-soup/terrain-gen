@@ -90,7 +90,7 @@ public partial class TerrainGenerator : Node
     
     public void LoadChunks(OctreeNode node, Vector3 cameraPos)
     {
-        if (node.size == 0)
+        if (node.children == null)
         {
             if ((node.position + Vector3.One * node.sideLength/2.0f).DistanceTo(cameraPos) <= renderDist)
             {
@@ -98,7 +98,7 @@ public partial class TerrainGenerator : Node
                 {
                     n_loaded_chunks++;
                     
-                    node.chunk = new TerrainChunk(node.position, chunkSize, this, node.cell_id);
+                    node.chunk = new TerrainChunk(node.position, chunkSize, this, node.cell_id, node.size + 1);
                     node.chunk.Load();
                     Callable.From(() => { AddChild(node.chunk); }).CallDeferred();
                     node.chunk.Position = node.position;
@@ -110,8 +110,7 @@ public partial class TerrainGenerator : Node
                 node.chunk = null;
             }
         }
-        
-        if (node.children != null) foreach(OctreeNode child in node.children) LoadChunks(child, cameraPos);
+        else foreach(OctreeNode child in node.children) LoadChunks(child, cameraPos);
     }
         
     

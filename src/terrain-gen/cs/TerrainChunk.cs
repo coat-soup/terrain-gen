@@ -11,6 +11,7 @@ public partial class TerrainChunk : MeshInstance3D
     public Vector3 chunkPos;
     public float[] data;
     public int size;
+    public int voxelSizeMultiplier;
     public Vector3[] vertices;
     public Vector3[] normals;
     public TerrainGenerator tgen;
@@ -19,12 +20,13 @@ public partial class TerrainChunk : MeshInstance3D
     private bool chunkEmpty;
     
     
-    public TerrainChunk(Vector3 pos, int s, TerrainGenerator gen, int cID)
+    public TerrainChunk(Vector3 pos, int s, TerrainGenerator gen, int cID, int sizeMult)
     {
         chunkPos = pos;
         size = s;
         tgen = gen;
         cellID = cID;
+        voxelSizeMultiplier = sizeMult;
 
         size += 1; // seam padding
     }
@@ -32,29 +34,16 @@ public partial class TerrainChunk : MeshInstance3D
     
     public void Generate()
     {
-        //var debugBox = new CsgBox3D();
-        //Callable.From(() => { AddChild(debugBox); }).CallDeferred();
-        //debugBox.Size = new Vector3(size, size, size);
-        //debugBox.Position = debugBox.Size / 2.0f;
-        
         data = new float[size * size * size];
         PopulateData();
         if (chunkEmpty) return;
         
-        //GD.Print("chunk data not homogenous");
-        
-        Godot.Collections.Dictionary<string, Vector3[]> mc = MarchingCubes.Generate(data, new Vector3I(size, size, size));
-        //GD.Print(mc);
+        Godot.Collections.Dictionary<string, Vector3[]> mc = MarchingCubes.Generate(data, new Vector3I(size, size, size), 0.0f, voxelSizeMultiplier);
         vertices = mc["vertices"];
         normals = mc["normals"];
 
-        if (vertices.Length < 3)
-        {
-            // chunk is empty
-            return;
-        }
+        if (vertices.Length < 3) return;
         
-        //GD.Print("marching cubes made valid mesh");
         
         ArrayMesh arrayMesh = new ArrayMesh();
         Godot.Collections.Array arrays = [];
@@ -99,7 +88,7 @@ public partial class TerrainChunk : MeshInstance3D
         for(int y = 0; y < size; y++)
         for (int z = 0; z < size; z++)
         {
-            Vector3 wPos = chunkPos + new Vector3(x, y, z);
+            Vector3 wPos = chunkPos + new Vector3(x, y, z) * voxelSizeMultiplier;
 
             int cell = tgen.CellIDFromNormal(wPos.Normalized(), cellID);
             

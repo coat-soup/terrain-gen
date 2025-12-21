@@ -52,6 +52,7 @@ skeleton = NodePath("")
 script = ExtResource("1_mmnf0")
 planetRadius = 3000.0
 terrainHeight = 250.0
+renderDist = 150.0
 debug_tree_depth_limit = 9
 camera = NodePath("../Player")
 
@@ -63,6 +64,7 @@ visualiser = NodePath("../OctreeVisualiser")
 [node name="OctreeVisualiser" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator")]
 script = ExtResource("3_jdxrr")
 generator = NodePath("..")
+size_limit = 1
 
 [node name="Player" parent="." instance=ExtResource("4_abapg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.7557, 3277.36, 130.985)

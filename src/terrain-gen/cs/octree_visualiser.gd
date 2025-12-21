@@ -20,9 +20,10 @@ func parse_tree():
 
 
 func add_node_to_list(node):
-	positions.append(node.position)
-	world_sizes.append(node.sideLength)
-	node_sizes.append(node.size)
+	if node.chunk:
+		positions.append(node.position)
+		world_sizes.append(node.sideLength)
+		node_sizes.append(node.size)
 	if node.children: for c in node.children:
 		add_node_to_list(c)
 
@@ -38,5 +39,5 @@ func _process(delta: float) -> void:
 	DebugDraw3D.draw_box(Vector3.ZERO, Quaternion.IDENTITY, Vector3.ONE, Color.BROWN, false)
 	for i in range(positions.size()):
 		if node_sizes[i] > size_limit: continue
-		DebugDraw3D.scoped_config().set_thickness(1.0 * pow(1.3, node_sizes[i]))
+		DebugDraw3D.scoped_config().set_thickness(0.5 * pow(2, node_sizes[i]))
 		DebugDraw3D.draw_box(positions[i], Quaternion.IDENTITY, Vector3.ONE * world_sizes[i], depth_colours[node_sizes[i]] if node_sizes[i] < depth_colours.size() else Color.RED, false)
