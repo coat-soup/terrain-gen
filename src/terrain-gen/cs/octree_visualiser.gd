@@ -20,10 +20,9 @@ func parse_tree():
 
 
 func add_node_to_list(node):
-	if node.chunk:
-		positions.append(node.position)
-		world_sizes.append(node.sideLength)
-		node_sizes.append(node.size)
+	positions.append(node.position)
+	world_sizes.append(node.sideLength)
+	node_sizes.append(node.size)
 	if node.children: for c in node.children:
 		add_node_to_list(c)
 

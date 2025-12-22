@@ -52,6 +52,8 @@ public partial class TerrainChunk : MeshInstance3D
         
         arrayMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
         Mesh = arrayMesh;
+
+        MaterialOverlay = tgen.terrainMaterial;
     }
 
     

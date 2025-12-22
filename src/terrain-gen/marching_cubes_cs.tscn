@@ -1,7 +1,8 @@
-[gd_scene load_steps=14 format=3 uid="uid://f1o2row1elky"]
+[gd_scene load_steps=15 format=3 uid="uid://f1o2row1elky"]
 
 [ext_resource type="Script" uid="uid://b360mtqi65fnp" path="res://terrain-gen/cs/save_data_loader.gd" id="1_8ubml"]
 [ext_resource type="Script" uid="uid://xmnrya6cfe2g" path="res://terrain-gen/cs/TerrainGenerator.cs" id="1_mmnf0"]
+[ext_resource type="Material" uid="uid://bp7to70lbqsjs" path="res://terrain-gen/marching_cubes_terrain_mat.tres" id="2_lmp17"]
 [ext_resource type="Script" uid="uid://dk4nvr2mlh66l" path="res://terrain-gen/cs/octree_visualiser.gd" id="3_jdxrr"]
 [ext_resource type="PackedScene" uid="uid://k8an4yh1xw7p" path="res://player/player.tscn" id="4_abapg"]
 
@@ -66,8 +67,8 @@ surface_material_override/0 = SubResource("StandardMaterial3D_lmp17")
 script = ExtResource("1_mmnf0")
 planetRadius = 3000.0
 terrainHeight = 250.0
-renderDist = 300.0
 debug_tree_depth_limit = 9
+terrainMaterial = ExtResource("2_lmp17")
 camera = NodePath("../Player")
 
 [node name="SaveDataLoader" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator", "visualiser")]
@@ -78,7 +79,7 @@ visualiser = NodePath("../OctreeVisualiser")
 [node name="OctreeVisualiser" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator")]
 script = ExtResource("3_jdxrr")
 generator = NodePath("..")
-size_limit = 1
+size_limit = 8
 
 [node name="Player" parent="." instance=ExtResource("4_abapg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.7557, 3277.36, 130.985)
