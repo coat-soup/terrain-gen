@@ -12,6 +12,7 @@ public partial class OctreeNode : RefCounted
     public int cell_id;
     public TerrainChunk chunk;
     public bool childLoaded;
+    public bool queuedForKill = false;
     
     
     public OctreeNode(Vector3 pos, float length, int d, int s, int c_id, OctreeNode par = null)

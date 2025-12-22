@@ -67,7 +67,7 @@ surface_material_override/0 = SubResource("StandardMaterial3D_lmp17")
 script = ExtResource("1_mmnf0")
 planetRadius = 3000.0
 terrainHeight = 250.0
-debug_tree_depth_limit = 9
+renderDist = 50.0
 terrainMaterial = ExtResource("2_lmp17")
 camera = NodePath("../Player")
 

@@ -9,8 +9,6 @@ public partial class TerrainGenerator : Node
     [Export] public float terrainHeight = 1000.0f;
     [Export] public int chunkSize = 32;
     [Export] public float renderDist = 100.0f;
-    
-    [Export] public int debug_tree_depth_limit = 4;
 
     [Export] public Material terrainMaterial;
     
@@ -70,67 +68,80 @@ public partial class TerrainGenerator : Node
         terrainMaterial.Set("shader_parameter/planet_radius", planetRadius);
         terrainMaterial.Set("shader_parameter/terrain_height", terrainHeight);
         
-        LoadChunks(tree, camera.Position);
+        //LoadChunks(tree, camera.Position);
+        BuildTree(tree);
         GD.Print("Loaded " + n_loaded_chunks + " chunks in " + (Time.GetUnixTimeFromSystem() - time) + " seconds.");
     }
     
     
-    public void BuildTree(OctreeNode node)
+    public void BuildTree(OctreeNode node, String path = "")
     {
         n_nodes++;
         if (node.size == 0) n_small_leaves++;
         
         node.cell_id = CellIDFromNormal(node.position + Vector3.One * node.sideLength / 2.0f, node.cell_id);
         
-        if (node.size == 0) return;
-        if (node.depth >= debug_tree_depth_limit) return;
-        
         bool inRange = (node.position + Vector3.One * node.sideLength/2.0f).DistanceTo(camera.GlobalPosition) <= renderDist + node.sideLength * HALFSQRT3;
-        if (!inRange) return;
         
-        if (node.depth == 0 || Mathf.Abs(SampleSDF(node.position + Vector3.One * node.sideLength/2.0f, node.cell_id)) <= node.sideLength * HALFSQRT3)
+        // WARNING: the LOD-based subdivision alone (see range, above) might make the SDF check obsolete (but keep an eye on performance), and won't have the fake SDF issues.
+        if (node.size > 0 && inRange && (node.depth == 0 || Mathf.Abs(SampleSDF(node.position + Vector3.One * node.sideLength/2.0f, node.cell_id)) <= node.sideLength * HALFSQRT3)) // SHOULD SUBDIVIDE
         {
-            Vector3[] childPositions = [new Vector3(0,0,0), new Vector3(0,0,1), new Vector3(0,1,0), new Vector3(0,1,1), new Vector3(1,0,0), new Vector3(1,0,1), new Vector3(1,1,0), new Vector3(1,1,1)];
-            node.children = new OctreeNode[8];
-            for(int i = 0; i < 8; i++)
-            {
-                node.children[i] = new OctreeNode(node.position + node.sideLength * childPositions[i] / 2.0f, node.sideLength / 2.0f, node.depth + 1, node.size - 1, node.cell_id, node);
-            }
-            foreach(OctreeNode child in node.children) BuildTree(child);
-        }
-    }
-    
-    
-    public void LoadChunks(OctreeNode node, Vector3 cameraPos, String path = "")
-    {
-        bool inRange = (node.position + Vector3.One * node.sideLength/2.0f).DistanceTo(cameraPos) <= renderDist + node.sideLength * HALFSQRT3;
-        //inRange = true;
-        if (!inRange && !node.childLoaded) return;
-        if (node.children == null)
-        {
-            if (inRange)
-            {
-                if (node.chunk == null)
-                {
-                    n_loaded_chunks++;
-                    
-                    node.chunk = new TerrainChunk(node.position, chunkSize, this, node.cell_id, (int)Mathf.Pow(2, node.size), path);
-                    node.chunk.Load();
-                    node.SetLoaded(true);
-                    Callable.From(() => { AddChild(node.chunk); }).CallDeferred();
-                    node.chunk.Position = node.position;
-                }
-            }
-            else if(node.chunk != null)
+            if (node.chunk != null)
             {
                 node.chunk.Unload();
                 node.chunk = null;
                 node.SetLoaded(false);
             }
+            
+            if (node.children == null)
+            {
+                Vector3[] childPositions = [new Vector3(0,0,0), new Vector3(0,0,1), new Vector3(0,1,0), new Vector3(0,1,1), new Vector3(1,0,0), new Vector3(1,0,1), new Vector3(1,1,0), new Vector3(1,1,1)];
+                node.children = new OctreeNode[8];
+                for(int i = 0; i < 8; i++)
+                {
+                    node.children[i] = new OctreeNode(node.position + node.sideLength * childPositions[i] / 2.0f, node.sideLength / 2.0f, node.depth + 1, node.size - 1, node.cell_id, node);
+                }
+            }
+            for(int i = 0; i < node.children.Length; i++) BuildTree(node.children[i], path + i.ToString());
         }
-        else for(int i = 0; i < node.children.Length; i++) LoadChunks(node.children[i], cameraPos, path + i.ToString());
+        else
+        {
+            if (node.children != null)
+            {
+                //collapse children
+                CollapseChildren(node);
+            }
+            
+            if (node.chunk == null)
+            {
+                //load chunk
+                n_loaded_chunks++;
+                node.chunk = new TerrainChunk(node.position, chunkSize, this, node.cell_id, (int)Mathf.Pow(2, node.size), path);
+                node.chunk.Load();
+                node.SetLoaded(true);
+                Callable.From(() => { AddChild(node.chunk); }).CallDeferred();
+                node.chunk.Position = node.position;
+            }
+        }
     }
-        
+
+    public void CollapseChildren(OctreeNode node)
+    {
+        if (node.chunk != null)
+        {
+            node.chunk.Unload();
+            node.chunk = null;
+            node.SetLoaded(false);
+        }
+
+        if (node.children != null) foreach (OctreeNode child in node.children)
+        {
+            CollapseChildren(child);
+        }
+
+        node.children = null;
+    }
+    
     
     public float SampleSDF(Vector3 position, int cell = -1)
     {
