@@ -17,25 +17,24 @@ public partial class TerrainChunk : MeshInstance3D
     public TerrainGenerator tgen;
     public int cellID;
 
-    private bool chunkEmpty;
+    public bool chunkEmpty;
     
     
-    public TerrainChunk(Vector3 pos, int s, TerrainGenerator gen, int cID, int sizeMult)
+    public TerrainChunk(Vector3 pos, int s, TerrainGenerator gen, int cID, int sizeMult, String p)
     {
         chunkPos = pos;
         size = s;
         tgen = gen;
         cellID = cID;
         voxelSizeMultiplier = sizeMult;
+        path = p;
 
         size += 1; // seam padding
     }
     
     
-    public void Generate()
+    public void GenerateMesh()
     {
-        data = new float[size * size * size];
-        PopulateData();
         if (chunkEmpty) return;
         
         Godot.Collections.Dictionary<string, Vector3[]> mc = MarchingCubes.Generate(data, new Vector3I(size, size, size), 0.0f, voxelSizeMultiplier);
@@ -58,9 +57,17 @@ public partial class TerrainChunk : MeshInstance3D
     
     public void Load()
     {
-        // TODO: load from disk if already generated (try loading path.json or smt)
-        //else:
-        Generate();
+        data = new float[size * size * size];
+        
+        bool loaded = ChunkSaveData.TryLoadChunk(this);
+
+        if (!loaded)
+        {
+            PopulateData();
+            ChunkSaveData.SaveData(this);
+        }
+        
+        GenerateMesh();
     }
 
     

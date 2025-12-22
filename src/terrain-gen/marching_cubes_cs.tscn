@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://f1o2row1elky"]
+[gd_scene load_steps=14 format=3 uid="uid://f1o2row1elky"]
 
 [ext_resource type="Script" uid="uid://b360mtqi65fnp" path="res://terrain-gen/cs/save_data_loader.gd" id="1_8ubml"]
 [ext_resource type="Script" uid="uid://xmnrya6cfe2g" path="res://terrain-gen/cs/TerrainGenerator.cs" id="1_mmnf0"]
@@ -25,7 +25,15 @@ albedo_color = Color(0, 1, 0, 1)
 material = SubResource("StandardMaterial3D_kj283")
 top_radius = 0.0
 bottom_radius = 4.029
-height = 30.0
+height = 20.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_jdxrr"]
+top_radius = 1.0
+bottom_radius = 1.0
+height = 3.176
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lmp17"]
+albedo_color = Color(0.729401, 0.173677, 0, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_8kbu4"]
 radius = 50.0
@@ -44,15 +52,21 @@ transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -
 shadow_enabled = true
 
 [node name="TreeForScale" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30.373, 12434.6, -158.929)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.6, 3213.54, 39.51)
 mesh = SubResource("CylinderMesh_8uihq")
 skeleton = NodePath("")
+
+[node name="Trunk" type="MeshInstance3D" parent="TreeForScale"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -11.0674, 0)
+mesh = SubResource("CylinderMesh_jdxrr")
+skeleton = NodePath("")
+surface_material_override/0 = SubResource("StandardMaterial3D_lmp17")
 
 [node name="TerrainGenerator" type="Node" parent="." node_paths=PackedStringArray("camera")]
 script = ExtResource("1_mmnf0")
 planetRadius = 3000.0
 terrainHeight = 250.0
-renderDist = 150.0
+renderDist = 300.0
 debug_tree_depth_limit = 9
 camera = NodePath("../Player")
 
