@@ -92,8 +92,9 @@ public partial class TerrainChunk : MeshInstance3D
 
             int cell = tgen.CellIDFromNormal(wPos.Normalized(), cellID);
             
-            float height = tgen.planetRadius + tgen.heights[cell] * tgen.terrainHeight;
-
+            //float height = tgen.planetRadius + tgen.heights[cell] * tgen.terrainHeight;
+            float height = tgen.planetRadius + InterpolateHeightBarycentric(wPos, cell) * tgen.terrainHeight;
+            
             float density = height - wPos.Length();
             //density = rnd.Next(-1, 10) / 10.0f;
 
@@ -105,5 +106,90 @@ public partial class TerrainChunk : MeshInstance3D
 
         chunkEmpty = !(hasEmpty && hasFilled);
     }
+
+
+    public float InterpolateHeight(Vector3 worldPos, int cell)
+    {
+        float height = 0.0f;
+        float weight = 0.0f;
+
+        for (int i = 0; i < tgen.neighbours[cell].Count; i++)
+        {
+            float w = worldPos.Normalized().DistanceTo(tgen.positions[tgen.neighbours[cell][i]]);
+            height += tgen.heights[tgen.neighbours[cell][i]] * w;
+            weight += w;
+        }
+        
+        return height / weight;
+    }
     
+    
+    public static bool IsPointInSphericalTriangle( Vector3 p,  Vector3 a,  Vector3 b,  Vector3 c){
+        Vector3 ab = a.Cross(b);
+        Vector3 bc = b.Cross(c);
+        Vector3 ca = c.Cross(a);
+            
+        float s1 = ab.Dot(p);
+        float s2 = bc.Dot(p);
+        float s3 = ca.Dot(p);
+
+        return (s1 >= 0.0 && s2 >= 0.0 && s3 >= 0.0) || (s1 <= 0.0 && s2 <= 0.0 && s3 <= 0.0);
+    }
+    
+    
+    public int[] FindDelaunayTriangle(int closest, Vector3 p)
+    {
+        Vector3 center = tgen.positions[closest];
+        Godot.Collections.Array<int> neighbours = tgen.neighbours[closest];
+
+        for(int i = 0; i < neighbours.Count; i++)
+        {
+            Vector3 b = tgen.positions[neighbours[i]];
+            Vector3 c = tgen.positions[neighbours[(i + 1) % neighbours.Count]];
+
+            if (IsPointInSphericalTriangle(p, center, b, c))
+                return [closest, neighbours[i], neighbours[(i + 1) % neighbours.Count]];
+        }
+
+        return [closest, neighbours[0], neighbours[1]];
+    }
+
+    public static float TriArea(Vector3 a, Vector3 b, Vector3 c)
+    {
+        return Mathf.Atan2(
+            a.Dot(b.Cross(c)),
+            1.0f + a.Dot(b) + b.Dot(c) + c.Dot(a)
+        );
+    }
+    
+    public float InterpolateHeightBarycentric(Vector3 position, int closest)
+    {
+        var cells = FindDelaunayTriangle(closest, position);
+        if (cells.Length < 3) return tgen.heights[closest];
+
+        // normalized triangle verts
+        Vector3 A = tgen.positions[cells[0]];
+        Vector3 B = tgen.positions[cells[1]];
+        Vector3 C = tgen.positions[cells[2]];
+
+        Vector3 P = position.Normalized();
+
+        // areas
+        float areaTotal = TriArea(A, B, C);
+        float areaA = TriArea(P, B, C);
+        float areaB = TriArea(A, P, C);
+        float areaC = TriArea(A, B, P);
+
+        // barycentric weights
+        float wA = areaA / areaTotal;
+        float wB = areaB / areaTotal;
+        float wC = areaC / areaTotal;
+
+        // interpolate
+        float hA = tgen.heights[cells[0]];
+        float hB = tgen.heights[cells[1]];
+        float hC = tgen.heights[cells[2]];
+
+        return hA * wA + hB * wB + hC * wC;
+    }
 }
