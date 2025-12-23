@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 public partial class TerrainChunk : MeshInstance3D
 {
+    public Signal finished;
+    
     public string path = ""; // eg. 401057 is root.child[4].child[0].child[1].child[0].child[5].child[7]
                              // TODO: make not a string probably
                              // NOTE: this isn't implemented. It's just an idea for saving/loading
@@ -18,6 +20,8 @@ public partial class TerrainChunk : MeshInstance3D
     public int cellID;
 
     public bool chunkEmpty;
+    public bool unloadQueued = false;
+    public bool finishedLoading = false;
     
     
     public TerrainChunk(Vector3 pos, int s, TerrainGenerator gen, int cID, int sizeMult, String p)
@@ -54,6 +58,9 @@ public partial class TerrainChunk : MeshInstance3D
         Mesh = arrayMesh;
 
         MaterialOverlay = tgen.terrainMaterial;
+
+        finishedLoading = true;
+        //EmitSignal(finished);
     }
 
     
@@ -73,8 +80,16 @@ public partial class TerrainChunk : MeshInstance3D
     }
 
     
-    public void Unload()
+    public void Unload()//OctreeNode[] dependencies)
     {
+        /*
+        unloadQueued = true;
+
+        foreach (OctreeNode node in dependencies)
+        {
+            if (node.chunkQueued)
+        }*/
+        
         QueueFree();
         // TODO: save data to disk
     }

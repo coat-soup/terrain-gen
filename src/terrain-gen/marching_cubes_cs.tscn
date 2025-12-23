@@ -53,7 +53,7 @@ transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -
 shadow_enabled = true
 
 [node name="TreeForScale" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.6, 3213.54, 39.51)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -127.2, 6411, 79.02)
 mesh = SubResource("CylinderMesh_8uihq")
 skeleton = NodePath("")
 
@@ -65,8 +65,8 @@ surface_material_override/0 = SubResource("StandardMaterial3D_lmp17")
 
 [node name="TerrainGenerator" type="Node" parent="." node_paths=PackedStringArray("camera")]
 script = ExtResource("1_mmnf0")
-planetRadius = 3000.0
-terrainHeight = 250.0
+planetRadius = 6000.0
+terrainHeight = 500.0
 renderDist = 50.0
 terrainMaterial = ExtResource("2_lmp17")
 camera = NodePath("../Player")
@@ -82,9 +82,9 @@ generator = NodePath("..")
 size_limit = 8
 
 [node name="Player" parent="." instance=ExtResource("4_abapg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.7557, 3277.36, 130.985)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.512, 6486.56, 214.025)
 
 [node name="OceanSurface" type="MeshInstance3D" parent="."]
-transform = Transform3D(60, 0, 0, 0, 60, 0, 0, 0, 60, 0, 0, 0)
+transform = Transform3D(120, 0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 0)
 mesh = SubResource("SphereMesh_8kbu4")
 surface_material_override/0 = SubResource("StandardMaterial3D_sblsk")

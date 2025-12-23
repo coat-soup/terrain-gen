@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Godot;
 using Godot.Collections;
+using System.Collections.Generic;
 
 public partial class TerrainGenerator : Node
 {
@@ -28,7 +29,22 @@ public partial class TerrainGenerator : Node
     private Vector3I cameraChunkPos;
     
     const float HALFSQRT3 = 0.86602540378f; // Sqrt(3)/2
+
+    private Queue<OctreeNode> chunkLoadQueue = new Queue<OctreeNode>();
+    private bool pauseChunkQueue;
+    private GodotThread chunkThread;
+
     
+    public override void _Ready()
+    {
+        terrainMaterial.Set("shader_parameter/planet_radius", planetRadius);
+        terrainMaterial.Set("shader_parameter/terrain_height", terrainHeight);
+
+        chunkThread = new GodotThread();
+        chunkThread.Start(new Callable(this, MethodName.RunChunkQueue));
+        
+    }
+
     
     public void CreateTreeFromDataArrays(Array<Array<int>> _neighbours, Vector3[] _positions, float[] _heights, Vector3[] _windDirs, float[] _precipitations, int[] _climateZoneIDs)
     {
@@ -65,16 +81,16 @@ public partial class TerrainGenerator : Node
 
         n_loaded_chunks = 0;
         
-        terrainMaterial.Set("shader_parameter/planet_radius", planetRadius);
-        terrainMaterial.Set("shader_parameter/terrain_height", terrainHeight);
-        
         //LoadChunks(tree, camera.Position);
+        pauseChunkQueue = true;
+        chunkLoadQueue.Clear();
         BuildTree(tree);
+        pauseChunkQueue = false;
         GD.Print("Loaded " + n_loaded_chunks + " chunks in " + (Time.GetUnixTimeFromSystem() - time) + " seconds.");
     }
     
     
-    public void BuildTree(OctreeNode node, String path = "")
+    public void BuildTree(OctreeNode node)
     {
         n_nodes++;
         if (node.size == 0) n_small_leaves++;
@@ -86,12 +102,7 @@ public partial class TerrainGenerator : Node
         // WARNING: the LOD-based subdivision alone (see range, above) might make the SDF check obsolete (but keep an eye on performance), and won't have the fake SDF issues.
         if (node.size > 0 && inRange && (node.depth == 0 || Mathf.Abs(SampleSDF(node.position + Vector3.One * node.sideLength/2.0f, node.cell_id)) <= node.sideLength * HALFSQRT3)) // SHOULD SUBDIVIDE
         {
-            if (node.chunk != null)
-            {
-                node.chunk.Unload();
-                node.chunk = null;
-                node.SetLoaded(false);
-            }
+            node.chunkQueued = false;
             
             if (node.children == null)
             {
@@ -99,44 +110,30 @@ public partial class TerrainGenerator : Node
                 node.children = new OctreeNode[8];
                 for(int i = 0; i < 8; i++)
                 {
-                    node.children[i] = new OctreeNode(node.position + node.sideLength * childPositions[i] / 2.0f, node.sideLength / 2.0f, node.depth + 1, node.size - 1, node.cell_id, node);
+                    node.children[i] = new OctreeNode(node.position + node.sideLength * childPositions[i] / 2.0f, node.sideLength / 2.0f, node.depth + 1, node.size - 1, node.cell_id, node.path + i.ToString(), node);
                 }
             }
-            for(int i = 0; i < node.children.Length; i++) BuildTree(node.children[i], path + i.ToString());
+            for(int i = 0; i < node.children.Length; i++) BuildTree(node.children[i]);
         }
         else
         {
-            if (node.children != null)
-            {
-                //collapse children
-                CollapseChildren(node);
-            }
-            
-            if (node.chunk == null)
-            {
-                //load chunk
-                n_loaded_chunks++;
-                node.chunk = new TerrainChunk(node.position, chunkSize, this, node.cell_id, (int)Mathf.Pow(2, node.size), path);
-                node.chunk.Load();
-                node.SetLoaded(true);
-                Callable.From(() => { AddChild(node.chunk); }).CallDeferred();
-                node.chunk.Position = node.position;
-            }
+            n_loaded_chunks++;
+            node.chunkQueued = true;
         }
     }
 
-    public void CollapseChildren(OctreeNode node)
+    public void CollapseNode(OctreeNode node)
     {
         if (node.chunk != null)
         {
             node.chunk.Unload();
             node.chunk = null;
-            node.SetLoaded(false);
+            node.chunkQueued = false;
         }
 
         if (node.children != null) foreach (OctreeNode child in node.children)
         {
-            CollapseChildren(child);
+            CollapseNode(child);
         }
 
         node.children = null;
@@ -179,6 +176,46 @@ public partial class TerrainGenerator : Node
         }
     }
 
+
+    public void RunChunkQueue()
+    {
+        while (true)
+        {
+            if (pauseChunkQueue) continue;
+            BuildNodeChunks(tree);
+        }
+    }
+
+
+    public void BuildNodeChunks(OctreeNode node)
+    {
+        if (pauseChunkQueue) return;
+        
+        if (node.chunk == null && node.chunkQueued)
+        {
+            node.chunk = new TerrainChunk(node.position, chunkSize, this, node.cell_id, (int)Mathf.Pow(2, node.size), node.path);
+            node.chunk.Load();
+            if(node.chunk != null)
+                Callable.From(() => { AddChild(node.chunk); }).CallDeferred();
+            node.chunk.Position = node.position;
+            
+            if (node.children != null)
+            {
+                foreach (OctreeNode child in node.children) CollapseNode(child);
+                node.children = null;
+            }
+        }
+
+        if (node.children != null && !node.chunkQueued) foreach (OctreeNode child in node.children) BuildNodeChunks(child);
+        
+        if (node.chunk != null && !node.chunkQueued)
+        {
+            node.chunk.Unload();
+            node.chunkQueued = false;
+            node.chunk = null;
+        }
+    }
+    
     
     public override void _Process(double delta)
     {
@@ -188,5 +225,11 @@ public partial class TerrainGenerator : Node
             cameraChunkPos = c_pos;
             LoadChunksAroundCamera();
         }
+    }
+
+    
+    public override void _ExitTree()
+    {
+        chunkThread.WaitToFinish();
     }
 }
