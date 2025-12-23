@@ -10,20 +10,16 @@ enum VisualisationType {CELL_ID, PLATE_ID, CELL_POSITION, PLATE_STRESS, CELL_HEI
 
 @export_tool_button("ColourMesh", "SphereMesh") var colour_action = colour_mesh
 
-var generator: MeshGenerator
-var simulator: SimulationPipeline
+@export var generator: MeshGenerator
+@export var simulator: SimulationPipeline
 
 func _ready() -> void:
-	$"../SimulationPipeline".finished.connect(colour_mesh)
-	generator = $"../MeshGenerator"
-	simulator = $"../SimulationPipeline"
-	colour_mesh()
+	simulator.finished.connect(colour_mesh)
 
 
 func colour_mesh():
-	generator = $"../MeshGenerator"
-	simulator = $"../SimulationPipeline"
-
+	if not generator or not simulator: return
+	
 	var data := PackedFloat32Array()
 	
 	for i in range(generator.polyhedron.faces.size()):
