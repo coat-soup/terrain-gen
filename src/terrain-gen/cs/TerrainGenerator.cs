@@ -25,6 +25,9 @@ public partial class TerrainGenerator : Node
     private int n_small_leaves;
     private int n_loaded_chunks;
 
+    [Export] public FastNoiseLite noise;
+    [Export] public float noiseScale = 0.5f;
+    
     [Export] public Node3D camera;
     private Vector3I cameraChunkPos;
     

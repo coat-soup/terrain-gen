@@ -1,13 +1,22 @@
-[gd_resource type="ShaderMaterial" load_steps=6 format=3 uid="uid://bp7to70lbqsjs"]
+[gd_resource type="ShaderMaterial" load_steps=8 format=3 uid="uid://bp7to70lbqsjs"]
 
 [ext_resource type="Shader" uid="uid://c0ys8vxxfmsbn" path="res://terrain-gen/terrain_shader.gdshader" id="1_436cy"]
 
 [sub_resource type="Gradient" id="Gradient_5ks2f"]
-offsets = PackedFloat32Array(0, 0.624561, 0.814035, 1)
-colors = PackedColorArray(1, 0.82423, 0.243413, 1, 0.387179, 0.613739, 3.85046e-07, 1, 0.33475, 0.287627, 0.352563, 1, 1, 1, 1, 1)
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.0535714, 0.342857, 0.610714)
+colors = PackedColorArray(1, 0.82423, 0.243413, 1, 0.387179, 0.613739, 3.85046e-07, 1, 0.240283, 0.391577, 1.92523e-07, 1, 1, 1, 1, 1)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_436cy"]
 gradient = SubResource("Gradient_5ks2f")
+
+[sub_resource type="Gradient" id="Gradient_436cy"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.0428571, 0.107143, 0.389286, 0.625)
+colors = PackedColorArray(1, 0.823529, 0.243137, 1, 0.528487, 0.376929, 0.114015, 1, 0.322889, 0.140313, 0.0912861, 1, 0.393086, 0.393086, 0.393085, 1, 0.259294, 0.259294, 0.259294, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_y64le"]
+gradient = SubResource("Gradient_436cy")
 
 [sub_resource type="Gradient" id="Gradient_6lrfs"]
 interpolation_mode = 1
@@ -21,6 +30,8 @@ gradient = SubResource("Gradient_6lrfs")
 render_priority = 0
 shader = ExtResource("1_436cy")
 shader_parameter/height_gradient = SubResource("GradientTexture1D_436cy")
+shader_parameter/steep_gradient = SubResource("GradientTexture1D_y64le")
+shader_parameter/slope_cutoff = 0.8
 shader_parameter/water_gradient = SubResource("GradientTexture1D_1b8io")
 shader_parameter/planet_radius = 0.0
 shader_parameter/terrain_height = 1000.0

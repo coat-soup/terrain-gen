@@ -117,7 +117,8 @@ public partial class TerrainChunk : MeshInstance3D
             int cell = tgen.CellIDFromNormal(wPos.Normalized(), cellID);
             
             //float height = tgen.planetRadius + tgen.heights[cell] * tgen.terrainHeight;
-            float height = tgen.planetRadius + InterpolateHeightBarycentric(wPos, cell) * tgen.terrainHeight;
+            float height = tgen.planetRadius +
+                           (InterpolateHeightBarycentric(wPos, cell) + (tgen.noise.GetNoise3Dv(wPos) -0.5f) * tgen.noiseScale) * tgen.terrainHeight;
             
             float density = height - wPos.Length();
             //density = rnd.Next(-1, 10) / 10.0f;
