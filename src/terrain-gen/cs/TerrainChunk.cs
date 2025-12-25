@@ -23,6 +23,8 @@ public partial class TerrainChunk : MeshInstance3D
     public bool unloadQueued = false;
     public bool finishedLoading = false;
     
+    int hasFilled = 0;
+    int hasEmpty = 0;
     
     public TerrainChunk(Vector3 pos, int s, TerrainGenerator gen, int cID, int sizeMult, String p)
     {
@@ -72,7 +74,12 @@ public partial class TerrainChunk : MeshInstance3D
 
         if (!loaded)
         {
-            PopulateData();
+            long taskId = WorkerThreadPool.AddGroupTask(Callable.From<int>(PopulateData), size);
+            WorkerThreadPool.WaitForGroupTaskCompletion(taskId);
+            //PopulateData();
+            
+            chunkEmpty = !(hasEmpty == 1 && hasFilled == 1);
+            
             ChunkSaveData.SaveData(this);
         }
         
@@ -101,14 +108,9 @@ public partial class TerrainChunk : MeshInstance3D
     }
 
     
-    public void PopulateData()
+    public void PopulateData(int x)
     {
-        bool hasFilled = false;
-        bool hasEmpty = false;
-
-        Dictionary<NormalKey, float> heightCache = new();
-        
-        for(int x = 0; x < size; x++)
+        //for(int x = 0; x < size; x++)
         for(int y = 0; y < size; y++)
         for (int z = 0; z < size; z++)
         {
@@ -116,26 +118,15 @@ public partial class TerrainChunk : MeshInstance3D
 
             int cell = tgen.CellIDFromNormal(wPos.Normalized(), cellID);
 
-            NormalKey key = new NormalKey(wPos.Normalized(), voxelSizeMultiplier-1);
-
-            float simHeight;// = InterpolateHeightBarycentric(wPos, cell);
-            if (!heightCache.TryGetValue(key, out simHeight))
-            {
-                simHeight = InterpolateHeightBarycentric(wPos, cell);
-                heightCache[key] = simHeight;
-            }
-            
+            float simHeight = InterpolateHeightBarycentric(wPos, cell);
             float height = tgen.planetRadius + (simHeight + (tgen.noise.GetNoise3Dv(wPos) -0.5f) * tgen.noiseScale) * tgen.terrainHeight;
-            
             float density = height - wPos.Length();
 
             data[GridToIDX(x, y, z)] = density;
 
-            if (density < 0) hasFilled = true;
-            if (density > 0) hasEmpty = true;
+            System.Threading.Interlocked.Or(ref hasFilled, density < 0 ? 1 : 0);
+            System.Threading.Interlocked.Or(ref hasEmpty,  density > 0 ? 1 : 0);
         }
-
-        chunkEmpty = !(hasEmpty && hasFilled);
     }
 
     public struct NormalKey : IEquatable<NormalKey>

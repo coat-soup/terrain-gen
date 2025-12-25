@@ -118,7 +118,6 @@ script = ExtResource("1_mmnf0")
 terrainMaterial = ExtResource("2_lmp17")
 noise = SubResource("FastNoiseLite_lmp17")
 camera = NodePath("../Player")
-regenAroundCamera = false
 
 [node name="SaveDataLoader" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator", "visualiser")]
 script = ExtResource("1_8ubml")
@@ -131,7 +130,7 @@ generator = NodePath("..")
 size_limit = 8
 
 [node name="Player" parent="." instance=ExtResource("4_abapg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.512, 12973.1, 214.025)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.512, 12955.4, 214.025)
 
 [node name="OceanSurface" type="MeshInstance3D" parent="."]
 transform = Transform3D(240.24, 0, 0, 0, 240.24, 0, 0, 0, 240.24, 0, 0, 0)

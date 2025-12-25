@@ -197,14 +197,12 @@ public partial class TerrainGenerator : Node
     {
         if (pauseChunkQueue) return;
         
-        if (node.children != null && !node.chunkQueued) foreach (OctreeNode child in node.children) BuildNodeChunks(child);
-        
         if (node.chunk == null && node.chunkQueued)
         {
             node.chunk = new TerrainChunk(node.position, chunkSize, this, node.cell_id, (int)Mathf.Pow(2, node.size), node.path);
-            node.chunk.Load();
             if(node.chunk != null)
                 Callable.From(() => { AddChild(node.chunk); }).CallDeferred();
+            node.chunk.Load();
             node.chunk.Position = node.position;
             
             if (node.children != null)
@@ -213,6 +211,8 @@ public partial class TerrainGenerator : Node
                 node.children = null;
             }
         }
+        
+        if (node.children != null && !node.chunkQueued) foreach (OctreeNode child in node.children) BuildNodeChunks(child);
         
         if (node.chunk != null && !node.chunkQueued)
         {
