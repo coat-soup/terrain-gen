@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://f1o2row1elky"]
+[gd_scene load_steps=20 format=3 uid="uid://f1o2row1elky"]
 
 [ext_resource type="Script" uid="uid://b360mtqi65fnp" path="res://terrain-gen/cs/save_data_loader.gd" id="1_8ubml"]
 [ext_resource type="Script" uid="uid://xmnrya6cfe2g" path="res://terrain-gen/cs/TerrainGenerator.cs" id="1_mmnf0"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://dk4nvr2mlh66l" path="res://terrain-gen/cs/octree_visualiser.gd" id="3_jdxrr"]
 [ext_resource type="PackedScene" uid="uid://k8an4yh1xw7p" path="res://player/player.tscn" id="4_abapg"]
 [ext_resource type="Shader" uid="uid://dgmrdvwjvtf16" path="res://terrain-gen/idw_test.gdshader" id="6_mruw7"]
+[ext_resource type="Script" uid="uid://c5dktj43vvsde" path="res://ui/ui_manager.gd" id="7_abapg"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sblsk"]
 sky_horizon_color = Color(0.384314, 0.454902, 0.54902, 1)
@@ -141,3 +142,60 @@ surface_material_override/0 = SubResource("StandardMaterial3D_sblsk")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.503262, 0.498866, 0)
 mesh = SubResource("QuadMesh_abapg")
 surface_material_override/0 = SubResource("ShaderMaterial_nwh6r")
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("7_abapg")
+
+[node name="PlayerInfo" type="Control" parent="UI"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 15.0
+offset_top = -67.0
+offset_right = 55.0
+offset_bottom = -27.0
+grow_vertical = 0
+mouse_filter = 1
+
+[node name="PlayerSpeed" type="Label" parent="UI/PlayerInfo"]
+layout_mode = 1
+offset_right = 104.0
+offset_bottom = 23.0
+text = "Speed: 30m/s"
+
+[node name="PlayerHeight" type="Label" parent="UI/PlayerInfo"]
+layout_mode = 1
+offset_top = 23.0
+offset_right = 103.0
+offset_bottom = 46.0
+text = "Height: 400m"
+
+[node name="RenderInfo" type="Control" parent="UI"]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 7.0
+offset_top = 5.0
+offset_right = 47.0
+offset_bottom = 45.0
+mouse_filter = 1
+
+[node name="FPS" type="Label" parent="UI/RenderInfo"]
+layout_mode = 0
+offset_right = 104.0
+offset_bottom = 23.0
+text = "FPS: 60"
+
+[node name="Frametime" type="Label" parent="UI/RenderInfo"]
+layout_mode = 0
+offset_top = 23.0
+offset_right = 103.0
+offset_bottom = 46.0
+text = "Frame: 7.5ms"

@@ -4,12 +4,13 @@ using Godot;
 using Godot.Collections;
 using System.Collections.Generic;
 
+[GlobalClass]
 public partial class TerrainGenerator : Node
 {
-    [Export] public float planetRadius = 12000.0f;
-    [Export] public float terrainHeight = 1000.0f;
-    [Export] public int chunkSize = 32;
-    [Export] public float renderDist = 100.0f;
+    [Export] public float planetRadius { get; set; } = 12000.0f;
+    [Export] public float terrainHeight { get; set; } = 1000.0f;
+    [Export] public int chunkSize { get; set; } = 32;
+    [Export] public float renderDist { get; set; } = 100.0f;
 
     [Export] public Material terrainMaterial;
     
