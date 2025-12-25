@@ -1,10 +1,11 @@
-[gd_scene load_steps=16 format=3 uid="uid://f1o2row1elky"]
+[gd_scene load_steps=19 format=3 uid="uid://f1o2row1elky"]
 
 [ext_resource type="Script" uid="uid://b360mtqi65fnp" path="res://terrain-gen/cs/save_data_loader.gd" id="1_8ubml"]
 [ext_resource type="Script" uid="uid://xmnrya6cfe2g" path="res://terrain-gen/cs/TerrainGenerator.cs" id="1_mmnf0"]
 [ext_resource type="Material" uid="uid://bp7to70lbqsjs" path="res://terrain-gen/marching_cubes_terrain_mat.tres" id="2_lmp17"]
 [ext_resource type="Script" uid="uid://dk4nvr2mlh66l" path="res://terrain-gen/cs/octree_visualiser.gd" id="3_jdxrr"]
 [ext_resource type="PackedScene" uid="uid://k8an4yh1xw7p" path="res://player/player.tscn" id="4_abapg"]
+[ext_resource type="Shader" uid="uid://dgmrdvwjvtf16" path="res://terrain-gen/idw_test.gdshader" id="6_mruw7"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sblsk"]
 sky_horizon_color = Color(0.384314, 0.454902, 0.54902, 1)
@@ -38,7 +39,7 @@ height = 3.176
 albedo_color = Color(0.729401, 0.173677, 0, 1)
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_lmp17"]
-frequency = 0.001
+frequency = 0.0005
 
 [sub_resource type="SphereMesh" id="SphereMesh_8kbu4"]
 radius = 50.0
@@ -46,6 +47,15 @@ height = 100.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sblsk"]
 albedo_color = Color(0.248353, 0.511842, 0.822794, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_abapg"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nwh6r"]
+render_priority = 0
+shader = ExtResource("6_mruw7")
+shader_parameter/positions = PackedVector2Array(0, 0, 0, 1, 1, 0, 1, 1, 0.5, 0.5, 0.355, 0.615)
+shader_parameter/values = PackedColorArray(1, 1, 1, 1, 1, 0.6, 0.6, 1, 0.142019, 0.666942, 0.979199, 1, 0, 1, 0, 1, 1, 0.275893, 0.194685, 1, 0.385243, 0.00159544, 0.865125, 1)
+shader_parameter/distance_power = 2.0
 
 [node name="MarchingCube" type="Node3D"]
 
@@ -57,7 +67,7 @@ transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -
 shadow_enabled = true
 
 [node name="TreesForScale" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -248.863, 6241.14, 120.256)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -497.726, 12476.7, 240.512)
 
 [node name="TreeForScale" type="MeshInstance3D" parent="TreesForScale"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.82129, -5.17389)
@@ -105,12 +115,10 @@ surface_material_override/0 = SubResource("StandardMaterial3D_lmp17")
 
 [node name="TerrainGenerator" type="Node" parent="." node_paths=PackedStringArray("camera")]
 script = ExtResource("1_mmnf0")
-planetRadius = 6000.0
-terrainHeight = 500.0
 terrainMaterial = ExtResource("2_lmp17")
 noise = SubResource("FastNoiseLite_lmp17")
-noiseScale = 0.4
 camera = NodePath("../Player")
+regenAroundCamera = false
 
 [node name="SaveDataLoader" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator", "visualiser")]
 script = ExtResource("1_8ubml")
@@ -123,9 +131,14 @@ generator = NodePath("..")
 size_limit = 8
 
 [node name="Player" parent="." instance=ExtResource("4_abapg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.512, 6486.56, 214.025)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.512, 12973.1, 214.025)
 
 [node name="OceanSurface" type="MeshInstance3D" parent="."]
-transform = Transform3D(120.12, 0, 0, 0, 120.12, 0, 0, 0, 120.12, 0, 0, 0)
+transform = Transform3D(240.24, 0, 0, 0, 240.24, 0, 0, 0, 240.24, 0, 0, 0)
 mesh = SubResource("SphereMesh_8kbu4")
 surface_material_override/0 = SubResource("StandardMaterial3D_sblsk")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.503262, 0.498866, 0)
+mesh = SubResource("QuadMesh_abapg")
+surface_material_override/0 = SubResource("ShaderMaterial_nwh6r")

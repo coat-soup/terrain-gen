@@ -26,7 +26,7 @@ public partial class TerrainGenerator : Node
     private int n_loaded_chunks;
 
     [Export] public FastNoiseLite noise;
-    [Export] public float noiseScale = 0.5f;
+    [Export] public float noiseScale = 0.4f;
     
     [Export] public Node3D camera;
     private Vector3I cameraChunkPos;
@@ -37,6 +37,10 @@ public partial class TerrainGenerator : Node
     private bool pauseChunkQueue;
     private GodotThread chunkThread;
 
+    [Export] public bool regenAroundCamera = true;
+
+    private double time;
+    
     
     public override void _Ready()
     {
@@ -80,7 +84,7 @@ public partial class TerrainGenerator : Node
     
     public void LoadChunksAroundCamera()
     {
-        double time = Time.GetUnixTimeFromSystem();
+        time = Time.GetUnixTimeFromSystem();
 
         n_loaded_chunks = 0;
         
@@ -89,7 +93,6 @@ public partial class TerrainGenerator : Node
         chunkLoadQueue.Clear();
         BuildTree(tree);
         pauseChunkQueue = false;
-        GD.Print("Loaded " + n_loaded_chunks + " chunks in " + (Time.GetUnixTimeFromSystem() - time) + " seconds.");
     }
     
     
@@ -194,6 +197,8 @@ public partial class TerrainGenerator : Node
     {
         if (pauseChunkQueue) return;
         
+        if (node.children != null && !node.chunkQueued) foreach (OctreeNode child in node.children) BuildNodeChunks(child);
+        
         if (node.chunk == null && node.chunkQueued)
         {
             node.chunk = new TerrainChunk(node.position, chunkSize, this, node.cell_id, (int)Mathf.Pow(2, node.size), node.path);
@@ -208,8 +213,6 @@ public partial class TerrainGenerator : Node
                 node.children = null;
             }
         }
-
-        if (node.children != null && !node.chunkQueued) foreach (OctreeNode child in node.children) BuildNodeChunks(child);
         
         if (node.chunk != null && !node.chunkQueued)
         {
@@ -217,13 +220,19 @@ public partial class TerrainGenerator : Node
             node.chunkQueued = false;
             node.chunk = null;
         }
+        
+        if(node.depth == 0 && time > 0)
+        {
+            GD.Print("Loaded " + n_loaded_chunks + " chunks in " + (Time.GetUnixTimeFromSystem() - time) + " seconds.");
+            time = 0;
+        }
     }
     
     
     public override void _Process(double delta)
     {
         Vector3I c_pos = (Vector3I)(camera.GlobalPosition / chunkSize);
-        if (c_pos != cameraChunkPos)
+        if (regenAroundCamera && c_pos != cameraChunkPos)
         {
             cameraChunkPos = c_pos;
             LoadChunksAroundCamera();

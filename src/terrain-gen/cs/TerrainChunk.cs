@@ -106,7 +106,7 @@ public partial class TerrainChunk : MeshInstance3D
         bool hasFilled = false;
         bool hasEmpty = false;
 
-        Random rnd = new Random();
+        Dictionary<NormalKey, float> heightCache = new();
         
         for(int x = 0; x < size; x++)
         for(int y = 0; y < size; y++)
@@ -115,13 +115,19 @@ public partial class TerrainChunk : MeshInstance3D
             Vector3 wPos = chunkPos + new Vector3(x, y, z) * voxelSizeMultiplier;
 
             int cell = tgen.CellIDFromNormal(wPos.Normalized(), cellID);
+
+            NormalKey key = new NormalKey(wPos.Normalized(), voxelSizeMultiplier-1);
+
+            float simHeight;// = InterpolateHeightBarycentric(wPos, cell);
+            if (!heightCache.TryGetValue(key, out simHeight))
+            {
+                simHeight = InterpolateHeightBarycentric(wPos, cell);
+                heightCache[key] = simHeight;
+            }
             
-            //float height = tgen.planetRadius + tgen.heights[cell] * tgen.terrainHeight;
-            float height = tgen.planetRadius +
-                           (InterpolateHeightBarycentric(wPos, cell) + (tgen.noise.GetNoise3Dv(wPos) -0.5f) * tgen.noiseScale) * tgen.terrainHeight;
+            float height = tgen.planetRadius + (simHeight + (tgen.noise.GetNoise3Dv(wPos) -0.5f) * tgen.noiseScale) * tgen.terrainHeight;
             
             float density = height - wPos.Length();
-            //density = rnd.Next(-1, 10) / 10.0f;
 
             data[GridToIDX(x, y, z)] = density;
 
@@ -132,6 +138,34 @@ public partial class TerrainChunk : MeshInstance3D
         chunkEmpty = !(hasEmpty && hasFilled);
     }
 
+    public struct NormalKey : IEquatable<NormalKey>
+    {
+        private float precision = 0.0001f;
+
+        public int x;
+        public int y;
+        public int z;
+
+        public NormalKey(Vector3 normal, int chunkSize)
+        {
+            normal = normal.Normalized();
+            x = (int)(normal.X / precision);
+            y = (int)(normal.Y / precision);
+            z = (int)(normal.Z / precision);
+            precision *= Mathf.Pow(4f, chunkSize);
+        }
+
+        public bool Equals(NormalKey other) =>
+            x == other.x && y == other.y && z == other.z;
+
+        public override bool Equals(object obj) =>
+            obj is NormalKey other && Equals(other);
+
+        public override int GetHashCode() =>
+            HashCode.Combine(x, y, z);
+    }
+
+    
 
     public float InterpolateHeight(Vector3 worldPos, int cell)
     {
@@ -140,13 +174,48 @@ public partial class TerrainChunk : MeshInstance3D
 
         for (int i = 0; i < tgen.neighbours[cell].Count; i++)
         {
-            float w = worldPos.Normalized().DistanceTo(tgen.positions[tgen.neighbours[cell][i]]);
-            height += tgen.heights[tgen.neighbours[cell][i]] * w;
+            int n = tgen.neighbours[cell][i];
+
+            float d = 1.0f - worldPos.Normalized().Dot(tgen.positions[n]);
+            
+            float w = 1.0f/d;
+            height += tgen.heights[n] * w;
             weight += w;
         }
         
         return height / weight;
     }
+    
+    
+    public float InterpolateHeight2(Vector3 worldPos, int cell)
+    {
+        Vector3 p = worldPos.Normalized();
+
+        // find closest neighbor
+        int closest = -1;
+        float best = -1.0f;
+
+        for (int i = 0; i < tgen.neighbours[cell].Count; i++)
+        {
+            int n = tgen.neighbours[cell][i];
+            float d = p.Dot(tgen.positions[n]);
+            if (d > best)
+            {
+                best = d;
+                closest = n;
+            }
+        }
+
+        // angular distances
+        float d0 = 1.0f - p.Dot(tgen.positions[cell]);
+        float d1 = 1.0f - p.Dot(tgen.positions[closest]);
+
+        // normalize blend
+        float t = d0 / (d0 + d1);
+
+        return Mathf.Lerp(tgen.heights[cell], tgen.heights[closest], t);
+    }
+
     
     
     public static bool IsPointInSphericalTriangle( Vector3 p,  Vector3 a,  Vector3 b,  Vector3 c){
