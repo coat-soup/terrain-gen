@@ -7,6 +7,9 @@ using System.Collections.Generic;
 [GlobalClass]
 public partial class TerrainGenerator : Node
 {
+    [Signal]
+    public delegate void TerrainChunkFinishedLoadingEventHandler(TerrainChunk chunk);
+    
     [Export] public float planetRadius { get; set; } = 12000.0f;
     [Export] public float terrainHeight { get; set; } = 1000.0f;
     [Export] public int chunkSize { get; set; } = 32;

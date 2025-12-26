@@ -84,6 +84,8 @@ public partial class TerrainChunk : MeshInstance3D
         }
         
         GenerateMesh();
+
+        tgen.EmitSignal(TerrainGenerator.SignalName.TerrainChunkFinishedLoading, this);
     }
 
     
@@ -277,4 +279,25 @@ public partial class TerrainChunk : MeshInstance3D
 
         return hA * wA + hB * wB + hC * wC;
     }
+
+    
+    public Vector3I WorldToVoxel(Vector3 p)
+    {
+        Vector3 rel = (p - chunkPos) / voxelSizeMultiplier;
+
+        int vx = Mathf.FloorToInt(rel.X);
+        int vy = Mathf.FloorToInt(rel.Y);
+        int vz = Mathf.FloorToInt(rel.Z);
+
+        if (vx < 0 || vx >= size ||
+            vy < 0 || vy >= size ||
+            vz < 0 || vz >= size)
+        {
+            return new Vector3I(-1, -1, -1);
+        }
+
+        return new Vector3I(vx, vy, vz);
+    }
+
+
 }
