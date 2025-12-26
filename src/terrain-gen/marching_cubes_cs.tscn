@@ -1,0 +1,201 @@
+[gd_scene load_steps=20 format=3 uid="uid://f1o2row1elky"]
+
+[ext_resource type="Script" uid="uid://b360mtqi65fnp" path="res://terrain-gen/cs/save_data_loader.gd" id="1_8ubml"]
+[ext_resource type="Script" uid="uid://xmnrya6cfe2g" path="res://terrain-gen/cs/TerrainGenerator.cs" id="1_mmnf0"]
+[ext_resource type="Material" uid="uid://bp7to70lbqsjs" path="res://terrain-gen/marching_cubes_terrain_mat.tres" id="2_lmp17"]
+[ext_resource type="Script" uid="uid://dk4nvr2mlh66l" path="res://terrain-gen/cs/octree_visualiser.gd" id="3_jdxrr"]
+[ext_resource type="PackedScene" uid="uid://k8an4yh1xw7p" path="res://player/player.tscn" id="4_abapg"]
+[ext_resource type="Shader" uid="uid://dgmrdvwjvtf16" path="res://terrain-gen/idw_test.gdshader" id="6_mruw7"]
+[ext_resource type="Script" uid="uid://c5dktj43vvsde" path="res://ui/ui_manager.gd" id="7_abapg"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sblsk"]
+sky_horizon_color = Color(0.384314, 0.454902, 0.54902, 1)
+ground_bottom_color = Color(0.384314, 0.454902, 0.54902, 1)
+ground_horizon_color = Color(0.384314, 0.454902, 0.54902, 1)
+
+[sub_resource type="Sky" id="Sky_od0dj"]
+sky_material = SubResource("ProceduralSkyMaterial_sblsk")
+
+[sub_resource type="Environment" id="Environment_av8b3"]
+background_mode = 2
+sky = SubResource("Sky_od0dj")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kj283"]
+albedo_color = Color(0, 1, 0, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_8uihq"]
+material = SubResource("StandardMaterial3D_kj283")
+top_radius = 0.0
+bottom_radius = 4.029
+height = 20.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_jdxrr"]
+top_radius = 1.0
+bottom_radius = 1.0
+height = 3.176
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lmp17"]
+albedo_color = Color(0.729401, 0.173677, 0, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_lmp17"]
+frequency = 0.0005
+
+[sub_resource type="SphereMesh" id="SphereMesh_8kbu4"]
+radius = 50.0
+height = 100.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sblsk"]
+albedo_color = Color(0.248353, 0.511842, 0.822794, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_abapg"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nwh6r"]
+render_priority = 0
+shader = ExtResource("6_mruw7")
+shader_parameter/positions = PackedVector2Array(0, 0, 0, 1, 1, 0, 1, 1, 0.5, 0.5, 0.355, 0.615)
+shader_parameter/values = PackedColorArray(1, 1, 1, 1, 1, 0.6, 0.6, 1, 0.142019, 0.666942, 0.979199, 1, 0, 1, 0, 1, 1, 0.275893, 0.194685, 1, 0.385243, 0.00159544, 0.865125, 1)
+shader_parameter/distance_power = 2.0
+
+[node name="MarchingCube" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_av8b3")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="TreesForScale" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -497.726, 12476.7, 240.512)
+
+[node name="TreeForScale" type="MeshInstance3D" parent="TreesForScale"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.82129, -5.17389)
+mesh = SubResource("CylinderMesh_8uihq")
+skeleton = NodePath("")
+
+[node name="Trunk" type="MeshInstance3D" parent="TreesForScale/TreeForScale"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -11.0674, 0)
+mesh = SubResource("CylinderMesh_jdxrr")
+skeleton = NodePath("")
+surface_material_override/0 = SubResource("StandardMaterial3D_lmp17")
+
+[node name="TreeForScale2" type="MeshInstance3D" parent="TreesForScale"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.09238, 1.40723, 4.35204)
+mesh = SubResource("CylinderMesh_8uihq")
+skeleton = NodePath("")
+
+[node name="Trunk" type="MeshInstance3D" parent="TreesForScale/TreeForScale2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -11.0674, 0)
+mesh = SubResource("CylinderMesh_jdxrr")
+skeleton = NodePath("")
+surface_material_override/0 = SubResource("StandardMaterial3D_lmp17")
+
+[node name="TreeForScale3" type="MeshInstance3D" parent="TreesForScale"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.43176, 0.46582, 0.488907)
+mesh = SubResource("CylinderMesh_8uihq")
+skeleton = NodePath("")
+
+[node name="Trunk" type="MeshInstance3D" parent="TreesForScale/TreeForScale3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -11.0674, 0)
+mesh = SubResource("CylinderMesh_jdxrr")
+skeleton = NodePath("")
+surface_material_override/0 = SubResource("StandardMaterial3D_lmp17")
+
+[node name="TreeForScale4" type="MeshInstance3D" parent="TreesForScale"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.3364, 6.09277, -10.2417)
+mesh = SubResource("CylinderMesh_8uihq")
+skeleton = NodePath("")
+
+[node name="Trunk" type="MeshInstance3D" parent="TreesForScale/TreeForScale4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -11.0674, 0)
+mesh = SubResource("CylinderMesh_jdxrr")
+skeleton = NodePath("")
+surface_material_override/0 = SubResource("StandardMaterial3D_lmp17")
+
+[node name="TerrainGenerator" type="Node" parent="." node_paths=PackedStringArray("camera")]
+script = ExtResource("1_mmnf0")
+terrainMaterial = ExtResource("2_lmp17")
+noise = SubResource("FastNoiseLite_lmp17")
+camera = NodePath("../Player")
+
+[node name="SaveDataLoader" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator", "visualiser")]
+script = ExtResource("1_8ubml")
+generator = NodePath("..")
+visualiser = NodePath("../OctreeVisualiser")
+
+[node name="OctreeVisualiser" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator")]
+script = ExtResource("3_jdxrr")
+generator = NodePath("..")
+size_limit = 8
+
+[node name="Player" parent="." instance=ExtResource("4_abapg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.512, 12955.4, 214.025)
+
+[node name="OceanSurface" type="MeshInstance3D" parent="."]
+transform = Transform3D(240.24, 0, 0, 0, 240.24, 0, 0, 0, 240.24, 0, 0, 0)
+mesh = SubResource("SphereMesh_8kbu4")
+surface_material_override/0 = SubResource("StandardMaterial3D_sblsk")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.503262, 0.498866, 0)
+mesh = SubResource("QuadMesh_abapg")
+surface_material_override/0 = SubResource("ShaderMaterial_nwh6r")
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("7_abapg")
+
+[node name="PlayerInfo" type="Control" parent="UI"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 15.0
+offset_top = -67.0
+offset_right = 55.0
+offset_bottom = -27.0
+grow_vertical = 0
+mouse_filter = 1
+
+[node name="PlayerSpeed" type="Label" parent="UI/PlayerInfo"]
+layout_mode = 1
+offset_right = 104.0
+offset_bottom = 23.0
+text = "Speed: 30m/s"
+
+[node name="PlayerHeight" type="Label" parent="UI/PlayerInfo"]
+layout_mode = 1
+offset_top = 23.0
+offset_right = 103.0
+offset_bottom = 46.0
+text = "Height: 400m"
+
+[node name="RenderInfo" type="Control" parent="UI"]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 7.0
+offset_top = 5.0
+offset_right = 47.0
+offset_bottom = 45.0
+mouse_filter = 1
+
+[node name="FPS" type="Label" parent="UI/RenderInfo"]
+layout_mode = 0
+offset_right = 104.0
+offset_bottom = 23.0
+text = "FPS: 60"
+
+[node name="Frametime" type="Label" parent="UI/RenderInfo"]
+layout_mode = 0
+offset_top = 23.0
+offset_right = 103.0
+offset_bottom = 46.0
+text = "Frame: 7.5ms"

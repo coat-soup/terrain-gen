@@ -40,7 +40,7 @@ func _input(_event: InputEvent) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		rotate_y(-event.relative.x * sensetivity)
+		rotate(global_position.normalized(), -event.relative.x * sensetivity)
 		camera_pivot.rotate_x(-event.relative.y * sensetivity)
 		camera_pivot.rotation.x = clamp(camera_pivot.rotation.x, deg_to_rad(-90), deg_to_rad(90))
 
