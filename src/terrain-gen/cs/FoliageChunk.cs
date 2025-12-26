@@ -97,15 +97,40 @@ public partial class FoliageChunk : Node
 
             pos = ProjectToSurface(pos);
             if(pos.X < chunkPos.X || pos.X >= chunkPos.X + size || pos.Y < chunkPos.Y || pos.Y >= chunkPos.Y + size || pos.Z < chunkPos.Z || pos.Z >= chunkPos.Z + size) continue;
+
+            if (pos.Length() - tgen.planetRadius < fgen.minOceanHeight) continue;
             
-        
             Vector3 forward = pos.Normalized().Cross(Vector3.Right);
             if (forward.LengthSquared() < 0.0001f) forward = pos.Normalized().Cross(Vector3.Forward);
             forward = forward.Normalized();
-        
+            
+            float slope = Mathf.RadToDeg(SurfaceNormal(pos).AngleTo(pos.Normalized()));
+            if (slope > fgen.maxSlope) continue;
+            
             transforms.Add(new Transform3D(Basis.LookingAt(forward, pos.Normalized()), pos));
         }
     }
+    
+    Vector3 SurfaceNormal(Vector3 surfacePos)
+    {
+        Vector3 up = surfacePos.Normalized();
+
+        Vector3 t1 = up.Cross(Vector3.Up);
+        if (t1.LengthSquared() < 1e-4f)
+            t1 = up.Cross(Vector3.Right);
+        t1 = t1.Normalized();
+
+        Vector3 t2 = up.Cross(t1);
+
+        float eps = 1;
+
+        Vector3 p1 = ProjectToSurface(surfacePos + t1 * eps);
+        Vector3 p2 = ProjectToSurface(surfacePos + t2 * eps);
+
+        return (p1 - surfacePos).Cross(p2 - surfacePos).Normalized();
+    }
+
+
     
     
     /*public Vector3? RaymarchHeight(Vector3 position)

@@ -145,6 +145,7 @@ material = ExtResource("11_oarv4")
 camera = NodePath("../Player")
 tgen = NodePath("../TerrainGenerator")
 renderDist = 600.0
+maxSlope = 34.0
 chunkSize = 128
 
 [node name="Player" parent="." instance=ExtResource("4_abapg")]

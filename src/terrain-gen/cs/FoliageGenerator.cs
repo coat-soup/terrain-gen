@@ -10,6 +10,8 @@ public partial class FoliageGenerator : Node
     [Export] public Node3D camera;
     [Export] public TerrainGenerator tgen;
     [Export] public float renderDist = 300;
+    [Export] public float maxSlope = 45;
+    [Export] public float minOceanHeight = 50;
     
     private MultiMeshInstance3D multiMesh;
 
@@ -65,7 +67,7 @@ public partial class FoliageGenerator : Node
         }
         else
         {
-            if (node.size == 0 || node.size == 1) SpawnNodeFoliage(node);
+            if (node.size <= 2) SpawnNodeFoliage(node);
         }
     }
     
