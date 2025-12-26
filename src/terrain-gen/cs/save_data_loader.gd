@@ -24,3 +24,4 @@ func delete_chunks():
 	print("deleting chunk data")
 	const ChunkSaveData = preload("res://terrain-gen/cs/ChunkSaveData.cs")
 	ChunkSaveData.ClearAllChunkData()
+ 
