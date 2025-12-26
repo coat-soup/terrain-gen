@@ -8,13 +8,21 @@ public partial class FoliageChunk : Node
     public string path = "";
     
     public List<Transform3D> transforms;
-    public TerrainChunk chunk;
+    public TerrainGenerator tgen;
+    public FoliageGenerator fgen;
+    public Vector3 chunkPos;
+    public int size;
+    public int cellID;
 
 
-    public FoliageChunk(TerrainChunk c)
+    public FoliageChunk(String p, Vector3 pos, int s, int cid, FoliageGenerator f, TerrainGenerator t)
     {
-        path = c.path;
-        chunk = c;
+        path = p;
+        chunkPos = pos;
+        size = s;
+        cellID = cid;
+        fgen = f;
+        tgen = t;
     }
 
     public void Load()
@@ -60,25 +68,47 @@ public partial class FoliageChunk : Node
     
     public void GeneratePositions()
     {
+        Random rand = new Random();
+        int randOffset = 10;
+        
         transforms = new List<Transform3D>();
         
-        Vector3 pos = chunk.chunkPos + Vector3.One * chunk.size / 2.0f;
+        Vector3 chunkCenter = chunkPos + Vector3.One * size * 0.5f;
+        Vector3 up = chunkCenter.Normalized();
+
+        Vector3 tangent = up.Cross(Vector3.Right);
+        if (tangent.LengthSquared() < 0.0001f) tangent = up.Cross(Vector3.Forward);
+        tangent = tangent.Normalized();
+
+        Vector3 bitangent = up.Cross(tangent).Normalized();
+
+        float padding = 0.3f * size; // for diagonal shadow
         
-        //pos = InterpHeight(pos);
-        Vector3? v = RaymarchHeight(pos);
-        if (!v.HasValue) return;
-        pos = v.Value;
+        for(int x = -(int)(padding / fgen.spacing); x < (size + padding) / fgen.spacing; x++)
+        for (int y = -(int)(padding / fgen.spacing); y < (size + padding) / fgen.spacing; y++)
+        {
+            Vector2 offset = new Vector2(
+                (x + 0.5f) * fgen.spacing - fgen.chunkSize * 0.5f,
+                (y + 0.5f) * fgen.spacing - fgen.chunkSize * 0.5f
+            );
+
+            Vector3 pos = chunkCenter + tangent * offset.X + bitangent * offset.Y;
+            pos += new Vector3(rand.Next(randOffset * 10) / 10.0f, rand.Next(randOffset * 10) / 10.0f, rand.Next(randOffset * 10) / 10.0f);
+
+            pos = ProjectToSurface(pos);
+            if(pos.X < chunkPos.X || pos.X >= chunkPos.X + size || pos.Y < chunkPos.Y || pos.Y >= chunkPos.Y + size || pos.Z < chunkPos.Z || pos.Z >= chunkPos.Z + size) continue;
+            
         
+            Vector3 forward = pos.Normalized().Cross(Vector3.Right);
+            if (forward.LengthSquared() < 0.0001f) forward = pos.Normalized().Cross(Vector3.Forward);
+            forward = forward.Normalized();
         
-        Vector3 forward = pos.Normalized().Cross(Vector3.Right);
-        if (forward.LengthSquared() < 0.0001f) forward = pos.Normalized().Cross(Vector3.Forward);
-        forward = forward.Normalized();
-        
-        transforms.Add(new Transform3D(Basis.LookingAt(forward, pos.Normalized()), pos));
+            transforms.Add(new Transform3D(Basis.LookingAt(forward, pos.Normalized()), pos));
+        }
     }
     
     
-    public Vector3? RaymarchHeight(Vector3 position)
+    /*public Vector3? RaymarchHeight(Vector3 position)
     {
         Vector3 dir = -position.Normalized();
         
@@ -123,14 +153,33 @@ public partial class FoliageChunk : Node
                 return position;
             }
         }
-    }
-
-    public Vector3 InterpHeight(Vector3 position)
+    }*/
+    
+    
+    Vector3 ProjectToSurface(Vector3 startPos)
     {
-        int cell = chunk.tgen.CellIDFromNormal(position.Normalized(), chunk.cellID);
+        Vector3 dir = startPos.Normalized();
 
-        float simHeight = chunk.InterpolateHeightBarycentric(position, cell);
-        float height = chunk.tgen.planetRadius + (simHeight + (chunk.tgen.noise.GetNoise3Dv(position) -0.5f) * chunk.tgen.noiseScale) * chunk.tgen.terrainHeight;
-        return position.Normalized() * height;
+        float minR = tgen.planetRadius - tgen.terrainHeight * 2f;
+        float maxR = tgen.planetRadius + tgen.terrainHeight * 2f;
+
+        float a = minR;
+        float b = maxR;
+
+        for (int i = 0; i < 16; i++) // 16 iterations = sub-millimeter accuracy
+        {
+            float mid = (a + b) * 0.5f;
+            Vector3 p = dir * mid;
+
+            float d = tgen.CalculateDensity(p, cellID);
+
+            if (d > 0)
+                a = mid; // inside ground
+            else
+                b = mid; // in air
+        }
+
+        return dir * ((a + b) * 0.5f);
     }
+
 }

@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://f1o2row1elky"]
+[gd_scene load_steps=24 format=3 uid="uid://f1o2row1elky"]
 
 [ext_resource type="Script" uid="uid://b360mtqi65fnp" path="res://terrain-gen/cs/save_data_loader.gd" id="1_8ubml"]
 [ext_resource type="Script" uid="uid://xmnrya6cfe2g" path="res://terrain-gen/cs/TerrainGenerator.cs" id="1_mmnf0"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://c5dktj43vvsde" path="res://ui/ui_manager.gd" id="7_abapg"]
 [ext_resource type="ArrayMesh" uid="uid://bqkjb2q6hn5gs" path="res://foliage/models/tree_pine.obj" id="7_oarv4"]
 [ext_resource type="PackedScene" uid="uid://uys6n0u4hk2k" path="res://player/human_reference.glb" id="8_nwh6r"]
+[ext_resource type="Material" uid="uid://d048dybfwqrcv" path="res://foliage/foliage_mat.tres" id="11_oarv4"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sblsk"]
 sky_horizon_color = Color(0.384314, 0.454902, 0.54902, 1)
@@ -131,16 +132,20 @@ script = ExtResource("1_8ubml")
 generator = NodePath("..")
 visualiser = NodePath("../OctreeVisualiser")
 
-[node name="OctreeVisualiser" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator")]
+[node name="OctreeVisualiser" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator", "foliage_generator")]
 script = ExtResource("3_jdxrr")
 generator = NodePath("..")
+foliage_generator = NodePath("../../FoliageGenerator")
 size_limit = 8
 
 [node name="FoliageGenerator" type="Node" parent="." node_paths=PackedStringArray("camera", "tgen")]
 script = ExtResource("6_3vh5k")
 treeMesh = ExtResource("7_oarv4")
+material = ExtResource("11_oarv4")
 camera = NodePath("../Player")
 tgen = NodePath("../TerrainGenerator")
+renderDist = 600.0
+chunkSize = 128
 
 [node name="Player" parent="." instance=ExtResource("4_abapg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1514.45, 11903.3, 3607.81)

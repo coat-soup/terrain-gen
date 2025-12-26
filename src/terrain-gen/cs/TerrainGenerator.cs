@@ -35,7 +35,7 @@ public partial class TerrainGenerator : Node
     [Export] public Node3D camera;
     private Vector3I cameraChunkPos;
     
-    const float HALFSQRT3 = 0.86602540378f; // Sqrt(3)/2
+    public const float HALFSQRT3 = 0.86602540378f; // Sqrt(3)/2
 
     private Queue<OctreeNode> chunkLoadQueue = new Queue<OctreeNode>();
     private bool pauseChunkQueue;
@@ -66,15 +66,8 @@ public partial class TerrainGenerator : Node
         precipitations = _precipitations;
         climateZoneIDs = _climateZoneIDs;
         GD.Print("Creating tree from data. Got heights size " + _heights.Length);
-        
-        // create root node
-        float margin = terrainHeight * 1.2f;
-        float diameter = 2.0f * planetRadius + 2.0f * margin;
-        float s = chunkSize;
-        int si = 0;
-        while (s < diameter) { s *= 2.0f; si += 1;}
-        Vector3 rootPos = -Vector3.One * s / 2.0f;
-        tree = new OctreeNode(rootPos, s, 0, si, 0);
+
+        tree = CreateRootNode(chunkSize);
 
         double time = Time.GetUnixTimeFromSystem();
         
@@ -85,6 +78,18 @@ public partial class TerrainGenerator : Node
         GD.Print("Tree finished with " + n_nodes + " nodes (" + n_small_leaves + " size 0 leaves) in " + (Time.GetUnixTimeFromSystem() - time) + " seconds.");
     }
 
+
+    public OctreeNode CreateRootNode(int cSize)
+    {
+        float margin = terrainHeight * 1.2f;
+        float diameter = 2.0f * planetRadius + 2.0f * margin;
+        float s = cSize;
+        int si = 0;
+        while (s < diameter) { s *= 2.0f; si += 1;}
+        Vector3 rootPos = -Vector3.One * s / 2.0f;
+        return new OctreeNode(rootPos, s, 0, si, 0);
+    }
+    
     
     public void LoadChunksAroundCamera()
     {
@@ -232,6 +237,85 @@ public partial class TerrainGenerator : Node
         }
     }
     
+    
+    public float CalculateDensity(Vector3 position, int startingCell)
+    {
+        int cell = CellIDFromNormal(position.Normalized(), startingCell);
+
+        float simHeight = InterpolateHeightBarycentric(position, cell);
+        float height = planetRadius + (simHeight + (noise.GetNoise3Dv(position) -0.5f) * noiseScale) * terrainHeight;
+        return height - position.Length();
+    }
+    
+    
+    public static bool IsPointInSphericalTriangle( Vector3 p,  Vector3 a,  Vector3 b,  Vector3 c){
+        Vector3 ab = a.Cross(b);
+        Vector3 bc = b.Cross(c);
+        Vector3 ca = c.Cross(a);
+            
+        float s1 = ab.Dot(p);
+        float s2 = bc.Dot(p);
+        float s3 = ca.Dot(p);
+
+        return (s1 >= 0.0 && s2 >= 0.0 && s3 >= 0.0) || (s1 <= 0.0 && s2 <= 0.0 && s3 <= 0.0);
+    }
+    
+    
+    public int[] FindDelaunayTriangle(int closest, Vector3 p)
+    {
+        Vector3 center = positions[closest];
+        Godot.Collections.Array<int> _neighbours = neighbours[closest];
+
+        for(int i = 0; i < _neighbours.Count; i++)
+        {
+            Vector3 b = positions[_neighbours[i]];
+            Vector3 c = positions[_neighbours[(i + 1) % _neighbours.Count]];
+
+            if (IsPointInSphericalTriangle(p, center, b, c))
+                return [closest, _neighbours[i], _neighbours[(i + 1) % _neighbours.Count]];
+        }
+
+        return [closest, _neighbours[0], _neighbours[1]];
+    }
+
+    public static float TriArea(Vector3 a, Vector3 b, Vector3 c)
+    {
+        return Mathf.Atan2(
+            a.Dot(b.Cross(c)),
+            1.0f + a.Dot(b) + b.Dot(c) + c.Dot(a)
+        );
+    }
+    
+    public float InterpolateHeightBarycentric(Vector3 position, int closest)
+    {
+        var cells = FindDelaunayTriangle(closest, position);
+        if (cells.Length < 3) return heights[closest];
+
+        // normalized triangle verts
+        Vector3 A = positions[cells[0]];
+        Vector3 B = positions[cells[1]];
+        Vector3 C = positions[cells[2]];
+
+        Vector3 P = position.Normalized();
+
+        // areas
+        float areaTotal = TriArea(A, B, C);
+        float areaA = TriArea(P, B, C);
+        float areaB = TriArea(A, P, C);
+        float areaC = TriArea(A, B, P);
+
+        // barycentric weights
+        float wA = areaA / areaTotal;
+        float wB = areaB / areaTotal;
+        float wC = areaC / areaTotal;
+
+        // interpolate
+        float hA = heights[cells[0]];
+        float hB = heights[cells[1]];
+        float hC = heights[cells[2]];
+
+        return hA * wA + hB * wB + hC * wC;
+    }
     
     public override void _Process(double delta)
     {

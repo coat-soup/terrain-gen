@@ -2,6 +2,7 @@ extends Node
 class_name OctreeVisualiser
 
 @export var generator : Node
+@export var foliage_generator : Node
 
 var positions : Array[Vector3]
 var world_sizes : Array[float]
@@ -9,6 +10,7 @@ var node_sizes : Array[int]
 
 @export var size_limit : int = 0
 @export var enabled : bool = false
+var toggle_foliage : bool = false
 
 
 func parse_tree():
@@ -16,7 +18,7 @@ func parse_tree():
 	world_sizes = []
 	node_sizes = []
 	
-	add_node_to_list(generator.tree)
+	add_node_to_list(generator.tree if not toggle_foliage else foliage_generator.tree)
 
 
 func add_node_to_list(node):
@@ -29,6 +31,9 @@ func add_node_to_list(node):
 
 func _input(event: InputEvent) -> void:
 	if Input.is_key_pressed(KEY_V): enabled = !enabled
+	if Input.is_key_pressed(KEY_B):
+		toggle_foliage = !toggle_foliage
+		parse_tree()
 
 
 func _process(delta: float) -> void:
