@@ -13,6 +13,7 @@ public partial class FoliageChunk : Node
     public Vector3 chunkPos;
     public int size;
     public int cellID;
+    private Rid[] rids;
     
 
     public FoliageChunk(String p, Vector3 pos, int s, int cid, FoliageGenerator f, TerrainGenerator t)
@@ -31,12 +32,25 @@ public partial class FoliageChunk : Node
         
         //if (!TryLoadChunk()) GeneratePositions();
         //SaveData();
+
+        Rid scenario = fgen.GetTree().Root.GetWorld3D().GetScenario();
+        rids = new Rid[transforms.Count];
+        for(int i = 0; i < transforms.Count; i++)
+        {
+            rids[i] = RenderingServer.InstanceCreate();
+            RenderingServer.InstanceSetBase(rids[i], fgen.treeMesh.GetRid());
+            RenderingServer.InstanceSetScenario(rids[i], scenario);
+            RenderingServer.InstanceSetTransform(rids[i], transforms[i]);
+        }
     }
 
+    
     public void Unload()
     {
-        // TODO: implement unload (must first use rendering server instead of multimesh)
+        for(int i = 0; i < rids.Length; i++) RenderingServer.FreeRid(rids[i]);
+        rids = [];
     }
+    
     
     public void SaveData()
     {
@@ -211,4 +225,8 @@ public partial class FoliageChunk : Node
         return dir * ((a + b) * 0.5f);
     }
 
+    public override void _ExitTree()
+    {
+        Unload();
+    }
 }

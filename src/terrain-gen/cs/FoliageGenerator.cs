@@ -12,38 +12,21 @@ public partial class FoliageGenerator : Node
     [Export] public float renderDist = 300;
     [Export] public float maxSlope = 45;
     [Export] public float minOceanHeight = 50;
-    
-    private MultiMeshInstance3D multiMesh;
 
     [Export] public int chunkSize = 64;
     [Export] public float spacing = 16f;
-
-    private Transform3D[] transforms;
-
-    private int transformCounter = 0;
-    [Export] public int instanceCount = 10000;
-
+    
     private OctreeNode tree;
 
     [Export] public bool regenAroundCamera = true;
     public Vector3 cameraChunkPos;
 
     private int nNewChunksSpawned = 0;
+    public int nTrees = 0;
     
     
     public override void _Ready()
     {
-        multiMesh = new MultiMeshInstance3D();
-        multiMesh.Multimesh = new MultiMesh();
-        multiMesh.Multimesh.TransformFormat = MultiMesh.TransformFormatEnum.Transform3D;
-        multiMesh.Multimesh.Mesh = treeMesh;
-        //for(int i = 0; i < multiMesh.Multimesh.Mesh._GetSurfaceCount(); i++) multiMesh.Multimesh.Mesh._SurfaceSetMaterial(i, material);
-        multiMesh.MaterialOverlay = material;
-        multiMesh.Multimesh.InstanceCount = instanceCount;
-        AddChild(multiMesh);
-
-        transforms = new Transform3D[instanceCount];
-
         cameraChunkPos = (Vector3I)(camera.GlobalPosition / chunkSize);
         
         tree = tgen.CreateRootNode(chunkSize);
@@ -84,6 +67,7 @@ public partial class FoliageGenerator : Node
     {
         if (node.fChunk != null)
         {
+            nTrees -= node.fChunk.transforms.Count;
             node.fChunk.Unload();
             node.fChunk = null;
         }
@@ -105,13 +89,7 @@ public partial class FoliageGenerator : Node
         node.fChunk = fChunk;
         
         fChunk.Load();
-
-        foreach (Transform3D t in fChunk.transforms)
-        {
-            transforms[transformCounter] = t;
-            multiMesh.Multimesh.SetInstanceTransform(transformCounter, transforms[transformCounter]);
-            transformCounter = (transformCounter + 1) % instanceCount;
-        }
+        nTrees += fChunk.transforms.Count;
     }
     
     public override void _Process(double delta)

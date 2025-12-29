@@ -8,7 +8,7 @@
 [ext_resource type="Script" uid="uid://b70xvm6rj7kfu" path="res://terrain-gen/cs/FoliageGenerator.cs" id="6_3vh5k"]
 [ext_resource type="Shader" uid="uid://dgmrdvwjvtf16" path="res://terrain-gen/idw_test.gdshader" id="6_mruw7"]
 [ext_resource type="Script" uid="uid://c5dktj43vvsde" path="res://ui/ui_manager.gd" id="7_abapg"]
-[ext_resource type="ArrayMesh" uid="uid://bqkjb2q6hn5gs" path="res://foliage/models/tree_pine.obj" id="7_oarv4"]
+[ext_resource type="ArrayMesh" uid="uid://c8mvdf4t5h0ef" path="res://foliage/models/tree_pine.res" id="7_oarv4"]
 [ext_resource type="PackedScene" uid="uid://uys6n0u4hk2k" path="res://player/human_reference.glb" id="8_nwh6r"]
 [ext_resource type="Material" uid="uid://d048dybfwqrcv" path="res://foliage/foliage_mat.tres" id="11_oarv4"]
 
@@ -217,3 +217,10 @@ offset_top = 23.0
 offset_right = 103.0
 offset_bottom = 46.0
 text = "Frame: 7.5ms"
+
+[node name="Trees" type="Label" parent="UI/RenderInfo"]
+layout_mode = 0
+offset_top = 46.0
+offset_right = 103.0
+offset_bottom = 69.0
+text = "Trees: 10000"
