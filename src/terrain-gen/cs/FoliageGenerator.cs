@@ -20,18 +20,28 @@ public partial class FoliageGenerator : Node
 
     [Export] public bool regenAroundCamera = true;
     public Vector3 cameraChunkPos;
+    public Vector3 cameraPos; // so thread doesn't touch scene tree
 
     private int nNewChunksSpawned = 0;
     public int nTrees = 0;
+
+    private GodotThread foliageThread;
+    public Rid worldScenario;
     
     
     public override void _Ready()
     {
-        cameraChunkPos = (Vector3I)(camera.GlobalPosition / chunkSize);
-        
         tree = tgen.CreateRootNode(chunkSize);
-        BuildTree(tree);
-        GD.Print("Spawned " + nNewChunksSpawned + " new foliage chunks");
+        
+        //cameraChunkPos = (Vector3I)(camera.GlobalPosition / chunkSize);
+        //BuildTree(tree);
+        //GD.Print("Spawned " + nNewChunksSpawned + " new foliage chunks");
+        if (!regenAroundCamera) cameraPos = camera.GlobalPosition;
+
+        worldScenario = GetTree().Root.GetWorld3D().Scenario;
+        
+        foliageThread = new GodotThread();
+        foliageThread.Start(new Callable(this, MethodName.RunFoliageThread));
     }
 
     
@@ -39,7 +49,7 @@ public partial class FoliageGenerator : Node
     {
         node.cell_id = tgen.CellIDFromNormal(node.position + Vector3.One * node.sideLength / 2.0f, node.cell_id);
         
-        bool inRange = (node.position + Vector3.One * node.sideLength/2.0f).DistanceTo(camera.GlobalPosition) <= renderDist + node.sideLength * TerrainGenerator.HALFSQRT3;
+        bool inRange = (node.position + Vector3.One * node.sideLength/2.0f).DistanceTo(cameraPos) <= renderDist + node.sideLength * TerrainGenerator.HALFSQRT3;
         
         if (node.size > 0 && inRange && (node.depth == 0 || Mathf.Abs(tgen.SampleSDF(node.position + Vector3.One * node.sideLength/2.0f, node.cell_id)) <= node.sideLength * TerrainGenerator.HALFSQRT3)) // SHOULD SUBDIVIDE
         {
@@ -91,16 +101,35 @@ public partial class FoliageGenerator : Node
         fChunk.Load();
         nTrees += fChunk.transforms.Count;
     }
-    
+
+
     public override void _Process(double delta)
     {
-        Vector3I c_pos = (Vector3I)(camera.GlobalPosition / chunkSize);
-        if (regenAroundCamera && c_pos != cameraChunkPos)
+        base._Process(delta);
+        cameraPos = camera.GlobalPosition;
+    }
+
+    
+    private void RunFoliageThread()
+    {
+        if (!regenAroundCamera)BuildTree(tree); // do only once
+        
+        while (true)
         {
-            nNewChunksSpawned = 0;
-            cameraChunkPos = c_pos;
-            BuildTree(tree);
-            GD.Print("Spawned " + nNewChunksSpawned + " new foliage chunks");
+            Vector3I c_pos = (Vector3I)(cameraPos / chunkSize);
+            if (regenAroundCamera && c_pos != cameraChunkPos)
+            {
+                nNewChunksSpawned = 0;
+                cameraChunkPos = c_pos;
+                BuildTree(tree);
+                GD.Print("Spawned " + nNewChunksSpawned + " new foliage chunks");
+            }   
         }
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        foliageThread.WaitToFinish();
     }
 }

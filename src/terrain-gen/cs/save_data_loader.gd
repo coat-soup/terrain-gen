@@ -4,6 +4,7 @@ extends Node
 @export var visualiser : OctreeVisualiser
 
 @export_tool_button("Delete Chunk Data", "TextFile") var delete_chunk_action = delete_chunks
+@export_tool_button("Delete Foliage Chunk Data", "TextFile") var delete_foliage_chunks_action = delete_foliage_chunks
 
 
 func _ready() -> void:
@@ -25,3 +26,8 @@ func delete_chunks():
 	const ChunkSaveData = preload("res://terrain-gen/cs/ChunkSaveData.cs")
 	ChunkSaveData.ClearAllChunkData()
  
+
+func delete_foliage_chunks():
+	print("deleting foliage chunk data")
+	const FoliageChunk = preload("res://terrain-gen/cs/FoliageChunk.cs")
+	FoliageChunk.ClearAllChunkData()

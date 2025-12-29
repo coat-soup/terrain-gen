@@ -28,18 +28,15 @@ public partial class FoliageChunk : Node
 
     public void Load()
     {
-        GeneratePositions();
+        if (!TryLoadChunk()) GeneratePositions();
+        SaveData();
         
-        //if (!TryLoadChunk()) GeneratePositions();
-        //SaveData();
-
-        Rid scenario = fgen.GetTree().Root.GetWorld3D().GetScenario();
         rids = new Rid[transforms.Count];
         for(int i = 0; i < transforms.Count; i++)
         {
             rids[i] = RenderingServer.InstanceCreate();
             RenderingServer.InstanceSetBase(rids[i], fgen.treeMesh.GetRid());
-            RenderingServer.InstanceSetScenario(rids[i], scenario);
+            RenderingServer.InstanceSetScenario(rids[i], fgen.worldScenario);
             RenderingServer.InstanceSetTransform(rids[i], transforms[i]);
         }
     }
@@ -69,7 +66,7 @@ public partial class FoliageChunk : Node
     
     public bool TryLoadChunk()
     {
-        string filepath = SAVE_PATH + path + "fol_.bin";
+        string filepath = SAVE_PATH + path + "_fol.bin";
         if (!FileAccess.FileExists(filepath)) return false;
 
         using var file = FileAccess.Open(filepath, FileAccess.ModeFlags.Read);
@@ -83,6 +80,31 @@ public partial class FoliageChunk : Node
         return true;
     }
 
+    
+    public static void ClearAllChunkData()
+    {
+        if (!DirAccess.DirExistsAbsolute(SAVE_PATH))
+        {
+            GD.PushError("Failed to clear chunk data. Could not find " + SAVE_PATH);
+            return;
+        }
+        
+        using var dir = DirAccess.Open(SAVE_PATH);
+        if (dir == null)
+            return;
+
+        dir.ListDirBegin();
+        while (true)
+        {
+            string file = dir.GetNext();
+            if (file == "") break;
+            if (!file.EndsWith("_fol.bin")) continue;
+
+            DirAccess.RemoveAbsolute(SAVE_PATH + file);
+        }
+        dir.ListDirEnd();
+    }
+    
     
     public void GeneratePositions()
     {
