@@ -238,9 +238,9 @@ public partial class TerrainGenerator : Node
     }
     
     
-    public float CalculateDensity(Vector3 position, int startingCell)
+    public float CalculateDensity(Vector3 position, int startingCell, bool refineCell = true)
     {
-        int cell = CellIDFromNormal(position.Normalized(), startingCell);
+        int cell = refineCell? CellIDFromNormal(position.Normalized(), startingCell) : startingCell;
 
         float simHeight = InterpolateHeightBarycentric(position, cell);
         float height = planetRadius + (simHeight + (noise.GetNoise3Dv(position) -0.5f) * noiseScale) * terrainHeight;

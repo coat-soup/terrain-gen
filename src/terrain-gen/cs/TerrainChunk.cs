@@ -12,10 +12,12 @@ public partial class TerrainChunk : MeshInstance3D
                              // NOTE: this isn't implemented. It's just an idea for saving/loading
     public Vector3 chunkPos;
     public float[] data;
+    public uint[] materialData;
     public int size;
     public int voxelSizeMultiplier;
     public Vector3[] vertices;
     public Vector3[] normals;
+    public Color[] colours;
     public TerrainGenerator tgen;
     public int cellID;
 
@@ -43,9 +45,10 @@ public partial class TerrainChunk : MeshInstance3D
     {
         if (chunkEmpty) return;
         
-        Godot.Collections.Dictionary<string, Vector3[]> mc = MarchingCubes.Generate(data, new Vector3I(size, size, size), 0.0f, voxelSizeMultiplier);
-        vertices = mc["vertices"];
-        normals = mc["normals"];
+        MCData mc = MarchingCubes.Generate(data, materialData, 14, new Vector3I(size, size, size), 0.0f, voxelSizeMultiplier);
+        vertices = mc.vertices;
+        normals = mc.normals;
+        colours = mc.colours;
 
         if (vertices.Length < 3) return;
         
@@ -55,6 +58,7 @@ public partial class TerrainChunk : MeshInstance3D
         arrays.Resize((int)Mesh.ArrayType.Max);
         arrays[(int)Mesh.ArrayType.Vertex] = vertices;
         arrays[(int)Mesh.ArrayType.Normal] = normals;
+        arrays[(int)Mesh.ArrayType.Color] = colours;
         
         arrayMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
         Mesh = arrayMesh;
@@ -69,6 +73,7 @@ public partial class TerrainChunk : MeshInstance3D
     public void Load()
     {
         data = new float[size * size * size];
+        materialData = new uint[data.Length];
         
         bool loaded = ChunkSaveData.TryLoadChunk(this);
 
@@ -117,40 +122,14 @@ public partial class TerrainChunk : MeshInstance3D
         for (int z = 0; z < size; z++)
         {
             Vector3 wPos = chunkPos + new Vector3(x, y, z) * voxelSizeMultiplier;
-            float density = tgen.CalculateDensity(wPos, cellID);
+            int cell = tgen.CellIDFromNormal(wPos, cellID);
+            float density = tgen.CalculateDensity(wPos, cell, false);
             data[GridToIDX(x, y, z)] = density;
+            materialData[GridToIDX(x, y, z)] = (uint)tgen.climateZoneIDs[cell];
 
             System.Threading.Interlocked.Or(ref hasFilled, density < 0 ? 1 : 0);
             System.Threading.Interlocked.Or(ref hasEmpty,  density > 0 ? 1 : 0);
         }
-    }
-    
-    
-    public struct NormalKey : IEquatable<NormalKey>
-    {
-        private float precision = 0.0001f;
-
-        public int x;
-        public int y;
-        public int z;
-
-        public NormalKey(Vector3 normal, int chunkSize)
-        {
-            normal = normal.Normalized();
-            x = (int)(normal.X / precision);
-            y = (int)(normal.Y / precision);
-            z = (int)(normal.Z / precision);
-            precision *= Mathf.Pow(4f, chunkSize);
-        }
-
-        public bool Equals(NormalKey other) =>
-            x == other.x && y == other.y && z == other.z;
-
-        public override bool Equals(object obj) =>
-            obj is NormalKey other && Equals(other);
-
-        public override int GetHashCode() =>
-            HashCode.Combine(x, y, z);
     }
 
     
@@ -173,36 +152,6 @@ public partial class TerrainChunk : MeshInstance3D
         
         return height / weight;
     }
-    
-    
-    public float InterpolateHeight2(Vector3 worldPos, int cell)
-    {
-        Vector3 p = worldPos.Normalized();
-
-        // find closest neighbor
-        int closest = -1;
-        float best = -1.0f;
-
-        for (int i = 0; i < tgen.neighbours[cell].Count; i++)
-        {
-            int n = tgen.neighbours[cell][i];
-            float d = p.Dot(tgen.positions[n]);
-            if (d > best)
-            {
-                best = d;
-                closest = n;
-            }
-        }
-
-        // angular distances
-        float d0 = 1.0f - p.Dot(tgen.positions[cell]);
-        float d1 = 1.0f - p.Dot(tgen.positions[closest]);
-
-        // normalize blend
-        float t = d0 / (d0 + d1);
-
-        return Mathf.Lerp(tgen.heights[cell], tgen.heights[closest], t);
-    }
 
     
     public Vector3I WorldToVoxel(Vector3 p)
@@ -223,5 +172,17 @@ public partial class TerrainChunk : MeshInstance3D
         return new Vector3I(vx, vy, vz);
     }
 
+    
+    public Color[] CalculateVertexColours(Vector3[] verts)
+    {
+        Color[] colours = new Color[verts.Length];
+
+        for (int i = 0; i < verts.Length; i++)
+        {
+            colours[i] = new Color(tgen.climateZoneIDs[cellID] / 14.0f, 0, 0); // there are 15 climate zones
+        }
+
+        return colours;
+    }
 
 }
