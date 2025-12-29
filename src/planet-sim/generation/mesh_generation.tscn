@@ -136,6 +136,6 @@ pipeline = Array[ExtResource("4_0b1tj")]([SubResource("Resource_na7qb"), SubReso
 
 [node name="CellDataVisualiser" type="Node" parent="." node_paths=PackedStringArray("generator", "simulator")]
 script = ExtResource("3_wh2la")
-vis_type = 4
+vis_type = 11
 generator = NodePath("../MeshGenerator")
 simulator = NodePath("../SimulationPipeline")

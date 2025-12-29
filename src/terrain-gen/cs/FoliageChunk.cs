@@ -30,12 +30,19 @@ public partial class FoliageChunk : Node
     {
         if (!TryLoadChunk()) GeneratePositions();
         SaveData();
+
+        ClimateZoneFoliageData climateData = null;
+        foreach (ClimateZoneFoliageData data in fgen.climateData)
+        {
+            if (tgen.climateZoneIDs[cellID] == data.climateZoneID) climateData = data;
+        }
+        if (climateData == null) return;
         
         rids = new Rid[transforms.Count];
         for(int i = 0; i < transforms.Count; i++)
         {
             rids[i] = RenderingServer.InstanceCreate();
-            RenderingServer.InstanceSetBase(rids[i], fgen.treeMesh.GetRid());
+            RenderingServer.InstanceSetBase(rids[i], climateData.SelectMesh().GetRid());
             RenderingServer.InstanceSetScenario(rids[i], fgen.worldScenario);
             RenderingServer.InstanceSetTransform(rids[i], transforms[i]);
         }
@@ -44,6 +51,7 @@ public partial class FoliageChunk : Node
     
     public void Unload()
     {
+        if (rids == null) return;
         for(int i = 0; i < rids.Length; i++) RenderingServer.FreeRid(rids[i]);
         rids = [];
     }

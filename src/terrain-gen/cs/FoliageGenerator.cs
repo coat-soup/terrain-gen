@@ -15,6 +15,8 @@ public partial class FoliageGenerator : Node
 
     [Export] public int chunkSize = 64;
     [Export] public float spacing = 16f;
+
+    [Export] public ClimateZoneFoliageData[] climateData;
     
     private OctreeNode tree;
 
@@ -39,6 +41,8 @@ public partial class FoliageGenerator : Node
         if (!regenAroundCamera) cameraPos = camera.GlobalPosition;
 
         worldScenario = GetTree().Root.GetWorld3D().Scenario;
+        
+        foreach(ClimateZoneFoliageData data in climateData) data.Setup();
         
         foliageThread = new GodotThread();
         foliageThread.Start(new Callable(this, MethodName.RunFoliageThread));
