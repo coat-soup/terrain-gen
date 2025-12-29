@@ -13,7 +13,7 @@ public partial class FoliageChunk : Node
     public Vector3 chunkPos;
     public int size;
     public int cellID;
-
+    
 
     public FoliageChunk(String p, Vector3 pos, int s, int cid, FoliageGenerator f, TerrainGenerator t)
     {
@@ -32,7 +32,11 @@ public partial class FoliageChunk : Node
         //if (!TryLoadChunk()) GeneratePositions();
         //SaveData();
     }
-    
+
+    public void Unload()
+    {
+        // TODO: implement unload (must first use rendering server instead of multimesh)
+    }
     
     public void SaveData()
     {

@@ -24,6 +24,11 @@ public partial class FoliageGenerator : Node
     [Export] public int instanceCount = 10000;
 
     private OctreeNode tree;
+
+    [Export] public bool regenAroundCamera = true;
+    public Vector3 cameraChunkPos;
+
+    private int nNewChunksSpawned = 0;
     
     
     public override void _Ready()
@@ -39,8 +44,11 @@ public partial class FoliageGenerator : Node
 
         transforms = new Transform3D[instanceCount];
 
+        cameraChunkPos = (Vector3I)(camera.GlobalPosition / chunkSize);
+        
         tree = tgen.CreateRootNode(chunkSize);
         BuildTree(tree);
+        GD.Print("Spawned " + nNewChunksSpawned + " new foliage chunks");
     }
 
     
@@ -52,8 +60,6 @@ public partial class FoliageGenerator : Node
         
         if (node.size > 0 && inRange && (node.depth == 0 || Mathf.Abs(tgen.SampleSDF(node.position + Vector3.One * node.sideLength/2.0f, node.cell_id)) <= node.sideLength * TerrainGenerator.HALFSQRT3)) // SHOULD SUBDIVIDE
         {
-            node.chunkQueued = false;
-            
             if (node.children == null)
             {
                 Vector3[] childPositions = [new Vector3(0,0,0), new Vector3(0,0,1), new Vector3(0,1,0), new Vector3(0,1,1), new Vector3(1,0,0), new Vector3(1,0,1), new Vector3(1,1,0), new Vector3(1,1,1)];
@@ -67,14 +73,36 @@ public partial class FoliageGenerator : Node
         }
         else
         {
-            if (node.size <= 2) SpawnNodeFoliage(node);
+            if(node.children != null) for(int i = 0; i < node.children.Length; i++) CollapseNode(node.children[i]);
+            
+            if (node.size <= 2 && node.fChunk == null) SpawnNodeFoliage(node);
         }
+    }
+    
+    
+    public void CollapseNode(OctreeNode node)
+    {
+        if (node.fChunk != null)
+        {
+            node.fChunk.Unload();
+            node.fChunk = null;
+        }
+
+        if (node.children != null) foreach (OctreeNode child in node.children)
+        {
+            CollapseNode(child);
+        }
+
+        node.children = null;
     }
     
     
     public void SpawnNodeFoliage(OctreeNode node)
     {
+        nNewChunksSpawned++;
+        
         FoliageChunk fChunk = new FoliageChunk(node.path, node.position, chunkSize * (node.size + 1), node.cell_id, this, tgen);
+        node.fChunk = fChunk;
         
         fChunk.Load();
 
@@ -83,6 +111,18 @@ public partial class FoliageGenerator : Node
             transforms[transformCounter] = t;
             multiMesh.Multimesh.SetInstanceTransform(transformCounter, transforms[transformCounter]);
             transformCounter = (transformCounter + 1) % instanceCount;
+        }
+    }
+    
+    public override void _Process(double delta)
+    {
+        Vector3I c_pos = (Vector3I)(camera.GlobalPosition / chunkSize);
+        if (regenAroundCamera && c_pos != cameraChunkPos)
+        {
+            nNewChunksSpawned = 0;
+            cameraChunkPos = c_pos;
+            BuildTree(tree);
+            GD.Print("Spawned " + nNewChunksSpawned + " new foliage chunks");
         }
     }
 }
