@@ -15,24 +15,24 @@ uniform vec3[15] climate_zone_ground_colours : source_color;
 
 void fragment() {
 	//ALBEDO = vec3(COLOR.rgb);
-	
+
 	vec2 uv = FRAGCOORD.xy / VIEWPORT_SIZE;
-	
+
 	float depth = texture(depth_tex, uv).r;
 	vec4 clip_pos = vec4(uv * 2.0 - 1.0, depth, 1.0);
 	vec4 view_pos = INV_PROJECTION_MATRIX * clip_pos;
 	view_pos /= view_pos.w;
-	
+
 	vec3 world_pos = (INV_VIEW_MATRIX * view_pos).xyz;
 	vec3 world_normal = (INV_VIEW_MATRIX * vec4(NORMAL.xyz, 0.0)).xyz;
-	
+
 	float height = length(world_pos - world_center) - planet_radius;
 	if (height <= 0.0) ALBEDO = texture(water_gradient, vec2(1.0 - height/terrain_height, 0)).rgb;
 	else{
 		if(abs(dot(world_normal, normalize(world_pos))) > slope_cutoff) ALBEDO = climate_zone_ground_colours[int(COLOR.r * 14.0 + 0.5)];//ALBEDO = texture(height_gradient, vec2(min(0.999, height/terrain_height), 0)).rgb;
 		else ALBEDO = texture(steep_gradient, vec2(min(0.999, height/terrain_height), 0)).rgb;
 	}
-	
+
 	//ALBEDO = climate_zone_ground_colours[int(floor(COLOR.r * 14.0 + 0.5))];
 }
 

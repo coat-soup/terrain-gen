@@ -65,6 +65,19 @@ public partial class TerrainChunk : MeshInstance3D
 
         MaterialOverlay = tgen.terrainMaterial;
 
+        // create collider
+        if (voxelSizeMultiplier == 1)
+        {
+            StaticBody3D body = new StaticBody3D();
+            CollisionShape3D col = new CollisionShape3D();
+            ConcavePolygonShape3D shape = new ConcavePolygonShape3D();
+            shape.SetFaces(vertices);
+            col.Shape = shape;
+            
+            Callable.From(() => { AddChild(body); }).CallDeferred();
+            Callable.From(() => { body.AddChild(col); }).CallDeferred();
+        }
+        
         finishedLoading = true;
         //EmitSignal(finished);
     }

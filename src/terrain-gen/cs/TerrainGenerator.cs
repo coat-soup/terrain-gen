@@ -203,6 +203,7 @@ public partial class TerrainGenerator : Node
         {
             if (pauseChunkQueue) continue;
             BuildNodeChunks(tree);
+            pauseChunkQueue = true;
         }
     }
 
@@ -328,6 +329,7 @@ public partial class TerrainGenerator : Node
         if (regenAroundCamera && c_pos != cameraChunkPos)
         {
             cameraChunkPos = c_pos;
+            pauseChunkQueue = false;
             LoadChunksAroundCamera();
         }
     }
