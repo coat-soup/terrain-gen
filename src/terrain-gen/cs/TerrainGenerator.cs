@@ -24,7 +24,7 @@ public partial class TerrainGenerator : Node
     public float[] precipitations;
     public int[] climateZoneIDs;
     
-    OctreeNode tree;
+    public OctreeNode tree;
     private int n_nodes;
     private int n_small_leaves;
     private int n_loaded_chunks;
@@ -44,6 +44,9 @@ public partial class TerrainGenerator : Node
     [Export] public bool regenAroundCamera = true;
 
     private double time;
+    public Rid worldScenario;
+
+    [Export] public FoliageGenerator fgen;
     
     
     public override void _Ready()
@@ -51,6 +54,8 @@ public partial class TerrainGenerator : Node
         terrainMaterial.Set("shader_parameter/planet_radius", planetRadius);
         terrainMaterial.Set("shader_parameter/terrain_height", terrainHeight);
 
+        worldScenario = GetTree().Root.GetWorld3D().Scenario;
+        
         chunkThread = new GodotThread();
         chunkThread.Start(new Callable(this, MethodName.RunChunkQueue));
         

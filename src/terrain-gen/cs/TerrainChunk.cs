@@ -93,8 +93,8 @@ public partial class TerrainChunk : MeshInstance3D
         //tgen.EmitSignal(TerrainGenerator.SignalName.TerrainChunkFinishedLoading, this);
     }
 
-    
-    public void Unload()//OctreeNode[] dependencies)
+
+    public void Unload() //OctreeNode[] dependencies)
     {
         /*
         unloadQueued = true;
@@ -103,8 +103,8 @@ public partial class TerrainChunk : MeshInstance3D
         {
             if (node.chunkQueued)
         }*/
-        
-        QueueFree();
+
+    QueueFree();
         // TODO: save data to disk
     }
 
@@ -185,4 +185,9 @@ public partial class TerrainChunk : MeshInstance3D
         return colours;
     }
 
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        Unload();
+    }
 }

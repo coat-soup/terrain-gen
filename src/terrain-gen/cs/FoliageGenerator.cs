@@ -5,11 +5,12 @@ using System.Collections.Generic;
 
 public partial class FoliageGenerator : Node
 {
-    [Export] public Mesh treeMesh;
+    [Export] public Mesh grassMesh;
     [Export] public Material material;
     [Export] public Node3D camera;
     [Export] public TerrainGenerator tgen;
     [Export] public float renderDist = 300;
+    [Export] public float grassDistance = 50;
     [Export] public float maxSlope = 45;
     [Export] public float minOceanHeight = 50;
 
@@ -29,6 +30,14 @@ public partial class FoliageGenerator : Node
 
     private GodotThread foliageThread;
     public Rid worldScenario;
+
+    [Export] public int maxGrassInstances = 10000;
+    public int grassMultiMeshInstanceCounter = 0;
+    public MultiMeshInstance3D grassMultiMesh;
+    public List<TerrainChunk> grassChunks;
+
+    public Timer grassUpdateTimer;
+    public bool shouldUpdateGrass;
     
     
     public override void _Ready()
@@ -43,6 +52,22 @@ public partial class FoliageGenerator : Node
         worldScenario = GetTree().Root.GetWorld3D().Scenario;
         
         foreach(ClimateZoneFoliageData data in climateData) data.Setup();
+
+        //grassRids = new List<Rid>();
+        //grassTransforms = new List<Transform3D>();
+        grassChunks = new List<TerrainChunk>();
+        grassMultiMesh = new MultiMeshInstance3D();
+        grassMultiMesh.Multimesh = new MultiMesh();
+        grassMultiMesh.Multimesh.Mesh = grassMesh;
+        grassMultiMesh.Multimesh.TransformFormat = MultiMesh.TransformFormatEnum.Transform3D;
+        grassMultiMesh.Multimesh.InstanceCount = maxGrassInstances;
+        AddChild(grassMultiMesh);
+
+        grassUpdateTimer = new Timer();
+        AddChild(grassUpdateTimer);
+        grassUpdateTimer.Timeout += SetUpdateGrass;
+        grassUpdateTimer.WaitTime = 0.5;
+        grassUpdateTimer.Start();
         
         foliageThread = new GodotThread();
         foliageThread.Start(new Callable(this, MethodName.RunFoliageThread));
@@ -107,6 +132,90 @@ public partial class FoliageGenerator : Node
     }
 
 
+    public void SetUpdateGrass()
+    {
+        shouldUpdateGrass = true; //then called from thread
+    }
+    
+    
+    public void UpdateGrass()
+    {
+        shouldUpdateGrass = false;
+        GD.Print("Updating Grass!");
+        
+        grassChunks.Clear();
+        TravelChunkTreeForGrass(tgen.tree);
+        
+        
+        grassMultiMeshInstanceCounter = 0;
+        foreach (TerrainChunk chunk in grassChunks)
+        {
+            if (chunk.chunkEmpty || chunk.vertices == null) continue;
+            for (int i = 0; i < chunk.vertices.Length; i+=3)
+            {
+                if (grassMultiMeshInstanceCounter >= maxGrassInstances) break;
+                
+                Vector3 wPos = chunk.chunkPos + (chunk.vertices[i] + chunk.vertices[i+1] + chunk.vertices[i+2])/3.0f;
+                
+                Vector3 manhattanDiff = (cameraPos - wPos).Abs();
+                if (manhattanDiff.X > grassDistance || manhattanDiff.Y > grassDistance || manhattanDiff.Z > grassDistance) continue;
+                
+                if (chunk.normals[i].Dot(wPos.Normalized()) > 0.9)
+                {
+                    uint h = HashVector((Vector3I)(wPos * 3.0f));
+                    float angle  = (h & 0xffff) / 65535f * Mathf.Tau;
+                    float radius = ((h >> 16) & 0xffff) / 65535f * 0.5f;
+
+                    Vector3 normal = wPos.Normalized();
+
+                    // build tangent basis
+                    Vector3 tangent = normal.Cross(
+                        Math.Abs(normal.Y) < 0.99f ? Vector3.Up : Vector3.Right
+                    ).Normalized();
+
+                    Vector3 bitangent = normal.Cross(tangent);
+
+                    // apply polar offset
+                    Vector3 offset = Mathf.Cos(angle) * tangent * radius + Mathf.Sin(angle) * bitangent * radius;
+
+                    wPos += offset;
+                    
+                    Vector3 forward = Mathf.Cos(angle) * tangent + Mathf.Sin(angle) * bitangent;
+                    
+                    grassMultiMesh.Multimesh.SetInstanceTransform(grassMultiMeshInstanceCounter, new Transform3D(Basis.LookingAt(forward, wPos.Normalized()), wPos));
+                    grassMultiMeshInstanceCounter++;
+                }
+            }
+        }
+
+        grassMultiMesh.Multimesh.VisibleInstanceCount = grassMultiMeshInstanceCounter;
+    }
+
+    static uint HashVector(Vector3I p)
+    {
+        unchecked
+        {
+            uint x = (uint)(p.X * 73856093);
+            uint y = (uint)(p.Y * 19349663);
+            uint z = (uint)(p.Z * 83492791);
+            return x ^ y ^ z;
+        }
+    }
+    
+    public void TravelChunkTreeForGrass(OctreeNode node)
+    {
+        bool inRange = (node.position + Vector3.One * node.sideLength/2.0f).DistanceTo(cameraPos) <= grassDistance + node.sideLength * 0.86602540378f;
+
+        if (!inRange) return;
+        
+        if(node.children == null && node.chunk != null) grassChunks.Add(node.chunk);
+        else if(node.children != null)
+        {
+            foreach(OctreeNode child in node.children) TravelChunkTreeForGrass(child);
+        }
+    }
+    
+    
     public override void _Process(double delta)
     {
         base._Process(delta);
@@ -120,6 +229,8 @@ public partial class FoliageGenerator : Node
         
         while (true)
         {
+            if (shouldUpdateGrass) UpdateGrass();
+            
             Vector3I c_pos = (Vector3I)(cameraPos / chunkSize);
             if (regenAroundCamera && c_pos != cameraChunkPos)
             {
@@ -127,7 +238,7 @@ public partial class FoliageGenerator : Node
                 cameraChunkPos = c_pos;
                 BuildTree(tree);
                 GD.Print("Spawned " + nNewChunksSpawned + " new foliage chunks");
-            }   
+            }
         }
     }
 
