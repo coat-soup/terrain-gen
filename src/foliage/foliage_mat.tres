@@ -21,4 +21,3 @@ shader_parameter/wind_strength = 1.0
 shader_parameter/wind_frequency = 0.2
 shader_parameter/leaf_texture = ExtResource("2_h7cvk")
 shader_parameter/is_grass = false
-shader_parameter/alpha_dist = 200.0

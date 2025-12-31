@@ -19,4 +19,3 @@ shader_parameter/wind_dir = Vector3(1, 0, 0)
 shader_parameter/wind_strength = 0.5
 shader_parameter/wind_frequency = 0.2
 shader_parameter/is_grass = true
-shader_parameter/alpha_dist = 200.0
