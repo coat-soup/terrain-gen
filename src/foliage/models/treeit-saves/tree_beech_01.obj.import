@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://c2mr4nbjg5ss7"
-path="res://.godot/imported/tree_oak.glb-33aceba61511979b70add3450d28efac.scn"
+uid="uid://cuqq6bh2dr0fa"
+path="res://.godot/imported/tree_beech_01.obj-ae4fa3760f766848e559ad53263b7c30.scn"
 
 [deps]
 
-source_file="res://foliage/models/tree_oak.glb"
-dest_files=["res://.godot/imported/tree_oak.glb-33aceba61511979b70add3450d28efac.scn"]
+source_file="res://foliage/models/treeit-saves/tree_beech_01.obj"
+dest_files=["res://.godot/imported/tree_beech_01.obj-ae4fa3760f766848e559ad53263b7c30.scn"]
 
 [params]
 
@@ -34,15 +34,13 @@ animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={
 "meshes": {
-"tree_oak_Cube_001": {
+"tree": {
 "generate/lightmap_uv": 0,
 "generate/lods": 0,
 "generate/shadow_meshes": 0,
 "lods/normal_merge_angle": 60.0,
 "save_to_file/enabled": true,
-"save_to_file/path": "res://foliage/models/tree_oak.res"
+"save_to_file/path": "res://foliage/models/tree_beech_01.res"
 }
 }
 }
-gltf/naming_version=1
-gltf/embedded_image_handling=1

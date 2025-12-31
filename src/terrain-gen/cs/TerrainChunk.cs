@@ -66,7 +66,7 @@ public partial class TerrainChunk : MeshInstance3D
         MaterialOverlay = tgen.terrainMaterial;
 
         // create collider
-        if (voxelSizeMultiplier == 1)
+        if (voxelSizeMultiplier <= 3)
         {
             StaticBody3D body = new StaticBody3D();
             CollisionShape3D col = new CollisionShape3D();

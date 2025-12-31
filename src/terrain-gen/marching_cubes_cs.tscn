@@ -1,7 +1,8 @@
-[gd_scene load_steps=22 format=3 uid="uid://f1o2row1elky"]
+[gd_scene load_steps=23 format=3 uid="uid://f1o2row1elky"]
 
 [ext_resource type="Script" uid="uid://b360mtqi65fnp" path="res://terrain-gen/cs/save_data_loader.gd" id="1_8ubml"]
 [ext_resource type="Script" uid="uid://xmnrya6cfe2g" path="res://terrain-gen/cs/TerrainGenerator.cs" id="1_mmnf0"]
+[ext_resource type="Script" uid="uid://crabrthmnvte4" path="res://debug/human_reference_teleporter.gd" id="2_1il7e"]
 [ext_resource type="Material" uid="uid://bp7to70lbqsjs" path="res://terrain-gen/marching_cubes_terrain_mat.tres" id="2_lmp17"]
 [ext_resource type="Script" uid="uid://dk4nvr2mlh66l" path="res://terrain-gen/cs/octree_visualiser.gd" id="3_jdxrr"]
 [ext_resource type="PackedScene" uid="uid://k8an4yh1xw7p" path="res://player/player.tscn" id="4_abapg"]
@@ -56,13 +57,13 @@ environment = SubResource("Environment_av8b3")
 transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
 shadow_enabled = true
 
-[node name="human_reference" parent="." instance=ExtResource("8_nwh6r")]
+[node name="human_reference" parent="." node_paths=PackedStringArray("player") instance=ExtResource("8_nwh6r")]
 transform = Transform3D(0.80302, 0, 0.372716, 0, 0.885301, 0, -0.372716, 0, 0.80302, -496.555, 12465.8, 241.852)
+script = ExtResource("2_1il7e")
+player = NodePath("../Player")
 
 [node name="TerrainGenerator" type="Node" parent="." node_paths=PackedStringArray("camera", "fgen")]
 script = ExtResource("1_mmnf0")
-planetRadius = 6000.0
-terrainHeight = 500.0
 terrainMaterial = ExtResource("2_lmp17")
 noise = SubResource("FastNoiseLite_lmp17")
 camera = NodePath("../Player")
@@ -92,11 +93,10 @@ climateData = Array[Object]([ExtResource("9_7u3ri"), ExtResource("10_1il7e")])
 maxGrassInstances = 100000
 
 [node name="Player" parent="." instance=ExtResource("4_abapg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -757.225, 5951.65, 1803.91)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1514.45, 11903.3, 3607.82)
 
 [node name="OceanSurface" type="MeshInstance3D" parent="."]
 transform = Transform3D(120.12, 0, 0, 0, 120.12, 0, 0, 0, 120.12, 0, 0, 0)
-visible = false
 mesh = SubResource("SphereMesh_8kbu4")
 surface_material_override/0 = SubResource("StandardMaterial3D_sblsk")
 

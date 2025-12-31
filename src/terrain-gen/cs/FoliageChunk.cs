@@ -143,7 +143,7 @@ public partial class FoliageChunk : Node
             Vector3 pos = chunkCenter + tangent * offset.X + bitangent * offset.Y;
             pos += new Vector3(rand.Next(randOffset * 10) / 10.0f, rand.Next(randOffset * 10) / 10.0f, rand.Next(randOffset * 10) / 10.0f);
 
-            pos = ProjectToSurface(pos);
+            pos = tgen.ProjectToSurface(pos, cellID);
             if(pos.X < chunkPos.X || pos.X >= chunkPos.X + size || pos.Y < chunkPos.Y || pos.Y >= chunkPos.Y + size || pos.Z < chunkPos.Z || pos.Z >= chunkPos.Z + size) continue;
 
             if (pos.Length() - tgen.planetRadius < fgen.minOceanHeight) continue;
@@ -172,8 +172,8 @@ public partial class FoliageChunk : Node
 
         float eps = 1;
 
-        Vector3 p1 = ProjectToSurface(surfacePos + t1 * eps);
-        Vector3 p2 = ProjectToSurface(surfacePos + t2 * eps);
+        Vector3 p1 = tgen.ProjectToSurface(surfacePos + t1 * eps, cellID);
+        Vector3 p2 = tgen.ProjectToSurface(surfacePos + t2 * eps, cellID);
 
         return (p1 - surfacePos).Cross(p2 - surfacePos).Normalized();
     }
@@ -227,33 +227,6 @@ public partial class FoliageChunk : Node
             }
         }
     }*/
-    
-    
-    Vector3 ProjectToSurface(Vector3 startPos)
-    {
-        Vector3 dir = startPos.Normalized();
-
-        float minR = tgen.planetRadius - tgen.terrainHeight * 2f;
-        float maxR = tgen.planetRadius + tgen.terrainHeight * 2f;
-
-        float a = minR;
-        float b = maxR;
-
-        for (int i = 0; i < 16; i++) // 16 iterations = sub-millimeter accuracy
-        {
-            float mid = (a + b) * 0.5f;
-            Vector3 p = dir * mid;
-
-            float d = tgen.CalculateDensity(p, cellID);
-
-            if (d > 0)
-                a = mid; // inside ground
-            else
-                b = mid; // in air
-        }
-
-        return dir * ((a + b) * 0.5f);
-    }
 
     public override void _ExitTree()
     {

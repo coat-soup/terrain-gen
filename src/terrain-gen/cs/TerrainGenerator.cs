@@ -165,7 +165,8 @@ public partial class TerrainGenerator : Node
         //return planetRadius - position.Length();
         
         if (cell == -1) cell = CellIDFromNormal(position.Normalized());
-        return planetRadius + terrainHeight * heights[cell] - position.Length();
+        return ProjectToSurface(position, cell).Length() - position.Length();
+        //return planetRadius + terrainHeight * heights[cell] - position.Length();
     }
     
     
@@ -334,6 +335,32 @@ public partial class TerrainGenerator : Node
         }
     }
 
+    
+    public Vector3 ProjectToSurface(Vector3 startPos, int cell)
+    {
+        Vector3 dir = startPos.Normalized();
+
+        float minR = planetRadius - terrainHeight * 2f;
+        float maxR = planetRadius + terrainHeight * 2f;
+
+        float a = minR;
+        float b = maxR;
+
+        for (int i = 0; i < 16; i++)
+        {
+            float mid = (a + b) * 0.5f;
+            Vector3 p = dir * mid;
+
+            float d = CalculateDensity(p, cell);
+
+            if (d > 0)
+                a = mid; // inside ground
+            else
+                b = mid; // in air
+        }
+
+        return dir * ((a + b) * 0.5f);
+    }
     
     public override void _ExitTree()
     {
