@@ -94,7 +94,7 @@ climateData = Array[Object]([ExtResource("9_7u3ri"), ExtResource("10_1il7e")])
 maxGrassInstances = 100000
 
 [node name="Player" parent="." instance=ExtResource("4_abapg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9705.63, 1055.82, -9913.33)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2053.55, 9875.46, 6931.45)
 
 [node name="OceanSurface" type="MeshInstance3D" parent="."]
 transform = Transform3D(240.24, 0, 0, 0, 240.24, 0, 0, 0, 240.24, 0, 0, 0)

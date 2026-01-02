@@ -12,7 +12,7 @@ noise = SubResource("FastNoiseLite_rjjq3")
 [resource]
 render_priority = 0
 shader = ExtResource("1_dkv4f")
-shader_parameter/leaf_color = Color(0.41243, 0.753506, 3.85046e-07, 1)
+shader_parameter/leaf_color = Color(0.388235, 0.615686, 0, 1)
 shader_parameter/trunk_color = Color(0.405656, 0.222559, 9.62615e-08, 1)
 shader_parameter/wind_noise = SubResource("NoiseTexture3D_h7cvk")
 shader_parameter/wind_dir = Vector3(1, 0, 0)

@@ -61,6 +61,7 @@ public partial class FoliageGenerator : Node
         grassMultiMesh.Multimesh.Mesh = grassMesh;
         grassMultiMesh.Multimesh.TransformFormat = MultiMesh.TransformFormatEnum.Transform3D;
         grassMultiMesh.Multimesh.InstanceCount = maxGrassInstances;
+        grassMultiMesh.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
         AddChild(grassMultiMesh);
 
         grassUpdateTimer = new Timer();
@@ -166,7 +167,7 @@ public partial class FoliageGenerator : Node
                     float angle  = (h & 0xffff) / 65535f * Mathf.Tau;
                     float radius = ((h >> 16) & 0xffff) / 65535f * 0.5f;
 
-                    Vector3 normal = wPos.Normalized();
+                    Vector3 normal = chunk.normals[i];
 
                     // build tangent basis
                     Vector3 tangent = normal.Cross(
@@ -182,7 +183,7 @@ public partial class FoliageGenerator : Node
                     
                     Vector3 forward = Mathf.Cos(angle) * tangent + Mathf.Sin(angle) * bitangent;
                     
-                    grassMultiMesh.Multimesh.SetInstanceTransform(grassMultiMeshInstanceCounter, new Transform3D(Basis.LookingAt(forward, wPos.Normalized()), wPos));
+                    grassMultiMesh.Multimesh.SetInstanceTransform(grassMultiMeshInstanceCounter, new Transform3D(Basis.LookingAt(forward, normal), wPos));
                     grassMultiMeshInstanceCounter++;
                 }
             }
