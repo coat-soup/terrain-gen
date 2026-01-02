@@ -4,6 +4,21 @@ using System.Collections.Generic;
 //using Godot.Collections;
 
 
+public struct MCData
+{
+	public Vector3[] vertices;
+	public Vector3[] normals;
+	public Color[] colours;
+
+	public MCData(Vector3[] v, Vector3[] n, Color[] c)
+	{
+		vertices = v;
+		normals = n;
+		colours = c;
+	}
+}
+
+
 public partial class MarchingCubes : Node
 {
 	public static Vector3 Interpolate(Vector3 p1, Vector3 p2, float v1, float v2, float iso)
@@ -30,10 +45,11 @@ public partial class MarchingCubes : Node
 	}
 	
 	
-	public static Godot.Collections.Dictionary<string, Vector3[]> Generate(float[] data, Vector3I size, float iso = 0.0f, float cellSize = 1.0f)
+	public static MCData Generate(float[] data, uint[] materialData, float maxMaterialID, Vector3I size, float iso = 0.0f, float cellSize = 1.0f)
 	{
 		List<Vector3> verts = new List<Vector3>();
 		List<Vector3> norms = new List<Vector3>();
+		List<Color> colours = new List<Color>();
 		
 		for (int x = 0; x < size.X - 1; x++)
 			for (int y = 0; y < size.Y - 1; y++)
@@ -123,22 +139,28 @@ public partial class MarchingCubes : Node
 						norms.Add(edgeNorm[triList[idx]]);
 						norms.Add(edgeNorm[triList[idx + 1]]);
 						norms.Add(edgeNorm[triList[idx + 2]]);
+
+						Color c = new Color(sample_material_array(materialData, x, y, z, size) / maxMaterialID, 0, 0);
+						colours.Add(c);
+						colours.Add(c);
+						colours.Add(c);
 						
 						idx += 3;
 					}
 				}
-		
-		return new Godot.Collections.Dictionary<string, Vector3[]>()
-		{
-			{ "vertices", verts.ToArray() },
-			{ "normals", norms.ToArray() }
-		};
+
+		return new MCData(verts.ToArray(), norms.ToArray(), colours.ToArray());
 	}
 
 	public static float sample_grid_array(float[] data, int x, int y, int z, Vector3I size){
 		if(x < 0 || y < 0 || z < 0 || x >= size.X || y >= size.Y || z >= size.Z) return -1.0f;
 		int index = x + y * size.X + z * size.X * size.Y;
-		//GD.Print("Sampling index " + index + "/" + data.Length + " from " + x + " " + y + " " + z + " in " + size);
+		return data[index];
+	}
+	
+	public static uint sample_material_array(uint[] data, int x, int y, int z, Vector3I size){
+		if(x < 0 || y < 0 || z < 0 || x >= size.X || y >= size.Y || z >= size.Z) return 0;
+		int index = x + y * size.X + z * size.X * size.Y;
 		return data[index];
 	}
 

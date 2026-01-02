@@ -2,19 +2,22 @@
 extends SimulationStep
 class_name HeightCalculator
 
+@export var oceanic_height = -0.5;
+@export var continental_height = 0.01;
 @export var continent_blur_steps : int = 2
+@export var stress_height : float = 4.0
 
 
 func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellData]:
 	for cell in cells:
-		cell.height = -0.5 if cell.is_oceanic else 0.5
+		cell.height = oceanic_height if cell.is_oceanic else continental_height
 	
 	for i in range(continent_blur_steps):
 		blur(cells)
 	
 	for i in range(cells.size()):
 		# plate stress
-		cells[i].height += cells[i].debug_neighbour_stress * 2
+		cells[i].height += cells[i].debug_neighbour_stress * 2 * stress_height
 	
 	return cells
 

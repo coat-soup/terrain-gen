@@ -15,9 +15,10 @@ public partial class ChunkSaveData : Resource
         using var file = FileAccess.Open(SAVE_PATH + chunk.path + ".bin", FileAccess.ModeFlags.Write);
         file.Store8(chunk.chunkEmpty ? (byte)1 : (byte)0);
         if (!chunk.chunkEmpty)
-            foreach (float d in chunk.data)
+            for (int i = 0; i < chunk.data.Length; i++)
             {
-                file.StoreFloat(d);
+                file.Store32(chunk.materialData[i]);
+                file.StoreFloat(chunk.data[i]);
             }
     }
     
@@ -32,7 +33,10 @@ public partial class ChunkSaveData : Resource
         
         if (!chunk.chunkEmpty)
             for (int i = 0; i < chunk.data.Length; i++)
+            {
+                chunk.materialData[i] = file.Get32();
                 chunk.data[i] = file.GetFloat();
+            }
         
         return true;
     }
