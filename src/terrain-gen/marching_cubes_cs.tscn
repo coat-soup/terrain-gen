@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b360mtqi65fnp" path="res://terrain-gen/cs/save_data_loader.gd" id="1_8ubml"]
 [ext_resource type="Script" uid="uid://xmnrya6cfe2g" path="res://terrain-gen/cs/TerrainGenerator.cs" id="1_mmnf0"]
+[ext_resource type="Material" uid="uid://i5jd7vd7c3qv" path="res://vfx/materials/sky_mat.tres" id="1_yogo7"]
 [ext_resource type="Script" uid="uid://crabrthmnvte4" path="res://debug/human_reference_teleporter.gd" id="2_1il7e"]
 [ext_resource type="Material" uid="uid://bp7to70lbqsjs" path="res://terrain-gen/marching_cubes_terrain_mat.tres" id="2_lmp17"]
 [ext_resource type="Script" uid="uid://dk4nvr2mlh66l" path="res://terrain-gen/cs/octree_visualiser.gd" id="3_jdxrr"]
@@ -15,13 +16,8 @@
 [ext_resource type="Resource" uid="uid://dhgrwas4y7x3i" path="res://foliage/climate-data/climate_foliage_humid_continental.tres" id="10_1il7e"]
 [ext_resource type="Material" uid="uid://d048dybfwqrcv" path="res://foliage/foliage_mat.tres" id="11_oarv4"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sblsk"]
-sky_horizon_color = Color(0.384314, 0.454902, 0.54902, 1)
-ground_bottom_color = Color(0.384314, 0.454902, 0.54902, 1)
-ground_horizon_color = Color(0.384314, 0.454902, 0.54902, 1)
-
 [sub_resource type="Sky" id="Sky_od0dj"]
-sky_material = SubResource("ProceduralSkyMaterial_sblsk")
+sky_material = ExtResource("1_yogo7")
 
 [sub_resource type="Environment" id="Environment_av8b3"]
 background_mode = 2
@@ -54,7 +50,12 @@ shader_parameter/distance_power = 2.0
 environment = SubResource("Environment_av8b3")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -0.999999, 0, -4.37114e-08, 0, 0, 0)
+shadow_enabled = true
+
+[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+visible = false
 shadow_enabled = true
 
 [node name="human_reference" parent="." node_paths=PackedStringArray("player") instance=ExtResource("8_nwh6r")]

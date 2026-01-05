@@ -1,0 +1,15 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://i5jd7vd7c3qv"]
+
+[ext_resource type="Shader" uid="uid://cd8rrfn1jutym" path="res://vfx/shaders/sky_shader.gdshader" id="1_2dnxw"]
+
+[resource]
+shader = ExtResource("1_2dnxw")
+shader_parameter/sun_dir = Vector3(1, 0, 0)
+shader_parameter/day_color = Color(0.365134, 0.533713, 0.781722, 1)
+shader_parameter/night_color = Color(0.0188606, 0.0356905, 0.0903397, 1)
+shader_parameter/sun_horizon_color = Color(0.603517, 0.217618, 0.243477, 1)
+shader_parameter/sun_color = Color(0.90241, 0.723557, 0, 1)
+shader_parameter/day_night_transition_width = 0.03
+shader_parameter/sun_horizon_size = 1.0
+shader_parameter/sun_horizon_time_band = 0.03
+shader_parameter/debug_rotate_sun = 0.0
