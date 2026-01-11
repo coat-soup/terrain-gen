@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://f1o2row1elky"]
+[gd_scene load_steps=25 format=3 uid="uid://f1o2row1elky"]
 
 [ext_resource type="Script" uid="uid://b360mtqi65fnp" path="res://terrain-gen/cs/save_data_loader.gd" id="1_8ubml"]
 [ext_resource type="Script" uid="uid://xmnrya6cfe2g" path="res://terrain-gen/cs/TerrainGenerator.cs" id="1_mmnf0"]
@@ -15,15 +15,23 @@
 [ext_resource type="Resource" uid="uid://dw5ab0rttcmv8" path="res://foliage/climate-data/climate_foliage_subarctic.tres" id="9_7u3ri"]
 [ext_resource type="Resource" uid="uid://dhgrwas4y7x3i" path="res://foliage/climate-data/climate_foliage_humid_continental.tres" id="10_1il7e"]
 [ext_resource type="Material" uid="uid://d048dybfwqrcv" path="res://foliage/foliage_mat.tres" id="11_oarv4"]
+[ext_resource type="Script" uid="uid://c1uk0uqaqbxrv" path="res://terrain-gen/time_manager.gd" id="16_ifr2o"]
 
 [sub_resource type="Sky" id="Sky_od0dj"]
 sky_material = ExtResource("1_yogo7")
+process_mode = 3
 
 [sub_resource type="Environment" id="Environment_av8b3"]
 background_mode = 2
 sky = SubResource("Sky_od0dj")
+ambient_light_source = 3
 tonemap_mode = 2
 glow_enabled = true
+fog_density = 0.001
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ifr2o"]
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_lmp17"]
 frequency = 0.001
@@ -53,10 +61,12 @@ environment = SubResource("Environment_av8b3")
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -0.999999, 0, -4.37114e-08, 0, 0, 0)
 shadow_enabled = true
 
-[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
-visible = false
-shadow_enabled = true
+[node name="CSGSphere3D" type="CSGSphere3D" parent="DirectionalLight3D"]
+transform = Transform3D(1000, 0, 0, 0, 1000, 0, 0, 0, 1000, -2.84217e-11, 0, -25873.4)
+radius = 1.0
+radial_segments = 30
+rings = 16
+material = SubResource("StandardMaterial3D_ifr2o")
 
 [node name="human_reference" parent="." node_paths=PackedStringArray("player") instance=ExtResource("8_nwh6r")]
 transform = Transform3D(0.80302, 0, 0.372716, 0, 0.885301, 0, -0.372716, 0, 0.80302, -496.555, 12465.8, 241.852)
@@ -170,3 +180,10 @@ offset_top = 46.0
 offset_right = 103.0
 offset_bottom = 69.0
 text = "Trees: 10000"
+
+[node name="TimeManager" type="Node" parent="." node_paths=PackedStringArray("sun_light", "player_camera")]
+script = ExtResource("16_ifr2o")
+sun_light = NodePath("../DirectionalLight3D")
+player_camera = NodePath("../Player")
+day_light_color = Color(1, 1, 1, 1)
+horizon_light_color = Color(1, 0.347923, 0.0935639, 1)

@@ -20,7 +20,7 @@ void vertex() {
 	//if(COLOR.r == 0.0) COLOR = vec4(trunk_color, 1.0);
 	//else COLOR = vec4(leaf_color, 1.0);
 	cam_dist = length(CAMERA_POSITION_WORLD - (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz);
-	
+
 	if(cam_dist < vert_displace_distance){
 		VERTEX += wind_dir * wind_strength * texture(wind_noise, VERTEX + vec3(TIME) * wind_frequency).r * COLOR.r;
 	}
@@ -29,13 +29,14 @@ void vertex() {
 void fragment() {
 	if(COLOR.r == 0.0) ALBEDO = trunk_color.rgb;
 	else ALBEDO = leaf_color.rgb;
-	
+
 	if (!is_grass && (COLOR.r != 0.0))
 	{
 		ALPHA = texture(leaf_texture, UV).a;
 		// fade alpha when far away (for performance and because mipmaps makes everything transparent otherwise lol)
 		ALPHA_SCISSOR_THRESHOLD = mix(0.5, 0.0, clamp(cam_dist / alpha_dist, 0.0,1.0));
 	}
-	
+
 	ROUGHNESS = 1.0;
+	SPECULAR = 0.0;
 }
