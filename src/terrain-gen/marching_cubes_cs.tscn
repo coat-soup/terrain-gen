@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://f1o2row1elky"]
+[gd_scene load_steps=31 format=3 uid="uid://f1o2row1elky"]
 
 [ext_resource type="Script" uid="uid://b360mtqi65fnp" path="res://terrain-gen/cs/save_data_loader.gd" id="1_8ubml"]
 [ext_resource type="Script" uid="uid://xmnrya6cfe2g" path="res://terrain-gen/cs/TerrainGenerator.cs" id="1_mmnf0"]
@@ -15,7 +15,13 @@
 [ext_resource type="Resource" uid="uid://dw5ab0rttcmv8" path="res://foliage/climate-data/climate_foliage_subarctic.tres" id="9_7u3ri"]
 [ext_resource type="Resource" uid="uid://dhgrwas4y7x3i" path="res://foliage/climate-data/climate_foliage_humid_continental.tres" id="10_1il7e"]
 [ext_resource type="Material" uid="uid://d048dybfwqrcv" path="res://foliage/foliage_mat.tres" id="11_oarv4"]
+[ext_resource type="Resource" uid="uid://wneqkta4xasp" path="res://foliage/climate-data/climate_foliage_hot_steppe.tres" id="13_v8pn4"]
+[ext_resource type="Resource" uid="uid://bdkphed44e357" path="res://foliage/climate-data/climate_foliage_humid_subtropical.tres" id="14_px0ic"]
+[ext_resource type="Resource" uid="uid://0jo83h5abjck" path="res://foliage/climate-data/climate_foliage_oceanic.tres" id="15_7qj4i"]
 [ext_resource type="Script" uid="uid://c1uk0uqaqbxrv" path="res://terrain-gen/time_manager.gd" id="16_ifr2o"]
+[ext_resource type="Resource" uid="uid://segbet7bavju" path="res://foliage/climate-data/climate_foliage_tropical_savanna.tres" id="16_o715a"]
+[ext_resource type="Resource" uid="uid://qtjl5e0m52fk" path="res://foliage/climate-data/climate_foliage_tropical_monsoon.tres" id="17_7qj4i"]
+[ext_resource type="Resource" uid="uid://c3qdkfkn3rygf" path="res://foliage/climate-data/climate_foliage_tropical_rainforest.tres" id="18_o715a"]
 
 [sub_resource type="Sky" id="Sky_od0dj"]
 sky_material = ExtResource("1_yogo7")
@@ -62,7 +68,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -0.999999, 0, -4.37114e-08,
 shadow_enabled = true
 
 [node name="CSGSphere3D" type="CSGSphere3D" parent="DirectionalLight3D"]
-transform = Transform3D(1000, 0, 0, 0, 1000, 0, 0, 0, 1000, -2.84217e-11, 0, -25873.4)
+transform = Transform3D(500, 0, 0, 0, 500, 0, 0, 0, 500, -2.84217e-11, 0, -25873.4)
 radius = 1.0
 radial_segments = 30
 rings = 16
@@ -101,7 +107,7 @@ tgen = NodePath("../TerrainGenerator")
 renderDist = 600.0
 maxSlope = 34.0
 chunkSize = 128
-climateData = Array[Object]([ExtResource("9_7u3ri"), ExtResource("10_1il7e")])
+climateData = Array[Object]([ExtResource("9_7u3ri"), ExtResource("10_1il7e"), ExtResource("13_v8pn4"), ExtResource("14_px0ic"), ExtResource("15_7qj4i"), ExtResource("16_o715a"), ExtResource("17_7qj4i"), ExtResource("18_o715a")])
 maxGrassInstances = 100000
 
 [node name="Player" parent="." instance=ExtResource("4_abapg")]

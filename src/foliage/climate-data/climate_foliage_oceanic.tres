@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ClimateZoneFoliageData" load_steps=3 format=3 uid="uid://0jo83h5abjck"]
+
+[ext_resource type="ArrayMesh" uid="uid://x5eqabtopnht" path="res://foliage/models/tree_beech_01.res" id="1_0gm0t"]
+[ext_resource type="Script" uid="uid://c2d3sjeeagb0n" path="res://foliage/ClimateZoneFoliageData.cs" id="3_p36nf"]
+
+[resource]
+script = ExtResource("3_p36nf")
+climateZoneID = 9
+meshes = Array[Mesh]([ExtResource("1_0gm0t")])
+weights = PackedFloat32Array(10)
+metadata/_custom_type_script = "uid://c2d3sjeeagb0n"
