@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://c2q0ddhv630d7"]
+
+[ext_resource type="PackedScene" uid="uid://bqagg713v7r8t" path="res://foliage/models/tree_pine.glb" id="1_veuhd"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6w0os"]
+albedo_color = Color(0.815426, 0.427287, 0.324818, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ev8wh"]
+albedo_color = Color(3.85046e-07, 0.742089, 0.403675, 1)
+
+[node name="tree_pine" instance=ExtResource("1_veuhd")]
+
+[node name="Cube" parent="." index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_6w0os")
+
+[node name="Circle" parent="." index="1"]
+surface_material_override/0 = SubResource("StandardMaterial3D_ev8wh")

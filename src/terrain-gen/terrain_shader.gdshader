@@ -10,44 +10,30 @@ uniform vec3 world_center;
 
 uniform sampler2D depth_tex : hint_depth_texture;
 
-void vertex() {
-	float height = length((MODEL_MATRIX * vec4(VERTEX.rgb, 1.0)).rgb - world_center) - planet_radius;
-	if (height <= 0.0) COLOR = texture(water_gradient, vec2(1.0 - height/terrain_height, 0));
-	else{
-		if(abs(dot(NORMAL, vec3(0.0,1.0,0.0))) > slope_cutoff) COLOR = texture(height_gradient, vec2(min(0.999, height/terrain_height), 0));
-		else COLOR = texture(steep_gradient, vec2(min(0.999, height/terrain_height), 0));
-	}
-}
+uniform vec3[15] climate_zone_ground_colours : source_color;
+
 
 void fragment() {
-	ALBEDO = vec3(COLOR.rgb);
-	
-	// Screen UV (0–1)
+	//ALBEDO = vec3(COLOR.rgb);
+
 	vec2 uv = FRAGCOORD.xy / VIEWPORT_SIZE;
-	
-	// Read depth buffer
+
 	float depth = texture(depth_tex, uv).r;
-	
-	// Reconstruct clip space position
 	vec4 clip_pos = vec4(uv * 2.0 - 1.0, depth, 1.0);
-	
-	// View space position
 	vec4 view_pos = INV_PROJECTION_MATRIX * clip_pos;
 	view_pos /= view_pos.w;
-	
-	// World space position
+
 	vec3 world_pos = (INV_VIEW_MATRIX * view_pos).xyz;
-	
 	vec3 world_normal = (INV_VIEW_MATRIX * vec4(NORMAL.xyz, 0.0)).xyz;
-	
+
 	float height = length(world_pos - world_center) - planet_radius;
 	if (height <= 0.0) ALBEDO = texture(water_gradient, vec2(1.0 - height/terrain_height, 0)).rgb;
 	else{
-		if(abs(dot(world_normal, normalize(world_pos))) > slope_cutoff) ALBEDO = texture(height_gradient, vec2(min(0.999, height/terrain_height), 0)).rgb;
+		if(abs(dot(world_normal, normalize(world_pos))) > slope_cutoff) ALBEDO = climate_zone_ground_colours[int(COLOR.r * 14.0 + 0.5)];//ALBEDO = texture(height_gradient, vec2(min(0.999, height/terrain_height), 0)).rgb;
 		else ALBEDO = texture(steep_gradient, vec2(min(0.999, height/terrain_height), 0)).rgb;
 	}
-	//ALBEDO = vec3(abs(dot(world_normal, normalize(world_pos))));
-	//ALBEDO = world_normal;
+
+	//ALBEDO = climate_zone_ground_colours[int(floor(COLOR.r * 14.0 + 0.5))];
 }
 
 //void light() {

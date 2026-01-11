@@ -12,10 +12,12 @@ public partial class TerrainChunk : MeshInstance3D
                              // NOTE: this isn't implemented. It's just an idea for saving/loading
     public Vector3 chunkPos;
     public float[] data;
+    public uint[] materialData;
     public int size;
     public int voxelSizeMultiplier;
     public Vector3[] vertices;
     public Vector3[] normals;
+    public Color[] colours;
     public TerrainGenerator tgen;
     public int cellID;
 
@@ -43,9 +45,10 @@ public partial class TerrainChunk : MeshInstance3D
     {
         if (chunkEmpty) return;
         
-        Godot.Collections.Dictionary<string, Vector3[]> mc = MarchingCubes.Generate(data, new Vector3I(size, size, size), 0.0f, voxelSizeMultiplier);
-        vertices = mc["vertices"];
-        normals = mc["normals"];
+        MCData mc = MarchingCubes.Generate(data, materialData, 14, new Vector3I(size, size, size), 0.0f, voxelSizeMultiplier);
+        vertices = mc.vertices;
+        normals = mc.normals;
+        colours = mc.colours;
 
         if (vertices.Length < 3) return;
         
@@ -55,12 +58,26 @@ public partial class TerrainChunk : MeshInstance3D
         arrays.Resize((int)Mesh.ArrayType.Max);
         arrays[(int)Mesh.ArrayType.Vertex] = vertices;
         arrays[(int)Mesh.ArrayType.Normal] = normals;
+        arrays[(int)Mesh.ArrayType.Color] = colours;
         
         arrayMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
         Mesh = arrayMesh;
 
         MaterialOverlay = tgen.terrainMaterial;
 
+        // create collider
+        if (voxelSizeMultiplier <= 3)
+        {
+            StaticBody3D body = new StaticBody3D();
+            CollisionShape3D col = new CollisionShape3D();
+            ConcavePolygonShape3D shape = new ConcavePolygonShape3D();
+            shape.SetFaces(vertices);
+            col.Shape = shape;
+            
+            Callable.From(() => { AddChild(body); }).CallDeferred();
+            Callable.From(() => { body.AddChild(col); }).CallDeferred();
+        }
+        
         finishedLoading = true;
         //EmitSignal(finished);
     }
@@ -69,6 +86,7 @@ public partial class TerrainChunk : MeshInstance3D
     public void Load()
     {
         data = new float[size * size * size];
+        materialData = new uint[data.Length];
         
         bool loaded = ChunkSaveData.TryLoadChunk(this);
 
@@ -84,10 +102,12 @@ public partial class TerrainChunk : MeshInstance3D
         }
         
         GenerateMesh();
+
+        //tgen.EmitSignal(TerrainGenerator.SignalName.TerrainChunkFinishedLoading, this);
     }
 
-    
-    public void Unload()//OctreeNode[] dependencies)
+
+    public void Unload() //OctreeNode[] dependencies)
     {
         /*
         unloadQueued = true;
@@ -96,8 +116,8 @@ public partial class TerrainChunk : MeshInstance3D
         {
             if (node.chunkQueued)
         }*/
-        
-        QueueFree();
+
+    QueueFree();
         // TODO: save data to disk
     }
 
@@ -115,45 +135,14 @@ public partial class TerrainChunk : MeshInstance3D
         for (int z = 0; z < size; z++)
         {
             Vector3 wPos = chunkPos + new Vector3(x, y, z) * voxelSizeMultiplier;
-
-            int cell = tgen.CellIDFromNormal(wPos.Normalized(), cellID);
-
-            float simHeight = InterpolateHeightBarycentric(wPos, cell);
-            float height = tgen.planetRadius + (simHeight + (tgen.noise.GetNoise3Dv(wPos) -0.5f) * tgen.noiseScale) * tgen.terrainHeight;
-            float density = height - wPos.Length();
-
+            int cell = tgen.CellIDFromNormal(wPos, cellID);
+            float density = tgen.CalculateDensity(wPos, cell, false);
             data[GridToIDX(x, y, z)] = density;
+            materialData[GridToIDX(x, y, z)] = (uint)tgen.climateZoneIDs[cell];
 
             System.Threading.Interlocked.Or(ref hasFilled, density < 0 ? 1 : 0);
             System.Threading.Interlocked.Or(ref hasEmpty,  density > 0 ? 1 : 0);
         }
-    }
-
-    public struct NormalKey : IEquatable<NormalKey>
-    {
-        private float precision = 0.0001f;
-
-        public int x;
-        public int y;
-        public int z;
-
-        public NormalKey(Vector3 normal, int chunkSize)
-        {
-            normal = normal.Normalized();
-            x = (int)(normal.X / precision);
-            y = (int)(normal.Y / precision);
-            z = (int)(normal.Z / precision);
-            precision *= Mathf.Pow(4f, chunkSize);
-        }
-
-        public bool Equals(NormalKey other) =>
-            x == other.x && y == other.y && z == other.z;
-
-        public override bool Equals(object obj) =>
-            obj is NormalKey other && Equals(other);
-
-        public override int GetHashCode() =>
-            HashCode.Combine(x, y, z);
     }
 
     
@@ -176,105 +165,42 @@ public partial class TerrainChunk : MeshInstance3D
         
         return height / weight;
     }
+
     
-    
-    public float InterpolateHeight2(Vector3 worldPos, int cell)
+    public Vector3I WorldToVoxel(Vector3 p)
     {
-        Vector3 p = worldPos.Normalized();
+        Vector3 rel = (p - chunkPos) / voxelSizeMultiplier;
 
-        // find closest neighbor
-        int closest = -1;
-        float best = -1.0f;
+        int vx = Mathf.FloorToInt(rel.X);
+        int vy = Mathf.FloorToInt(rel.Y);
+        int vz = Mathf.FloorToInt(rel.Z);
 
-        for (int i = 0; i < tgen.neighbours[cell].Count; i++)
+        if (vx < 0 || vx >= size ||
+            vy < 0 || vy >= size ||
+            vz < 0 || vz >= size)
         {
-            int n = tgen.neighbours[cell][i];
-            float d = p.Dot(tgen.positions[n]);
-            if (d > best)
-            {
-                best = d;
-                closest = n;
-            }
+            return new Vector3I(-1, -1, -1);
         }
 
-        // angular distances
-        float d0 = 1.0f - p.Dot(tgen.positions[cell]);
-        float d1 = 1.0f - p.Dot(tgen.positions[closest]);
-
-        // normalize blend
-        float t = d0 / (d0 + d1);
-
-        return Mathf.Lerp(tgen.heights[cell], tgen.heights[closest], t);
+        return new Vector3I(vx, vy, vz);
     }
 
     
-    
-    public static bool IsPointInSphericalTriangle( Vector3 p,  Vector3 a,  Vector3 b,  Vector3 c){
-        Vector3 ab = a.Cross(b);
-        Vector3 bc = b.Cross(c);
-        Vector3 ca = c.Cross(a);
-            
-        float s1 = ab.Dot(p);
-        float s2 = bc.Dot(p);
-        float s3 = ca.Dot(p);
-
-        return (s1 >= 0.0 && s2 >= 0.0 && s3 >= 0.0) || (s1 <= 0.0 && s2 <= 0.0 && s3 <= 0.0);
-    }
-    
-    
-    public int[] FindDelaunayTriangle(int closest, Vector3 p)
+    public Color[] CalculateVertexColours(Vector3[] verts)
     {
-        Vector3 center = tgen.positions[closest];
-        Godot.Collections.Array<int> neighbours = tgen.neighbours[closest];
+        Color[] colours = new Color[verts.Length];
 
-        for(int i = 0; i < neighbours.Count; i++)
+        for (int i = 0; i < verts.Length; i++)
         {
-            Vector3 b = tgen.positions[neighbours[i]];
-            Vector3 c = tgen.positions[neighbours[(i + 1) % neighbours.Count]];
-
-            if (IsPointInSphericalTriangle(p, center, b, c))
-                return [closest, neighbours[i], neighbours[(i + 1) % neighbours.Count]];
+            colours[i] = new Color(tgen.climateZoneIDs[cellID] / 14.0f, 0, 0); // there are 15 climate zones
         }
 
-        return [closest, neighbours[0], neighbours[1]];
+        return colours;
     }
 
-    public static float TriArea(Vector3 a, Vector3 b, Vector3 c)
+    public override void _ExitTree()
     {
-        return Mathf.Atan2(
-            a.Dot(b.Cross(c)),
-            1.0f + a.Dot(b) + b.Dot(c) + c.Dot(a)
-        );
-    }
-    
-    public float InterpolateHeightBarycentric(Vector3 position, int closest)
-    {
-        var cells = FindDelaunayTriangle(closest, position);
-        if (cells.Length < 3) return tgen.heights[closest];
-
-        // normalized triangle verts
-        Vector3 A = tgen.positions[cells[0]];
-        Vector3 B = tgen.positions[cells[1]];
-        Vector3 C = tgen.positions[cells[2]];
-
-        Vector3 P = position.Normalized();
-
-        // areas
-        float areaTotal = TriArea(A, B, C);
-        float areaA = TriArea(P, B, C);
-        float areaB = TriArea(A, P, C);
-        float areaC = TriArea(A, B, P);
-
-        // barycentric weights
-        float wA = areaA / areaTotal;
-        float wB = areaB / areaTotal;
-        float wC = areaC / areaTotal;
-
-        // interpolate
-        float hA = tgen.heights[cells[0]];
-        float hB = tgen.heights[cells[1]];
-        float hC = tgen.heights[cells[2]];
-
-        return hA * wA + hB * wB + hC * wC;
+        base._ExitTree();
+        Unload();
     }
 }

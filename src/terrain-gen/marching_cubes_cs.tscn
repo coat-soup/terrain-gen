@@ -1,46 +1,46 @@
-[gd_scene load_steps=20 format=3 uid="uid://f1o2row1elky"]
+[gd_scene load_steps=31 format=3 uid="uid://f1o2row1elky"]
 
 [ext_resource type="Script" uid="uid://b360mtqi65fnp" path="res://terrain-gen/cs/save_data_loader.gd" id="1_8ubml"]
 [ext_resource type="Script" uid="uid://xmnrya6cfe2g" path="res://terrain-gen/cs/TerrainGenerator.cs" id="1_mmnf0"]
+[ext_resource type="Material" uid="uid://i5jd7vd7c3qv" path="res://vfx/materials/sky_mat.tres" id="1_yogo7"]
+[ext_resource type="Script" uid="uid://crabrthmnvte4" path="res://debug/human_reference_teleporter.gd" id="2_1il7e"]
 [ext_resource type="Material" uid="uid://bp7to70lbqsjs" path="res://terrain-gen/marching_cubes_terrain_mat.tres" id="2_lmp17"]
 [ext_resource type="Script" uid="uid://dk4nvr2mlh66l" path="res://terrain-gen/cs/octree_visualiser.gd" id="3_jdxrr"]
 [ext_resource type="PackedScene" uid="uid://k8an4yh1xw7p" path="res://player/player.tscn" id="4_abapg"]
+[ext_resource type="Script" uid="uid://b70xvm6rj7kfu" path="res://terrain-gen/cs/FoliageGenerator.cs" id="6_3vh5k"]
 [ext_resource type="Shader" uid="uid://dgmrdvwjvtf16" path="res://terrain-gen/idw_test.gdshader" id="6_mruw7"]
+[ext_resource type="ArrayMesh" uid="uid://d28a2n4i0chc0" path="res://foliage/models/grass.res" id="7_7u3ri"]
 [ext_resource type="Script" uid="uid://c5dktj43vvsde" path="res://ui/ui_manager.gd" id="7_abapg"]
-
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sblsk"]
-sky_horizon_color = Color(0.384314, 0.454902, 0.54902, 1)
-ground_bottom_color = Color(0.384314, 0.454902, 0.54902, 1)
-ground_horizon_color = Color(0.384314, 0.454902, 0.54902, 1)
+[ext_resource type="PackedScene" uid="uid://uys6n0u4hk2k" path="res://player/human_reference.glb" id="8_nwh6r"]
+[ext_resource type="Resource" uid="uid://dw5ab0rttcmv8" path="res://foliage/climate-data/climate_foliage_subarctic.tres" id="9_7u3ri"]
+[ext_resource type="Resource" uid="uid://dhgrwas4y7x3i" path="res://foliage/climate-data/climate_foliage_humid_continental.tres" id="10_1il7e"]
+[ext_resource type="Material" uid="uid://d048dybfwqrcv" path="res://foliage/foliage_mat.tres" id="11_oarv4"]
+[ext_resource type="Resource" uid="uid://wneqkta4xasp" path="res://foliage/climate-data/climate_foliage_hot_steppe.tres" id="13_v8pn4"]
+[ext_resource type="Resource" uid="uid://bdkphed44e357" path="res://foliage/climate-data/climate_foliage_humid_subtropical.tres" id="14_px0ic"]
+[ext_resource type="Resource" uid="uid://0jo83h5abjck" path="res://foliage/climate-data/climate_foliage_oceanic.tres" id="15_7qj4i"]
+[ext_resource type="Script" uid="uid://c1uk0uqaqbxrv" path="res://terrain-gen/time_manager.gd" id="16_ifr2o"]
+[ext_resource type="Resource" uid="uid://segbet7bavju" path="res://foliage/climate-data/climate_foliage_tropical_savanna.tres" id="16_o715a"]
+[ext_resource type="Resource" uid="uid://qtjl5e0m52fk" path="res://foliage/climate-data/climate_foliage_tropical_monsoon.tres" id="17_7qj4i"]
+[ext_resource type="Resource" uid="uid://c3qdkfkn3rygf" path="res://foliage/climate-data/climate_foliage_tropical_rainforest.tres" id="18_o715a"]
 
 [sub_resource type="Sky" id="Sky_od0dj"]
-sky_material = SubResource("ProceduralSkyMaterial_sblsk")
+sky_material = ExtResource("1_yogo7")
+process_mode = 3
 
 [sub_resource type="Environment" id="Environment_av8b3"]
 background_mode = 2
 sky = SubResource("Sky_od0dj")
+ambient_light_source = 3
 tonemap_mode = 2
 glow_enabled = true
+fog_density = 0.001
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kj283"]
-albedo_color = Color(0, 1, 0, 1)
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_8uihq"]
-material = SubResource("StandardMaterial3D_kj283")
-top_radius = 0.0
-bottom_radius = 4.029
-height = 20.0
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_jdxrr"]
-top_radius = 1.0
-bottom_radius = 1.0
-height = 3.176
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lmp17"]
-albedo_color = Color(0.729401, 0.173677, 0, 1)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ifr2o"]
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_lmp17"]
-frequency = 0.0005
+frequency = 0.001
 
 [sub_resource type="SphereMesh" id="SphereMesh_8kbu4"]
 radius = 50.0
@@ -64,74 +64,54 @@ shader_parameter/distance_power = 2.0
 environment = SubResource("Environment_av8b3")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -0.999999, 0, -4.37114e-08, 0, 0, 0)
 shadow_enabled = true
 
-[node name="TreesForScale" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -497.726, 12476.7, 240.512)
+[node name="CSGSphere3D" type="CSGSphere3D" parent="DirectionalLight3D"]
+transform = Transform3D(500, 0, 0, 0, 500, 0, 0, 0, 500, -2.84217e-11, 0, -25873.4)
+radius = 1.0
+radial_segments = 30
+rings = 16
+material = SubResource("StandardMaterial3D_ifr2o")
 
-[node name="TreeForScale" type="MeshInstance3D" parent="TreesForScale"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.82129, -5.17389)
-mesh = SubResource("CylinderMesh_8uihq")
-skeleton = NodePath("")
+[node name="human_reference" parent="." node_paths=PackedStringArray("player") instance=ExtResource("8_nwh6r")]
+transform = Transform3D(0.80302, 0, 0.372716, 0, 0.885301, 0, -0.372716, 0, 0.80302, -496.555, 12465.8, 241.852)
+script = ExtResource("2_1il7e")
+player = NodePath("../Player")
 
-[node name="Trunk" type="MeshInstance3D" parent="TreesForScale/TreeForScale"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -11.0674, 0)
-mesh = SubResource("CylinderMesh_jdxrr")
-skeleton = NodePath("")
-surface_material_override/0 = SubResource("StandardMaterial3D_lmp17")
-
-[node name="TreeForScale2" type="MeshInstance3D" parent="TreesForScale"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.09238, 1.40723, 4.35204)
-mesh = SubResource("CylinderMesh_8uihq")
-skeleton = NodePath("")
-
-[node name="Trunk" type="MeshInstance3D" parent="TreesForScale/TreeForScale2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -11.0674, 0)
-mesh = SubResource("CylinderMesh_jdxrr")
-skeleton = NodePath("")
-surface_material_override/0 = SubResource("StandardMaterial3D_lmp17")
-
-[node name="TreeForScale3" type="MeshInstance3D" parent="TreesForScale"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.43176, 0.46582, 0.488907)
-mesh = SubResource("CylinderMesh_8uihq")
-skeleton = NodePath("")
-
-[node name="Trunk" type="MeshInstance3D" parent="TreesForScale/TreeForScale3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -11.0674, 0)
-mesh = SubResource("CylinderMesh_jdxrr")
-skeleton = NodePath("")
-surface_material_override/0 = SubResource("StandardMaterial3D_lmp17")
-
-[node name="TreeForScale4" type="MeshInstance3D" parent="TreesForScale"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.3364, 6.09277, -10.2417)
-mesh = SubResource("CylinderMesh_8uihq")
-skeleton = NodePath("")
-
-[node name="Trunk" type="MeshInstance3D" parent="TreesForScale/TreeForScale4"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -11.0674, 0)
-mesh = SubResource("CylinderMesh_jdxrr")
-skeleton = NodePath("")
-surface_material_override/0 = SubResource("StandardMaterial3D_lmp17")
-
-[node name="TerrainGenerator" type="Node" parent="." node_paths=PackedStringArray("camera")]
+[node name="TerrainGenerator" type="Node" parent="." node_paths=PackedStringArray("camera", "fgen")]
 script = ExtResource("1_mmnf0")
 terrainMaterial = ExtResource("2_lmp17")
 noise = SubResource("FastNoiseLite_lmp17")
+noiseScale = 0.2
 camera = NodePath("../Player")
+fgen = NodePath("../FoliageGenerator")
 
 [node name="SaveDataLoader" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator", "visualiser")]
 script = ExtResource("1_8ubml")
 generator = NodePath("..")
 visualiser = NodePath("../OctreeVisualiser")
 
-[node name="OctreeVisualiser" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator")]
+[node name="OctreeVisualiser" type="Node" parent="TerrainGenerator" node_paths=PackedStringArray("generator", "foliage_generator")]
 script = ExtResource("3_jdxrr")
 generator = NodePath("..")
+foliage_generator = NodePath("../../FoliageGenerator")
 size_limit = 8
 
+[node name="FoliageGenerator" type="Node" parent="." node_paths=PackedStringArray("camera", "tgen")]
+script = ExtResource("6_3vh5k")
+grassMesh = ExtResource("7_7u3ri")
+material = ExtResource("11_oarv4")
+camera = NodePath("../Player")
+tgen = NodePath("../TerrainGenerator")
+renderDist = 600.0
+maxSlope = 34.0
+chunkSize = 128
+climateData = Array[Object]([ExtResource("9_7u3ri"), ExtResource("10_1il7e"), ExtResource("13_v8pn4"), ExtResource("14_px0ic"), ExtResource("15_7qj4i"), ExtResource("16_o715a"), ExtResource("17_7qj4i"), ExtResource("18_o715a")])
+maxGrassInstances = 100000
+
 [node name="Player" parent="." instance=ExtResource("4_abapg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.512, 12955.4, 214.025)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2053.55, 9875.46, 6931.45)
 
 [node name="OceanSurface" type="MeshInstance3D" parent="."]
 transform = Transform3D(240.24, 0, 0, 0, 240.24, 0, 0, 0, 240.24, 0, 0, 0)
@@ -199,3 +179,17 @@ offset_top = 23.0
 offset_right = 103.0
 offset_bottom = 46.0
 text = "Frame: 7.5ms"
+
+[node name="Trees" type="Label" parent="UI/RenderInfo"]
+layout_mode = 0
+offset_top = 46.0
+offset_right = 103.0
+offset_bottom = 69.0
+text = "Trees: 10000"
+
+[node name="TimeManager" type="Node" parent="." node_paths=PackedStringArray("sun_light", "player_camera")]
+script = ExtResource("16_ifr2o")
+sun_light = NodePath("../DirectionalLight3D")
+player_camera = NodePath("../Player")
+day_light_color = Color(1, 1, 1, 1)
+horizon_light_color = Color(1, 0.347923, 0.0935639, 1)
