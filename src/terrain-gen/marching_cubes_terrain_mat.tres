@@ -36,3 +36,4 @@ shader_parameter/water_gradient = SubResource("GradientTexture1D_1b8io")
 shader_parameter/planet_radius = 0.0
 shader_parameter/terrain_height = 1000.0
 shader_parameter/world_center = Vector3(0, 0, 0)
+shader_parameter/climate_zone_ground_colours = PackedColorArray(0.801298, 0.000842096, 0.85708, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.388235, 0.615686, 0, 1, 0.388235, 0.615686, 0, 1, 0.831887, 0.777386, 0.195039, 1, 0.831373, 0.776471, 0.196078, 1, 0.926711, 0.730836, 0.30173, 1, 0.92549, 0.729412, 0.301961, 1, 0.533301, 0.835194, 2.31028e-06, 1, 0.440968, 0.695481, 0, 1, 0.665016, 0.570901, 0, 1, 0.388235, 0.615686, 0, 1, 0.388235, 0.615686, 0, 1, 0.522682, 0.598049, 3.85046e-07, 1)

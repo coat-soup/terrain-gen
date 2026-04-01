@@ -1,0 +1,23 @@
+[gd_resource type="ShaderMaterial" load_steps=5 format=3 uid="uid://dya33iy1uhy84"]
+
+[ext_resource type="Shader" uid="uid://cc4q3er1xsng4" path="res://foliage/tree_shader.gdshader" id="1_lg36s"]
+[ext_resource type="Texture2D" uid="uid://3xdjmnidwenl" path="res://foliage/textures/leaf_willow.png" id="2_lg36s"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_rjjq3"]
+frequency = 0.0091
+
+[sub_resource type="NoiseTexture3D" id="NoiseTexture3D_h7cvk"]
+seamless = true
+noise = SubResource("FastNoiseLite_rjjq3")
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_lg36s")
+shader_parameter/leaf_color = Color(0.251743, 0.384061, 0.239894, 1)
+shader_parameter/trunk_color = Color(0.436713, 0.288948, 0.143631, 1)
+shader_parameter/wind_noise = SubResource("NoiseTexture3D_h7cvk")
+shader_parameter/wind_dir = Vector3(1, 0, 0)
+shader_parameter/wind_strength = 1.0
+shader_parameter/wind_frequency = 0.2
+shader_parameter/leaf_texture = ExtResource("2_lg36s")
+shader_parameter/is_grass = false

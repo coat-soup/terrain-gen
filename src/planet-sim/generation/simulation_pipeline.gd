@@ -37,8 +37,12 @@ func init_cells() -> Array[CellData]:
 func run_pipeline():
 	if pipeline_start_stage == 0: init_cells()
 	
+	var t = Time.get_unix_time_from_system()
+	
 	for i in range(pipeline_start_stage, pipeline.size()):
 		pipeline[i].simulate(cells, self)
+	
+	print("Finished generation with ", len(cells), " cells in ", str(Time.get_unix_time_from_system()-t), " seconds.")
 	
 	finished.emit()
 

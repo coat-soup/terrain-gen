@@ -11,14 +11,14 @@ void vertex() {
 void fragment() {
 	vec3 val = vec3(0.0);
 	float weight = 0.0;
-	
+
 	for(int i = 0; i < positions.length(); i++){
 		float d = length(positions[i]-UV);
 		float w = 1.0 / pow(d, distance_power);
 		val += values[i] * w;
 		weight += w;
 	}
-	
+
 	ALBEDO = val/weight;
 }
 

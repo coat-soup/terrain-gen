@@ -53,23 +53,26 @@ metadata/_custom_type_script = "uid://dyn8tcxuuwahj"
 
 [sub_resource type="Resource" id="Resource_hr14s"]
 script = ExtResource("7_8qm1f")
-neighbour_reach = 3
-falloff = 4.0
+neighbour_reach = 4
+falloff = 3.0
 metadata/_custom_type_script = "uid://b15tyu644a6r5"
 
 [sub_resource type="Resource" id="Resource_1oiaf"]
 script = ExtResource("8_nvhqj")
-continent_blur_steps = 2
+oceanic_height = -0.5
+continental_height = 0.01
+continent_blur_steps = 3
+stress_height = 2.0
 metadata/_custom_type_script = "uid://dfgjdkc60354l"
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_wqit5"]
-seed = 945855650
-frequency = 1.0
+seed = -1934309667
 
 [sub_resource type="Resource" id="Resource_f46qa"]
 script = ExtResource("9_27our")
-noise_scale = 0.4
-noise_frequency = 3.0
+noise_min = 0.0
+noise_max = 0.4
+noise_frequency = 300.0
 noise = SubResource("FastNoiseLite_wqit5")
 metadata/_custom_type_script = "uid://buokvcd8tekf1"
 

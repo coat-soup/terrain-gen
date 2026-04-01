@@ -4,8 +4,8 @@
 
 [resource]
 script = ExtResource("1_hu755")
-zone_name = "humid_subtropical"
-latitude_range = 100.0
+zone_name = "tropical_rainforest"
+latitude_range = Vector2(0, 100)
 temperature_range = Vector2(25, 10000)
 precipitation_range = Vector2(0.13, 100)
 metadata/_custom_type_script = "uid://bsfdq7sqejeij"

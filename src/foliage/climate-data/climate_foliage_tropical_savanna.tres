@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ClimateZoneFoliageData" load_steps=3 format=3 uid="uid://segbet7bavju"]
+
+[ext_resource type="ArrayMesh" uid="uid://dfyqvptm2e731" path="res://foliage/models/tree_acacia_01.res" id="1_i7ygy"]
+[ext_resource type="Script" uid="uid://c2d3sjeeagb0n" path="res://foliage/ClimateZoneFoliageData.cs" id="2_k1hmx"]
+
+[resource]
+script = ExtResource("2_k1hmx")
+climateZoneID = 11
+meshes = Array[Mesh]([ExtResource("1_i7ygy")])
+weights = PackedFloat32Array(10)
+metadata/_custom_type_script = "uid://c2d3sjeeagb0n"

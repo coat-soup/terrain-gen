@@ -1,0 +1,46 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+uid="uid://cclb53otj8kyj"
+path="res://.godot/imported/tree_acacia.obj-126cb7e3ab780ca47804946eea2f3c25.scn"
+
+[deps]
+
+source_file="res://foliage/models/treeit-saves/tree_acacia.obj"
+dest_files=["res://.godot/imported/tree_acacia.obj-126cb7e3ab780ca47804946eea2f3c25.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
+nodes/use_node_type_suffixes=true
+meshes/ensure_tangents=true
+meshes/generate_lods=true
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=true
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
+import_script/path=""
+_subresources={
+"meshes": {
+"tree": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 60.0,
+"save_to_file/enabled": true,
+"save_to_file/path": "res://foliage/models/tree_acacia_01.res"
+}
+}
+}

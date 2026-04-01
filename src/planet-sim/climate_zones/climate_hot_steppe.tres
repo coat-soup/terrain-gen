@@ -4,8 +4,8 @@
 
 [resource]
 script = ExtResource("1_ts2ic")
-zone_name = "hot_desert"
-latitude_range = 100.0
+zone_name = "hot_steppe"
+latitude_range = Vector2(0, 100)
 temperature_range = Vector2(20, 100)
 precipitation_range = Vector2(0, 0.03)
 metadata/_custom_type_script = "uid://bsfdq7sqejeij"

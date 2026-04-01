@@ -11,6 +11,7 @@ public partial class OctreeNode : RefCounted
     public int size;
     public int cell_id;
     public TerrainChunk chunk;
+    public FoliageChunk fChunk;
     public bool chunkQueued;
     public String path;
     

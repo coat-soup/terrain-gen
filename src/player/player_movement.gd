@@ -45,13 +45,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		camera_pivot.rotation.x = clamp(camera_pivot.rotation.x, deg_to_rad(-90), deg_to_rad(90))
 
 
-func _physics_process(delta: float) -> void:
+func _process(delta: float) -> void:
 	var rel_v = transform.basis.inverse() * velocity
 	
 	# input
 	var input_dir := Input.get_vector("left", "right", "up", "down")
 	var direction := (Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
+	up_direction = global_position.normalized()
 	
 	if ground_check.is_colliding():
 		if direction:
@@ -92,6 +93,9 @@ func _physics_process(delta: float) -> void:
 	
 	velocity = transform.basis * rel_v
 	
+	var dist_to_ground = ground_check.get_collision_point().distance_to(ground_check.global_position)
+	if ground_check.is_colliding() and dist_to_ground < 0.2: global_position += global_position.normalized() * (0.2 - dist_to_ground)
+	
 	move_and_slide()
 
 
@@ -114,4 +118,10 @@ func align_to_planet():
 
 
 func get_speed() -> float:
-	return ((speed * 10) if debug_mode else speed) * (sprint_speed if Input.is_action_pressed("sprint") else 1.0)
+	var s = speed if not Input.is_action_pressed("sprint") else sprint_speed
+	
+	if debug_mode:
+		s *= 10
+		if Input.is_action_pressed("sprint"): s *= 5
+	
+	return s
