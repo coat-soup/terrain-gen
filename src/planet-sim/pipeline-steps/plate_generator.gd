@@ -28,8 +28,6 @@ func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellDa
 		assigned_cells += 1
 		
 	
-	print("plates: ", plates)
-	
 	while assigned_cells < cells.size():
 		for i in range(cells.size()):
 			if cells[i].plate_id != -1: continue

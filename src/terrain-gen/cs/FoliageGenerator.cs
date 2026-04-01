@@ -190,6 +190,7 @@ public partial class FoliageGenerator : Node
         }
 
         grassMultiMesh.Multimesh.VisibleInstanceCount = grassMultiMeshInstanceCounter;
+        GD.Print(grassMultiMeshInstanceCounter + " blades of grass");
     }
 
     static uint HashVector(Vector3I p)
