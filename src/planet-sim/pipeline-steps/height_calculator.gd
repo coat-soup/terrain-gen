@@ -17,7 +17,7 @@ func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellDa
 	
 	for i in range(cells.size()):
 		# plate stress
-		cells[i].height += cells[i].debug_neighbour_stress * 2 * stress_height
+		cells[i].height += cells[i].debug_neighbour_stress * stress_height
 	
 	return cells
 

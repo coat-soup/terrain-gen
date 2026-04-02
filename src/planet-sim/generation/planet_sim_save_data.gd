@@ -16,6 +16,7 @@ const SAVE_PATH : String = "user://planet_sim_save.tres"
 @export var wind_dir : Array[Vector3] = []
 @export var precipitation : Array[float] = []
 @export var distance_to_ocean_boundary : Array[int] = []
+@export var distance_to_plate_boundary : Array[int] = []
 @export var height_gradient : Array[Vector3] = []
 @export var climate_zone_id : Array[int] = []
 
@@ -60,6 +61,9 @@ static func write_save(cells : Array[CellData]):
 	
 	save_data.distance_to_ocean_boundary.resize(n_cells)
 	for i in range(cells.size()): save_data.distance_to_ocean_boundary[i] = cells[i].distance_to_ocean_boundary
+	
+	save_data.distance_to_plate_boundary.resize(n_cells)
+	for i in range(cells.size()): save_data.distance_to_plate_boundary[i] = cells[i].distance_to_plate_boundary
 	
 	save_data.height_gradient.resize(n_cells)
 	for i in range(cells.size()): save_data.height_gradient[i] = cells[i].height_gradient

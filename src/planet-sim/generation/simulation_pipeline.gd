@@ -39,10 +39,19 @@ func run_pipeline():
 	
 	var t = Time.get_unix_time_from_system()
 	
+	var times : Array[float]
+	times.resize(pipeline.size())
+	
 	for i in range(pipeline_start_stage, pipeline.size()):
+		var _t = Time.get_unix_time_from_system()
 		pipeline[i].simulate(cells, self)
+		times[i] = Time.get_unix_time_from_system()-_t
 	
 	print("Finished generation with ", len(cells), " cells in ", str(Time.get_unix_time_from_system()-t), " seconds.")
+	var s = ""
+	for i in range(len(times)):
+		s += "%2d: %.3fs \t" % [i, times[i]]
+	print(s)
 	
 	finished.emit()
 

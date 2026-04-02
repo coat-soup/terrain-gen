@@ -125,7 +125,7 @@ void vertex() {
 	if (vis_type == 0) COLOR = vec4(COLOR.a); // cell id
 	if (vis_type == 1) COLOR = color_from_plate_data(data); // plate id
 	if (vis_type == 2) COLOR = vec4(data); // cell position
-	if (vis_type == 3) COLOR = texture(stress_gradient, vec2(min(1.0, data / 2.0 + 0.5), 0.0)); // plate stress
+	if (vis_type == 3) COLOR = texture(stress_gradient, vec2(clamp(data / 2.0 + 0.5, 0.01, 0.99), 0.0)); // plate stress
 	if (vis_type == 4){ COLOR = color_from_height_data(data);}//VERTEX += NORMAL * data / 20.0;}
 	if (vis_type == 5) COLOR = color_from_temperature_data(data); // temp
 	if (vis_type == 6) COLOR = color_from_ocean_current_data(data); // currents
