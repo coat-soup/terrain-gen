@@ -22,6 +22,8 @@ func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellDa
 			var movement = strength * slope
 			new_heights[i] -= movement
 			new_heights[lowest_neighbour] += movement
+			cells[i].erosion -= movement
+			cells[lowest_neighbour].erosion += movement
 	
 		for i in range(cells.size()):
 			cells[i].height = new_heights[i]

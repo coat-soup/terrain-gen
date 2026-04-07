@@ -6,6 +6,7 @@ uniform sampler2D stress_gradient;
 uniform sampler2D temperature_gradient;
 uniform sampler2D wind_gradient;
 uniform sampler2D precipitation_gradient;
+uniform sampler2D magma_gradient;
 
 uniform vec4 climate_zone_colours[16] : source_color;
 
@@ -135,4 +136,6 @@ void vertex() {
 	if (vis_type == 10) COLOR = texture(wind_gradient, vec2(clamp(data, 0.001, 0.999), 0.0)); // slope
 	if (vis_type == 11) COLOR = data != -1.0? climate_zone_colours[int(data)] : vec4(0.0);
 	if (vis_type == 12) COLOR = data == -1.0? vec4(0.0) : data == -2.0? vec4(1.0,0.0,0.0,0.0) : vec4(data);
+	if (vis_type == 13) COLOR = data == -1.0? vec4(0.0) : texture(wind_gradient, vec2(clamp(data, 0.001, 0.999), 0.0));
+	if (vis_type == 14) COLOR = data == -1.0? vec4(0.0) : texture(magma_gradient, vec2(clamp(data, 0.002, 0.999), 0.0));
 }

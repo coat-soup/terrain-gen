@@ -2,7 +2,7 @@
 extends Node
 class_name CellDataVisualiser
 
-enum VisualisationType {CELL_ID, PLATE_ID, CELL_POSITION, PLATE_STRESS, CELL_HEIGHT, CELL_TEMPERATURE, OCEAN_CURRENTS, WIND, OCEAN_BOUNDARY, PRECIPITATION, SLOPE, CLIMATE_ZONES, DEBUG_NEIGHBOUR_ORDER}
+enum VisualisationType {CELL_ID, PLATE_ID, CELL_POSITION, PLATE_STRESS, CELL_HEIGHT, CELL_TEMPERATURE, OCEAN_CURRENTS, WIND, OCEAN_BOUNDARY, PRECIPITATION, SLOPE, CLIMATE_ZONES, DEBUG_NEIGHBOUR_ORDER, EROSION, MAGMA}
 @export var vis_type : VisualisationType:
 	set(new_vis_type):
 		vis_type = new_vis_type
@@ -35,6 +35,8 @@ func colour_mesh():
 			9: data.append(simulator.cells[i].precipitation if simulator.cells[i].height > 0 else -999.0)
 			10: data.append(simulator.cells[i].height_gradient.length())
 			11: data.append(simulator.cells[i].climate_zone_id if simulator.cells[i].height > 0 else -1)
+			13: data.append(simulator.cells[i].erosion if simulator.cells[i].height > 0 else -1)
+			14: data.append(simulator.cells[i].magma)# if simulator.cells[i].height > 0 else -1)
 	if vis_type == 6: data = data_from_ocean_currents(simulator)
 	if vis_type == 12: data = data_from_debug_neighbour_ordering(simulator)
 	

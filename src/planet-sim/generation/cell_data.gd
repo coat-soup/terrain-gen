@@ -18,6 +18,8 @@ var wind_dir : Vector3 = Vector3.ZERO
 var precipitation : float = 0
 var distance_to_ocean_boundary : int = -1
 var distance_to_plate_boundary : int = -1
+var erosion : float = 0
+var magma : float = 0
 var height_gradient : Vector3
 var climate_zone_id : int = -1
 
