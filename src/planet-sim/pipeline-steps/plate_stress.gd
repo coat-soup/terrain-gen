@@ -2,7 +2,7 @@
 extends SimulationStep
 class_name PlateStress
 
-@export_range(1, 10) var neighbour_reach : int = 2
+@export_range(1, 10) var neighbour_reach : int = 4
 @export_range(0,10) var falloff : float = 3
 
 func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellData]:

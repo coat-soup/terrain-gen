@@ -122,6 +122,6 @@ func get_speed() -> float:
 	
 	if debug_mode:
 		s *= 10
-		if Input.is_action_pressed("sprint"): s *= 5
+		if Input.is_action_pressed("sprint"): s *= 10
 	
 	return s

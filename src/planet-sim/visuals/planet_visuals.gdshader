@@ -6,6 +6,7 @@ uniform sampler2D stress_gradient;
 uniform sampler2D temperature_gradient;
 uniform sampler2D wind_gradient;
 uniform sampler2D precipitation_gradient;
+uniform sampler2D magma_gradient;
 
 uniform vec4 climate_zone_colours[16] : source_color;
 
@@ -125,7 +126,7 @@ void vertex() {
 	if (vis_type == 0) COLOR = vec4(COLOR.a); // cell id
 	if (vis_type == 1) COLOR = color_from_plate_data(data); // plate id
 	if (vis_type == 2) COLOR = vec4(data); // cell position
-	if (vis_type == 3) COLOR = texture(stress_gradient, vec2(min(1.0, data / 2.0 + 0.5), 0.0)); // plate stress
+	if (vis_type == 3) COLOR = texture(stress_gradient, vec2(clamp(data / 2.0 + 0.5, 0.01, 0.99), 0.0)); // plate stress
 	if (vis_type == 4){ COLOR = color_from_height_data(data);}//VERTEX += NORMAL * data / 20.0;}
 	if (vis_type == 5) COLOR = color_from_temperature_data(data); // temp
 	if (vis_type == 6) COLOR = color_from_ocean_current_data(data); // currents
@@ -135,4 +136,6 @@ void vertex() {
 	if (vis_type == 10) COLOR = texture(wind_gradient, vec2(clamp(data, 0.001, 0.999), 0.0)); // slope
 	if (vis_type == 11) COLOR = data != -1.0? climate_zone_colours[int(data)] : vec4(0.0);
 	if (vis_type == 12) COLOR = data == -1.0? vec4(0.0) : data == -2.0? vec4(1.0,0.0,0.0,0.0) : vec4(data);
+	if (vis_type == 13) COLOR = data == -1.0? vec4(0.0) : texture(wind_gradient, vec2(clamp(data, 0.001, 0.999), 0.0));
+	if (vis_type == 14) COLOR = data == -1.0? vec4(0.0) : texture(magma_gradient, vec2(clamp(data, 0.002, 0.999), 0.0));
 }

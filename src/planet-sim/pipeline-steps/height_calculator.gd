@@ -6,7 +6,7 @@ class_name HeightCalculator
 @export var continental_height = 0.01;
 @export var continent_blur_steps : int = 2
 @export var stress_height : float = 4.0
-
+@export var volcano_threshold : float = 0.7
 
 func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellData]:
 	for cell in cells:
@@ -17,7 +17,12 @@ func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellDa
 	
 	for i in range(cells.size()):
 		# plate stress
-		cells[i].height += cells[i].debug_neighbour_stress * 2 * stress_height
+		if !cells[i].is_oceanic:
+			cells[i].height += cells[i].debug_neighbour_stress * stress_height
+		else:
+			cells[i].height += abs(cells[i].debug_neighbour_stress) * stress_height * cells[i].magma * 5
+		
+		if cells[i].magma > volcano_threshold: cells[i].height += cells[i].magma - volcano_threshold
 	
 	return cells
 
