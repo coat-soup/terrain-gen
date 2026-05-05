@@ -84,7 +84,7 @@ vec4 color_from_plate_data(float plate_id) {
 vec4 color_from_height_data(float height) {
 	//if (height <= 0.0) return vec4(0.107, 0.211, 0.255, 0.0);
 	if (height <= 0.0) return texture(water_gradient, vec2(max(0.0, 1.0 - height), 0.0));
-	return texture(height_gradient, vec2(min(0.999, height), 0.0));
+	return texture(height_gradient, vec2(min(0.99, height), 0.0));
 }
 
 vec4 color_from_ocean_current_data(float data){
@@ -133,9 +133,10 @@ void vertex() {
 	if (vis_type == 7) COLOR = color_from_wind_data(data); // wind
 	if (vis_type == 8) COLOR = texture(wind_gradient, vec2(clamp(data, 0.001, 0.999), 0.0)); // ocean boundary
 	if (vis_type == 9) COLOR = color_from_precipitation_data(data); // precipitation
-	if (vis_type == 10) COLOR = texture(wind_gradient, vec2(clamp(data, 0.001, 0.999), 0.0)); // slope
+	if (vis_type == 10) COLOR = texture(wind_gradient, vec2(clamp(data, 0.002, 0.995), 0.0)); // slope
 	if (vis_type == 11) COLOR = data != -1.0? climate_zone_colours[int(data)] : vec4(0.0);
 	if (vis_type == 12) COLOR = data == -1.0? vec4(0.0) : data == -2.0? vec4(1.0,0.0,0.0,0.0) : vec4(data);
 	if (vis_type == 13) COLOR = data == -1.0? vec4(0.0) : texture(wind_gradient, vec2(clamp(data, 0.001, 0.999), 0.0));
 	if (vis_type == 14) COLOR = data == -1.0? vec4(0.0) : texture(magma_gradient, vec2(clamp(data, 0.002, 0.999), 0.0));
+	if (vis_type == 15) COLOR = data < -50.0? vec4(0.0,0.0,1.0,0.0) : color_from_height_data(data);
 }

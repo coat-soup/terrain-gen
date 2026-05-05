@@ -19,6 +19,7 @@ const SAVE_PATH : String = "user://planet_sim_save.tres"
 @export var distance_to_plate_boundary : Array[int] = []
 @export var erosion : Array[float] = []
 @export var magma : Array[float] = []
+@export var water_content : Array[float] = []
 @export var height_gradient : Array[Vector3] = []
 @export var climate_zone_id : Array[int] = []
 
@@ -73,6 +74,9 @@ static func write_save(cells : Array[CellData]):
 	save_data.magma.resize(n_cells)
 	for i in range(cells.size()): save_data.magma[i] = cells[i].magma
 	
+	save_data.water_content.resize(n_cells)
+	for i in range(cells.size()): save_data.water_content[i] = cells[i].water_content
+	
 	save_data.height_gradient.resize(n_cells)
 	for i in range(cells.size()): save_data.height_gradient[i] = cells[i].height_gradient
 	
@@ -113,6 +117,7 @@ func parse_cells():
 		cells[i].distance_to_ocean_boundary = distance_to_ocean_boundary[i]
 		cells[i].erosion = erosion[i]
 		cells[i].magma = magma[i]
+		cells[i].water_content = water_content[i]
 		cells[i].height_gradient = height_gradient[i]
 		cells[i].climate_zone_id = climate_zone_id[i]
 	
