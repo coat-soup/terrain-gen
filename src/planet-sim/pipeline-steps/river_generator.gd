@@ -48,7 +48,7 @@ func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellDa
 					#break
 		starts.append(start)
 		
-		start.water_content = 1.0 # DEBUG
+		#start.water_content = 1.0 # DEBUG
 	
 	# do rivers
 	for start in starts:

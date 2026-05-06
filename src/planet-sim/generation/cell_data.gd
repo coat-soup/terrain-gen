@@ -23,6 +23,7 @@ var magma : float = 0
 var water_content : float = 0.0
 var height_gradient : Vector3
 var climate_zone_id : int = -1
+var landform_id : int = -1
 
 func _init(cell_id : int, pos : Vector3) -> void:
 	id = cell_id

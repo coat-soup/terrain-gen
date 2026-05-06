@@ -17,7 +17,7 @@ func _ready() -> void:
 func load_data():
 	print("Loading data to C# generator")
 	var data = PlanetSimSaveData.load_save()
-	generator.call("CreateTreeFromDataArrays", data.neighbours, data.unit_pos, data.height, data.wind_dir, data.precipitation, data.climate_zone_id)
+	generator.call("CreateTreeFromDataArrays", data.neighbours, data.unit_pos, data.height, data.wind_dir, data.precipitation, data.climate_zone_id, data.landform_id)
 	generator.call("LoadChunksAroundCamera")
 
 

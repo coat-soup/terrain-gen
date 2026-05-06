@@ -17,12 +17,15 @@ public partial class TerrainGenerator : Node
 
     [Export] public Material terrainMaterial;
     
+    [Export] public Landform[] landforms;
+    
     public Array<Array<int>> neighbours;
     public Vector3[] positions;
     public float[] heights;
     public Vector3[] windDirs;
     public float[] precipitations;
     public int[] climateZoneIDs;
+    public int[] landformIDs;
     
     public OctreeNode tree;
     private int n_nodes;
@@ -62,7 +65,7 @@ public partial class TerrainGenerator : Node
     }
 
     
-    public void CreateTreeFromDataArrays(Array<Array<int>> _neighbours, Vector3[] _positions, float[] _heights, Vector3[] _windDirs, float[] _precipitations, int[] _climateZoneIDs)
+    public void CreateTreeFromDataArrays(Array<Array<int>> _neighbours, Vector3[] _positions, float[] _heights, Vector3[] _windDirs, float[] _precipitations, int[] _climateZoneIDs, int[] _landformIDs)
     {
         neighbours = _neighbours;
         positions = _positions;
@@ -70,6 +73,7 @@ public partial class TerrainGenerator : Node
         windDirs = _windDirs;
         precipitations = _precipitations;
         climateZoneIDs = _climateZoneIDs;
+        landformIDs = _landformIDs;
         GD.Print("Creating tree from data. Got heights size " + _heights.Length);
 
         tree = CreateRootNode(chunkSize);
@@ -250,7 +254,8 @@ public partial class TerrainGenerator : Node
         int cell = refineCell? CellIDFromNormal(position.Normalized(), startingCell) : startingCell;
 
         float simHeight = InterpolateHeightBarycentric(position, cell);
-        float height = planetRadius + (simHeight + (noise.GetNoise3Dv(position) -0.5f) * noiseScale) * terrainHeight;
+        //float height = planetRadius + (simHeight + (noise.GetNoise3Dv(position) -0.5f) * noiseScale) * terrainHeight;
+        float height = planetRadius + (simHeight * 0.5f + landforms[landformIDs[cell]].CalculateDensity(position, simHeight)) * terrainHeight;
         return height - position.Length();
     }
     

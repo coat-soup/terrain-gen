@@ -8,7 +8,10 @@ uniform sampler2D wind_gradient;
 uniform sampler2D precipitation_gradient;
 uniform sampler2D magma_gradient;
 
+uniform vec4 river_color : source_color;
+
 uniform vec4 climate_zone_colours[16] : source_color;
+uniform vec4 landform_colours[16] : source_color;
 
 uniform sampler2D data_tex;
 uniform int data_tex_size;
@@ -138,5 +141,6 @@ void vertex() {
 	if (vis_type == 12) COLOR = data == -1.0? vec4(0.0) : data == -2.0? vec4(1.0,0.0,0.0,0.0) : vec4(data);
 	if (vis_type == 13) COLOR = data == -1.0? vec4(0.0) : texture(wind_gradient, vec2(clamp(data, 0.001, 0.999), 0.0));
 	if (vis_type == 14) COLOR = data == -1.0? vec4(0.0) : texture(magma_gradient, vec2(clamp(data, 0.002, 0.999), 0.0));
-	if (vis_type == 15) COLOR = data < -50.0? vec4(0.0,0.0,1.0,0.0) : color_from_height_data(data);
+	if (vis_type == 15) COLOR = data < -50.0? river_color : color_from_height_data(data);
+	if (vis_type == 16) COLOR = data != -1.0? landform_colours[int(data)] : vec4(0.0);
 }

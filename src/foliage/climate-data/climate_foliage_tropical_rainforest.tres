@@ -9,4 +9,5 @@ script = ExtResource("2_spo61")
 climateZoneID = 13
 meshes = Array[Mesh]([ExtResource("1_g0bky"), ExtResource("2_mdwmw")])
 weights = PackedFloat32Array(8, 5)
+density = 0.4
 metadata/_custom_type_script = "uid://c2d3sjeeagb0n"
