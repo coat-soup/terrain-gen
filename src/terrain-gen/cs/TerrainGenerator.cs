@@ -253,9 +253,14 @@ public partial class TerrainGenerator : Node
     {
         int cell = refineCell? CellIDFromNormal(position.Normalized(), startingCell) : startingCell;
 
-        float simHeight = InterpolateHeightBarycentric(position, cell);
+        int[] closestCells = FindDelaunayTriangle(cell, position);
+        float[] weights = InterpolateHeightBarycentric(closestCells, position);
+        float simHeight = heights[closestCells[0]] * weights[0] + heights[closestCells[1]] * weights[1] + heights[closestCells[2]] * weights[2];
+        float landformDensity = landforms[landformIDs[closestCells[0]]].CalculateDensity(position, simHeight, this) * weights[0] +
+                              landforms[landformIDs[closestCells[1]]].CalculateDensity(position, simHeight, this) * weights[1] +
+                              landforms[landformIDs[closestCells[2]]].CalculateDensity(position, simHeight, this) * weights[2];
         //float height = planetRadius + (simHeight + (noise.GetNoise3Dv(position) -0.5f) * noiseScale) * terrainHeight;
-        float height = planetRadius + (simHeight * 0.5f + landforms[landformIDs[cell]].CalculateDensity(position, simHeight, this)) * terrainHeight;
+        float height = planetRadius + (simHeight * 0.5f + landformDensity) * terrainHeight;
         return height - position.Length();
     }
     
@@ -298,11 +303,8 @@ public partial class TerrainGenerator : Node
         );
     }
     
-    public float InterpolateHeightBarycentric(Vector3 position, int closest)
+    public float[] InterpolateHeightBarycentric(int[] cells, Vector3 position)
     {
-        var cells = FindDelaunayTriangle(closest, position);
-        if (cells.Length < 3) return heights[closest];
-
         // normalized triangle verts
         Vector3 A = positions[cells[0]];
         Vector3 B = positions[cells[1]];
@@ -326,7 +328,8 @@ public partial class TerrainGenerator : Node
         float hB = heights[cells[1]];
         float hC = heights[cells[2]];
 
-        return hA * wA + hB * wB + hC * wC;
+        return [wA, wB, wC];
+        //return hA * wA + hB * wB + hC * wC;
     }
     
     public override void _Process(double delta)
