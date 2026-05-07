@@ -161,16 +161,50 @@ mouse_filter = 1
 
 [node name="PlayerSpeed" type="Label" parent="UI/PlayerInfo"]
 layout_mode = 1
+offset_top = -7.0
 offset_right = 104.0
-offset_bottom = 23.0
+offset_bottom = 16.0
 text = "Speed: 30m/s"
 
 [node name="PlayerHeight" type="Label" parent="UI/PlayerInfo"]
 layout_mode = 1
-offset_top = 23.0
+offset_top = 16.0
 offset_right = 103.0
-offset_bottom = 46.0
+offset_bottom = 39.0
 text = "Height: 400m"
+
+[node name="PlayerCoords" type="Label" parent="UI/PlayerInfo"]
+layout_mode = 1
+offset_top = 40.0
+offset_right = 103.0
+offset_bottom = 63.0
+text = "43.5N 13.0W"
+
+[node name="WorldInfo" type="Control" parent="UI"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 2339.0
+offset_top = -46.0
+offset_right = 2379.0
+offset_bottom = -6.0
+grow_vertical = 0
+mouse_filter = 1
+
+[node name="ClimateZone" type="Label" parent="UI/WorldInfo"]
+layout_mode = 1
+offset_top = -7.0
+offset_right = 104.0
+offset_bottom = 16.0
+text = "Climate:"
+
+[node name="Landform" type="Label" parent="UI/WorldInfo"]
+layout_mode = 1
+offset_top = 16.0
+offset_right = 103.0
+offset_bottom = 39.0
+text = "Landform:"
 
 [node name="RenderInfo" type="Control" parent="UI"]
 layout_mode = 1

@@ -6,6 +6,8 @@ extends Node
 @export_tool_button("Delete Chunk Data", "TextFile") var delete_chunk_action = delete_chunks
 @export_tool_button("Delete Foliage Chunk Data", "TextFile") var delete_foliage_chunks_action = delete_foliage_chunks
 
+var data : PlanetSimSaveData
+
 
 func _ready() -> void:
 	if Engine.is_editor_hint(): return
@@ -16,7 +18,7 @@ func _ready() -> void:
 
 func load_data():
 	print("Loading data to C# generator")
-	var data = PlanetSimSaveData.load_save()
+	data = PlanetSimSaveData.load_save()
 	generator.call("CreateTreeFromDataArrays", data.neighbours, data.unit_pos, data.height, data.wind_dir, data.precipitation, data.climate_zone_id, data.landform_id)
 	generator.call("LoadChunksAroundCamera")
 

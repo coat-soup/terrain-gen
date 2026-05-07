@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="1_hhpd2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_2l8j7"]
-domain_warp_enabled = true
 
 [resource]
 script = ExtResource("1_hhpd2")

@@ -14,6 +14,6 @@ windRange = Vector2(0, 100)
 magmaRange = Vector2(0, 100)
 riverDistance = 1
 noise = SubResource("FastNoiseLite_1gwgc")
-noiseStrength = -0.1
+noiseStrength = 0.01
 noiseFrequency = 0.1
 metadata/_custom_type_script = "uid://18x4lnspygxi"

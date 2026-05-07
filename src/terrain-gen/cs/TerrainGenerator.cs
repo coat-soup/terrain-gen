@@ -260,7 +260,7 @@ public partial class TerrainGenerator : Node
                               landforms[landformIDs[closestCells[1]]].CalculateDensity(position, simHeight, this) * weights[1] +
                               landforms[landformIDs[closestCells[2]]].CalculateDensity(position, simHeight, this) * weights[2];
         //float height = planetRadius + (simHeight + (noise.GetNoise3Dv(position) -0.5f) * noiseScale) * terrainHeight;
-        float height = planetRadius + (simHeight * 0.5f + landformDensity) * terrainHeight;
+        float height = planetRadius + (simHeight * 0.0f + landformDensity) * terrainHeight;
         return height - position.Length();
     }
     

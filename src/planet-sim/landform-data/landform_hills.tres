@@ -12,6 +12,7 @@ precipitationRange = Vector2(0, 100)
 temperatureRange = Vector2(-500, 500)
 windRange = Vector2(0, 100)
 magmaRange = Vector2(0, 100)
+riverDistance = -1
 noise = SubResource("FastNoiseLite_2l8j7")
 noiseStrength = 0.3
 noiseFrequency = 0.083
