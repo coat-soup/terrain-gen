@@ -63,7 +63,7 @@ public partial class TerrainGenerator : Node
         chunkThread.Start(new Callable(this, MethodName.RunChunkQueue));
         
     }
-
+    
     
     public void CreateTreeFromDataArrays(Array<Array<int>> _neighbours, Vector3[] _positions, float[] _heights, Vector3[] _windDirs, float[] _precipitations, int[] _climateZoneIDs, int[] _landformIDs)
     {
@@ -255,7 +255,7 @@ public partial class TerrainGenerator : Node
 
         float simHeight = InterpolateHeightBarycentric(position, cell);
         //float height = planetRadius + (simHeight + (noise.GetNoise3Dv(position) -0.5f) * noiseScale) * terrainHeight;
-        float height = planetRadius + (simHeight * 0.5f + landforms[landformIDs[cell]].CalculateDensity(position, simHeight)) * terrainHeight;
+        float height = planetRadius + (simHeight * 0.5f + landforms[landformIDs[cell]].CalculateDensity(position, simHeight, this)) * terrainHeight;
         return height - position.Length();
     }
     

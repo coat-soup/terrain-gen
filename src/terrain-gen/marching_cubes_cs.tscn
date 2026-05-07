@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=3 uid="uid://f1o2row1elky"]
+[gd_scene load_steps=43 format=3 uid="uid://f1o2row1elky"]
 
 [ext_resource type="Script" uid="uid://b360mtqi65fnp" path="res://terrain-gen/cs/save_data_loader.gd" id="1_8ubml"]
 [ext_resource type="Script" uid="uid://xmnrya6cfe2g" path="res://terrain-gen/cs/TerrainGenerator.cs" id="1_mmnf0"]
@@ -12,23 +12,27 @@
 [ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="6_vm7jn"]
 [ext_resource type="ArrayMesh" uid="uid://d28a2n4i0chc0" path="res://foliage/models/grass.res" id="7_7u3ri"]
 [ext_resource type="Script" uid="uid://c5dktj43vvsde" path="res://ui/ui_manager.gd" id="7_abapg"]
-[ext_resource type="Resource" uid="uid://dnpxpkrugfks" path="res://planet-sim/landforms/landform_ocean.tres" id="7_yfj8o"]
-[ext_resource type="Resource" uid="uid://cic2wpyulhenx" path="res://planet-sim/landforms/landform_mountains.tres" id="8_a3i3t"]
+[ext_resource type="Resource" uid="uid://dnpxpkrugfks" path="res://planet-sim/landform-data/landform_ocean.tres" id="7_yfj8o"]
+[ext_resource type="Resource" uid="uid://c1nwqfb3r1dh8" path="res://planet-sim/landform-data/landform_mountains.tres" id="8_a3i3t"]
 [ext_resource type="PackedScene" uid="uid://uys6n0u4hk2k" path="res://player/human_reference.glb" id="8_nwh6r"]
-[ext_resource type="Resource" uid="uid://cnabvpjc8j3fp" path="res://planet-sim/landforms/landform_hills.tres" id="9_3nwo8"]
+[ext_resource type="Resource" uid="uid://cnabvpjc8j3fp" path="res://planet-sim/landform-data/landform_hills.tres" id="9_3nwo8"]
 [ext_resource type="Resource" uid="uid://dw5ab0rttcmv8" path="res://foliage/climate-data/climate_foliage_subarctic.tres" id="9_7u3ri"]
 [ext_resource type="Resource" uid="uid://dhgrwas4y7x3i" path="res://foliage/climate-data/climate_foliage_humid_continental.tres" id="10_1il7e"]
-[ext_resource type="Resource" uid="uid://dpv1g6p322bgw" path="res://planet-sim/landforms/landform_plains.tres" id="10_gjaur"]
-[ext_resource type="Resource" uid="uid://c6wi4hc7162gu" path="res://planet-sim/landforms/landform_wetlands.tres" id="11_3if6e"]
+[ext_resource type="Resource" uid="uid://bcimw1841ndtr" path="res://planet-sim/landform-data/landform_plateau.tres" id="10_a3i3t"]
+[ext_resource type="Resource" uid="uid://dpv1g6p322bgw" path="res://planet-sim/landform-data/landform_plains.tres" id="10_gjaur"]
+[ext_resource type="Resource" uid="uid://c6wi4hc7162gu" path="res://planet-sim/landform-data/landform_wetlands.tres" id="11_3if6e"]
 [ext_resource type="Material" uid="uid://d048dybfwqrcv" path="res://foliage/foliage_mat.tres" id="11_oarv4"]
-[ext_resource type="Resource" uid="uid://dxc8brws133xj" path="res://planet-sim/landforms/landform_volcanic_mountains.tres" id="12_q2tvr"]
-[ext_resource type="Resource" uid="uid://dc3jly20q2ugl" path="res://planet-sim/landforms/landform_volcanic_plains.tres" id="13_elhhf"]
+[ext_resource type="Resource" uid="uid://dxc8brws133xj" path="res://planet-sim/landform-data/landform_volcanic_mountains.tres" id="12_q2tvr"]
+[ext_resource type="Resource" uid="uid://0v8sq6x8w5b8" path="res://planet-sim/landform-data/landform_sandy_desert.tres" id="13_3nwo8"]
+[ext_resource type="Resource" uid="uid://dc3jly20q2ugl" path="res://planet-sim/landform-data/landform_volcanic_plains.tres" id="13_elhhf"]
 [ext_resource type="Resource" uid="uid://wneqkta4xasp" path="res://foliage/climate-data/climate_foliage_hot_steppe.tres" id="13_v8pn4"]
 [ext_resource type="Resource" uid="uid://bdkphed44e357" path="res://foliage/climate-data/climate_foliage_humid_subtropical.tres" id="14_px0ic"]
 [ext_resource type="Resource" uid="uid://0jo83h5abjck" path="res://foliage/climate-data/climate_foliage_oceanic.tres" id="15_7qj4i"]
+[ext_resource type="Resource" uid="uid://sp2vsbyvoq5g" path="res://planet-sim/landform-data/landform_rivervalley.tres" id="16_3nwo8"]
 [ext_resource type="Script" uid="uid://c1uk0uqaqbxrv" path="res://terrain-gen/time_manager.gd" id="16_ifr2o"]
 [ext_resource type="Resource" uid="uid://segbet7bavju" path="res://foliage/climate-data/climate_foliage_tropical_savanna.tres" id="16_o715a"]
 [ext_resource type="Resource" uid="uid://qtjl5e0m52fk" path="res://foliage/climate-data/climate_foliage_tropical_monsoon.tres" id="17_7qj4i"]
+[ext_resource type="Resource" uid="uid://dvhv7uo1j2hl3" path="res://planet-sim/landform-data/landform_river.tres" id="17_gjaur"]
 [ext_resource type="Resource" uid="uid://c3qdkfkn3rygf" path="res://foliage/climate-data/climate_foliage_tropical_rainforest.tres" id="18_o715a"]
 
 [sub_resource type="Sky" id="Sky_od0dj"]
@@ -90,9 +94,8 @@ player = NodePath("../Player")
 [node name="TerrainGenerator" type="Node" parent="." node_paths=PackedStringArray("camera", "fgen")]
 script = ExtResource("1_mmnf0")
 planetRadius = 24000.0
-renderDist = 30.0
 terrainMaterial = ExtResource("2_lmp17")
-landforms = Array[ExtResource("6_vm7jn")]([ExtResource("7_yfj8o"), ExtResource("8_a3i3t"), ExtResource("9_3nwo8"), ExtResource("10_gjaur"), ExtResource("11_3if6e"), ExtResource("12_q2tvr"), ExtResource("13_elhhf")])
+landforms = Array[ExtResource("6_vm7jn")]([ExtResource("7_yfj8o"), ExtResource("8_a3i3t"), ExtResource("9_3nwo8"), ExtResource("10_a3i3t"), ExtResource("10_gjaur"), ExtResource("11_3if6e"), ExtResource("13_3nwo8"), ExtResource("12_q2tvr"), ExtResource("13_elhhf"), ExtResource("16_3nwo8"), ExtResource("17_gjaur")])
 noise = SubResource("FastNoiseLite_lmp17")
 noiseScale = 0.2
 camera = NodePath("../Player")
@@ -122,7 +125,7 @@ climateData = Array[Object]([ExtResource("9_7u3ri"), ExtResource("10_1il7e"), Ex
 maxGrassInstances = 100000
 
 [node name="Player" parent="." instance=ExtResource("4_abapg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24266.9, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16283.4, 17731.3, 8179.81)
 
 [node name="OceanSurface" type="MeshInstance3D" parent="."]
 transform = Transform3D(480.48, 0, 0, 0, 480.48, 0, 0, 0, 480.48, 0, 0, 0)

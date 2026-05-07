@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Landform" load_steps=2 format=3 uid="uid://dnpxpkrugfks"]
+
+[ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="1_4ju10"]
+
+[resource]
+script = ExtResource("1_4ju10")
+name = "ocean"
+upliftRange = Vector2(-500, 500)
+precipitationRange = Vector2(0, 100)
+temperatureRange = Vector2(-500, 500)
+windRange = Vector2(0, 100)
+magmaRange = Vector2(0, 100)
+noiseStrength = 1.0
+noiseFrequency = 300.0
+metadata/_custom_type_script = "uid://18x4lnspygxi"

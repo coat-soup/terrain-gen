@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Landform" load_steps=3 format=3 uid="uid://c6wi4hc7162gu"]
+
+[ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="1_x3snh"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_6jqkt"]
+noise_type = 2
+fractal_weighted_strength = 0.09
+
+[resource]
+script = ExtResource("1_x3snh")
+name = "wetlands"
+upliftRange = Vector2(0, 0.2)
+precipitationRange = Vector2(0.3, 1)
+temperatureRange = Vector2(-500, 500)
+windRange = Vector2(0, 100)
+magmaRange = Vector2(0, 100)
+noise = SubResource("FastNoiseLite_6jqkt")
+noiseStrength = 1.0
+noiseFrequency = 0.1
+metadata/_custom_type_script = "uid://18x4lnspygxi"

@@ -86,8 +86,8 @@ void sky() {
 
 		float time_fac = max(sunrise, sunset);
 		float spatial_fac = smoothstep(1.0 - sun_horizon_size, 1.0, horizon_dot);
-		//COLOR = mix(COLOR, sun_horizon_color, (1.0 - ((1.0 - horizon_dot)/sun_horizon_size)) * time_fac);
-		COLOR = mix(COLOR, sun_horizon_color, spatial_fac);// * time_fac);
+		COLOR = mix(COLOR, sun_horizon_color, (1.0 - ((1.0 - horizon_dot)/sun_horizon_size)) * time_fac);
+		//COLOR = mix(COLOR, sun_horizon_color, spatial_fac);// * time_fac);
 	}
 	if(horizon_dot > 0.999) COLOR = sun_color;
 }

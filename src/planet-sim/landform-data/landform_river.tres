@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Landform" load_steps=3 format=3 uid="uid://dvhv7uo1j2hl3"]
+
+[ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="1_g6qls"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_g6qls"]
+noise_type = 0
+
+[resource]
+script = ExtResource("1_g6qls")
+name = "river"
+upliftRange = Vector2(0, 100)
+precipitationRange = Vector2(0, 100)
+temperatureRange = Vector2(-500, 500)
+windRange = Vector2(0, 100)
+magmaRange = Vector2(0, 100)
+riverDistance = 0
+noise = SubResource("FastNoiseLite_g6qls")
+noiseStrength = -0.5
+noiseFrequency = 0.001
+metadata/_custom_type_script = "uid://18x4lnspygxi"

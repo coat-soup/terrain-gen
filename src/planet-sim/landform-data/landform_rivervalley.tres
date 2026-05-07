@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Landform" load_steps=2 format=3 uid="uid://sp2vsbyvoq5g"]
+
+[ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="1_1gwgc"]
+
+[resource]
+script = ExtResource("1_1gwgc")
+name = "river_valley"
+upliftRange = Vector2(0.15, 0.35)
+precipitationRange = Vector2(0, 0.1)
+temperatureRange = Vector2(-500, 500)
+windRange = Vector2(0, 100)
+magmaRange = Vector2(0, 100)
+riverDistance = 1
+noiseStrength = 0.0
+noiseFrequency = 0.1
+metadata/_custom_type_script = "uid://18x4lnspygxi"
