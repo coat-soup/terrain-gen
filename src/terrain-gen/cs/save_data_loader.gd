@@ -14,7 +14,7 @@ func _ready() -> void:
 	
 	load_data()
 	visualiser.parse_tree()
-
+"heightDensityCurve"
 
 func load_data():
 	print("Loading data to C# generator")

@@ -13,10 +13,10 @@
 [ext_resource type="ArrayMesh" uid="uid://d28a2n4i0chc0" path="res://foliage/models/grass.res" id="7_7u3ri"]
 [ext_resource type="Script" uid="uid://c5dktj43vvsde" path="res://ui/ui_manager.gd" id="7_abapg"]
 [ext_resource type="Resource" uid="uid://dnpxpkrugfks" path="res://planet-sim/landform-data/landform_ocean.tres" id="7_yfj8o"]
-[ext_resource type="Resource" uid="uid://c1nwqfb3r1dh8" path="res://planet-sim/landform-data/landform_mountains.tres" id="8_a3i3t"]
+[ext_resource type="Resource" uid="uid://cslarupycg715" path="res://planet-sim/landform-data/landform_mountains.tres" id="8_a3i3t"]
 [ext_resource type="PackedScene" uid="uid://uys6n0u4hk2k" path="res://player/human_reference.glb" id="8_nwh6r"]
-[ext_resource type="Resource" uid="uid://cnabvpjc8j3fp" path="res://planet-sim/landform-data/landform_hills.tres" id="9_3nwo8"]
 [ext_resource type="Resource" uid="uid://dw5ab0rttcmv8" path="res://foliage/climate-data/climate_foliage_subarctic.tres" id="9_7u3ri"]
+[ext_resource type="Resource" uid="uid://cnabvpjc8j3fp" path="res://planet-sim/landform-data/landform_hills.tres" id="9_gjaur"]
 [ext_resource type="Resource" uid="uid://dhgrwas4y7x3i" path="res://foliage/climate-data/climate_foliage_humid_continental.tres" id="10_1il7e"]
 [ext_resource type="Resource" uid="uid://bcimw1841ndtr" path="res://planet-sim/landform-data/landform_plateau.tres" id="10_a3i3t"]
 [ext_resource type="Resource" uid="uid://dpv1g6p322bgw" path="res://planet-sim/landform-data/landform_plains.tres" id="10_gjaur"]
@@ -95,7 +95,7 @@ player = NodePath("../Player")
 script = ExtResource("1_mmnf0")
 planetRadius = 24000.0
 terrainMaterial = ExtResource("2_lmp17")
-landforms = Array[ExtResource("6_vm7jn")]([ExtResource("7_yfj8o"), ExtResource("8_a3i3t"), ExtResource("9_3nwo8"), ExtResource("10_a3i3t"), ExtResource("10_gjaur"), ExtResource("11_3if6e"), ExtResource("13_3nwo8"), ExtResource("12_q2tvr"), ExtResource("13_elhhf"), ExtResource("16_3nwo8"), ExtResource("17_gjaur")])
+landforms = Array[ExtResource("6_vm7jn")]([ExtResource("7_yfj8o"), ExtResource("8_a3i3t"), ExtResource("9_gjaur"), ExtResource("10_a3i3t"), ExtResource("10_gjaur"), ExtResource("11_3if6e"), ExtResource("13_3nwo8"), ExtResource("12_q2tvr"), ExtResource("13_elhhf"), ExtResource("16_3nwo8"), ExtResource("17_gjaur")])
 noise = SubResource("FastNoiseLite_lmp17")
 noiseScale = 0.2
 camera = NodePath("../Player")
@@ -125,7 +125,7 @@ climateData = Array[Object]([ExtResource("9_7u3ri"), ExtResource("10_1il7e"), Ex
 maxGrassInstances = 100000
 
 [node name="Player" parent="." instance=ExtResource("4_abapg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16283.4, 17731.3, 8179.81)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21360.3, 9161.57, -7557.71)
 
 [node name="OceanSurface" type="MeshInstance3D" parent="."]
 transform = Transform3D(480.48, 0, 0, 0, 480.48, 0, 0, 0, 480.48, 0, 0, 0)

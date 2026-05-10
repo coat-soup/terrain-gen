@@ -253,15 +253,17 @@ public partial class TerrainGenerator : Node
     {
         int cell = refineCell? CellIDFromNormal(position.Normalized(), startingCell) : startingCell;
 
+        float heightPercent = ((position.Length() - planetRadius) / terrainHeight + 1.0f) / 2.0f;
+        
         int[] closestCells = FindDelaunayTriangle(cell, position);
         float[] weights = InterpolateHeightBarycentric(closestCells, position);
-        float simHeight = heights[closestCells[0]] * weights[0] + heights[closestCells[1]] * weights[1] + heights[closestCells[2]] * weights[2];
-        float landformDensity = landforms[landformIDs[closestCells[0]]].CalculateDensity(position, simHeight, this) * weights[0] +
-                              landforms[landformIDs[closestCells[1]]].CalculateDensity(position, simHeight, this) * weights[1] +
-                              landforms[landformIDs[closestCells[2]]].CalculateDensity(position, simHeight, this) * weights[2];
+        float landformDensity = landforms[landformIDs[closestCells[0]]].CalculateDensity(position, heightPercent, this) * weights[0] +
+                              landforms[landformIDs[closestCells[1]]].CalculateDensity(position, heightPercent, this) * weights[1] +
+                              landforms[landformIDs[closestCells[2]]].CalculateDensity(position, heightPercent, this) * weights[2];
         //float height = planetRadius + (simHeight + (noise.GetNoise3Dv(position) -0.5f) * noiseScale) * terrainHeight;
-        float height = planetRadius + (simHeight * 0.0f + landformDensity) * terrainHeight;
-        return height - position.Length();
+        //float height = planetRadius + (heightPercent * 0.0f + landformDensity) * terrainHeight;
+        //return height - position.Length();
+        return landformDensity;
     }
     
     

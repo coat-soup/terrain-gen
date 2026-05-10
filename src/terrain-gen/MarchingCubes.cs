@@ -45,7 +45,7 @@ public partial class MarchingCubes : Node
 	}
 	
 	
-	public static MCData Generate(float[] data, uint[] materialData, float maxMaterialID, Vector3I size, float iso = 0.0f, float cellSize = 1.0f)
+	public static MCData Generate(float[] data, uint[] materialData, float maxMaterialID, Vector3I size, float iso = 0.5f, float cellSize = 1.0f)
 	{
 		List<Vector3> verts = new List<Vector3>();
 		List<Vector3> norms = new List<Vector3>();
@@ -98,7 +98,7 @@ public partial class MarchingCubes : Node
 					int cubeIndex = 0;
 					for (int i = 0; i < 8; i++)
 					{
-						if (val[i] < iso)
+						if (val[i] > iso)
 							cubeIndex |= (1 << i);
 					}
 					
@@ -123,7 +123,7 @@ public partial class MarchingCubes : Node
 							int a = edgePts[e, 0];
 							int b = edgePts[e, 1];
 							edgeVert[e] = Interpolate(p[a], p[b], val[a], val[b], iso);
-							edgeNorm[e] = Interpolate(n[a], n[b], val[a], val[b], iso);
+							edgeNorm[e] = -Interpolate(n[a], n[b], val[a], val[b], iso);
 						}
 					}
 					

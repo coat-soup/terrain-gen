@@ -1,6 +1,11 @@
-[gd_resource type="Resource" script_class="Landform" load_steps=3 format=3 uid="uid://dxc8brws133xj"]
+[gd_resource type="Resource" script_class="Landform" load_steps=4 format=3 uid="uid://dxc8brws133xj"]
 
 [ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="1_axxsd"]
+
+[sub_resource type="Curve" id="Curve_7tey2"]
+_limits = [-1.0, 1.0, -1.0, 1.0]
+_data = [Vector2(-0.069149, 1), 0.0, -0.354724, 0, 1, Vector2(0.234043, 0.892451), -0.354724, -7.84481, 1, 1, Vector2(0.254106, 0.735054), -7.84481, -0.128087, 1, 1, Vector2(0.494681, 0.70424), -0.128087, -6.81903, 1, 1, Vector2(0.553623, 0.30231), -6.81903, -0.144326, 1, 1, Vector2(0.920773, 0.249321), -0.144326, -9.38115, 1, 1, Vector2(0.957488, -0.0951086), -9.38115, -21.2855, 1, 1, Vector2(1, -1), -21.2855, 0.0, 1, 0]
+point_count = 8
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_a2s6q"]
 
@@ -16,4 +21,5 @@ riverDistance = -1
 noise = SubResource("FastNoiseLite_a2s6q")
 noiseStrength = 1.0
 noiseFrequency = 0.042
+heightDensityCurve = SubResource("Curve_7tey2")
 metadata/_custom_type_script = "uid://18x4lnspygxi"

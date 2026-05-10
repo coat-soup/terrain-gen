@@ -1,6 +1,10 @@
-[gd_resource type="Resource" script_class="Landform" load_steps=3 format=3 uid="uid://dpv1g6p322bgw"]
+[gd_resource type="Resource" script_class="Landform" load_steps=4 format=3 uid="uid://dpv1g6p322bgw"]
 
 [ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="1_qc87b"]
+
+[sub_resource type="Curve" id="Curve_qc87b"]
+_data = [Vector2(0.504559, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.0319911), 0.0, 0.0, 0, 0]
+point_count = 2
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_gg253"]
 fractal_lacunarity = 1.355
@@ -17,4 +21,5 @@ riverDistance = -1
 noise = SubResource("FastNoiseLite_gg253")
 noiseStrength = 0.1
 noiseFrequency = 0.125
+heightDensityCurve = SubResource("Curve_qc87b")
 metadata/_custom_type_script = "uid://18x4lnspygxi"
