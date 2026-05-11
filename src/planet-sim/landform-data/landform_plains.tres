@@ -3,8 +3,8 @@
 [ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="1_qc87b"]
 
 [sub_resource type="Curve" id="Curve_qc87b"]
-_data = [Vector2(0.504559, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.0319911), 0.0, 0.0, 0, 0]
-point_count = 2
+_data = [Vector2(0.504559, 1), 0.0, 0.0, 0, 0, Vector2(0.509475, 0.559545), 0.0, 0.0, 0, 0, Vector2(0.518222, 0.51024), 0.0, 0.0, 0, 0, Vector2(0.518232, 0.0336283), 0.0, 0.0, 0, 0, Vector2(0.535714, 0), -1.92352, 0.0, 1, 0, Vector2(0.995441, 0), 0.0, 0.0, 0, 0]
+point_count = 6
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_gg253"]
 fractal_lacunarity = 1.355
@@ -20,6 +20,7 @@ magmaRange = Vector2(0, 100)
 riverDistance = -1
 noise = SubResource("FastNoiseLite_gg253")
 noiseStrength = 0.1
-noiseFrequency = 0.125
+noiseBounds = Vector2(0.5, 0.6)
+noiseFrequency = 0.013
 heightDensityCurve = SubResource("Curve_qc87b")
 metadata/_custom_type_script = "uid://18x4lnspygxi"

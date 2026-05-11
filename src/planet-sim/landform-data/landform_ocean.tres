@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="1_4ju10"]
 
 [sub_resource type="Curve" id="Curve_cc140"]
-_data = [Vector2(0, 1), 0.0, -1.0, 0, 1, Vector2(1, 0), 0.0, 0.0, 0, 0]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.436823, 0), 0.0, 0.0, 0, 0]
 point_count = 2
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_cc140"]
@@ -19,6 +19,7 @@ magmaRange = Vector2(0, 100)
 riverDistance = -1
 noise = SubResource("FastNoiseLite_cc140")
 noiseStrength = -1.0
+noiseBounds = Vector2(0, 0.5)
 noiseFrequency = 0.03
 heightDensityCurve = SubResource("Curve_cc140")
 metadata/_custom_type_script = "uid://18x4lnspygxi"

@@ -3,22 +3,23 @@
 [ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="1_hhpd2"]
 
 [sub_resource type="Curve" id="Curve_hhpd2"]
-_data = [Vector2(0, 1), 0.0, -0.792742, 0, 1, Vector2(0.612903, 0.514126), -0.792742, -8.73925, 1, 1, Vector2(0.671733, 0), -8.73925, 0.0, 1, 0]
-point_count = 3
+_data = [Vector2(0.5, 1), 0.0, -8.22733, 0, 1, Vector2(0.584665, 0.303436), 0.0, 0.0, 0, 0, Vector2(0.738019, 0.235294), -0.444343, 0.0, 1, 0, Vector2(0.795189, 0), -4.11568, 0.0, 1, 1]
+point_count = 4
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_2l8j7"]
 
 [resource]
 script = ExtResource("1_hhpd2")
 name = "plateau"
-upliftRange = Vector2(0.3, 0.325)
+upliftRange = Vector2(0.28, 0.32)
 precipitationRange = Vector2(0, 100)
 temperatureRange = Vector2(-500, 500)
 windRange = Vector2(0.5, 100)
 magmaRange = Vector2(0, 0.1)
 riverDistance = -1
 noise = SubResource("FastNoiseLite_2l8j7")
-noiseStrength = 0.6
+noiseStrength = 0.4
+noiseBounds = Vector2(0.6, 0.7)
 noiseFrequency = 0.023
 heightDensityCurve = SubResource("Curve_hhpd2")
 metadata/_custom_type_script = "uid://18x4lnspygxi"

@@ -15,6 +15,7 @@ public partial class Landform : Resource
     
     [Export] public Noise noise;
     [Export] public float noiseStrength = 1.0f;
+    [Export] public Vector2 noiseBounds = new Vector2(0.5f, 1.0f);
     [Export] public float noiseFrequency = 0.1f;
     
     [Export] public Curve heightDensityCurve;
@@ -25,11 +26,14 @@ public partial class Landform : Resource
         if (noise == null) return 0.0f;
         
         float n = (noise.GetNoise3Dv(position * noiseFrequency) + 1f / 2.0f) * noiseStrength;
+        return n;
         n = heightDensityCurve.Sample(heightPercent);
-        
-        float targetHeight = noise.GetNoise3Dv(flatPos * noiseFrequency) * noiseStrength;
-        
-        float density = (heightPercent - targetHeight) - heightDensityCurve.Sample(heightPercent);
+
+        //float targetHeight = 0.5f + ((noise.GetNoise3Dv(flatPos * noiseFrequency) + 1f) / 2f) * noiseStrength / 2.0f;
+        float targetHeight = Mathf.Remap(noise.GetNoise3Dv(flatPos * noiseFrequency), -1f, 1f, noiseBounds.X, noiseBounds.Y);
+        //float targetHeight = noise.GetNoise3Dv(flatPos * noiseFrequency) * noiseStrength; // IF USING DENSITY CURVE
+
+        float density = (heightPercent - targetHeight);// - heightDensityCurve.Sample(heightPercent);
         //density = SampleDensityCurve(heightPercent) * noise.GetNoise3Dv(flatPos * noiseFrequency);
         return density;
     }
