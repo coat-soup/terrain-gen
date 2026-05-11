@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=3 uid="uid://f1o2row1elky"]
+[gd_scene load_steps=44 format=3 uid="uid://f1o2row1elky"]
 
 [ext_resource type="Script" uid="uid://b360mtqi65fnp" path="res://terrain-gen/cs/save_data_loader.gd" id="1_8ubml"]
 [ext_resource type="Script" uid="uid://xmnrya6cfe2g" path="res://terrain-gen/cs/TerrainGenerator.cs" id="1_mmnf0"]
@@ -15,6 +15,7 @@
 [ext_resource type="Resource" uid="uid://dnpxpkrugfks" path="res://planet-sim/landform-data/landform_ocean.tres" id="7_yfj8o"]
 [ext_resource type="Resource" uid="uid://cslarupycg715" path="res://planet-sim/landform-data/landform_mountains.tres" id="8_a3i3t"]
 [ext_resource type="PackedScene" uid="uid://uys6n0u4hk2k" path="res://player/human_reference.glb" id="8_nwh6r"]
+[ext_resource type="Resource" uid="uid://d3ujqkvhr5mc3" path="res://planet-sim/landform-data/landform_foothills.tres" id="9_3if6e"]
 [ext_resource type="Resource" uid="uid://dw5ab0rttcmv8" path="res://foliage/climate-data/climate_foliage_subarctic.tres" id="9_7u3ri"]
 [ext_resource type="Resource" uid="uid://cnabvpjc8j3fp" path="res://planet-sim/landform-data/landform_hills.tres" id="9_gjaur"]
 [ext_resource type="Resource" uid="uid://dhgrwas4y7x3i" path="res://foliage/climate-data/climate_foliage_humid_continental.tres" id="10_1il7e"]
@@ -95,7 +96,7 @@ player = NodePath("../Player")
 script = ExtResource("1_mmnf0")
 planetRadius = 24000.0
 terrainMaterial = ExtResource("2_lmp17")
-landforms = Array[ExtResource("6_vm7jn")]([ExtResource("7_yfj8o"), ExtResource("8_a3i3t"), ExtResource("9_gjaur"), ExtResource("10_a3i3t"), ExtResource("10_gjaur"), ExtResource("11_3if6e"), ExtResource("13_3nwo8"), ExtResource("12_q2tvr"), ExtResource("13_elhhf"), ExtResource("16_3nwo8"), ExtResource("17_gjaur")])
+landforms = Array[ExtResource("6_vm7jn")]([ExtResource("7_yfj8o"), ExtResource("8_a3i3t"), ExtResource("9_3if6e"), ExtResource("9_gjaur"), ExtResource("10_a3i3t"), ExtResource("10_gjaur"), ExtResource("11_3if6e"), ExtResource("13_3nwo8"), ExtResource("12_q2tvr"), ExtResource("13_elhhf"), ExtResource("16_3nwo8"), ExtResource("17_gjaur")])
 noise = SubResource("FastNoiseLite_lmp17")
 noiseScale = 0.2
 camera = NodePath("../Player")

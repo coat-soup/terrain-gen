@@ -23,19 +23,10 @@ public partial class Landform : Resource
     public virtual float CalculateDensity(Vector3 position, float heightPercent, TerrainGenerator tgen)
     {
         var flatPos = position.Normalized() * tgen.planetRadius;
-        if (noise == null) return 0.0f;
         
-        float n = (noise.GetNoise3Dv(position * noiseFrequency) + 1f / 2.0f) * noiseStrength;
-        return n;
-        n = heightDensityCurve.Sample(heightPercent);
-
-        //float targetHeight = 0.5f + ((noise.GetNoise3Dv(flatPos * noiseFrequency) + 1f) / 2f) * noiseStrength / 2.0f;
-        float targetHeight = Mathf.Remap(noise.GetNoise3Dv(flatPos * noiseFrequency), -1f, 1f, noiseBounds.X, noiseBounds.Y);
-        //float targetHeight = noise.GetNoise3Dv(flatPos * noiseFrequency) * noiseStrength; // IF USING DENSITY CURVE
-
-        float density = (heightPercent - targetHeight);// - heightDensityCurve.Sample(heightPercent);
-        //density = SampleDensityCurve(heightPercent) * noise.GetNoise3Dv(flatPos * noiseFrequency);
-        return density;
+        float terrainHeight = (noise.GetNoise3Dv(flatPos * noiseFrequency) + 1f / 2.0f) * noiseStrength;
+        float height = tgen.planetRadius + terrainHeight * tgen.terrainHeight;
+        return height - position.Length();
     }
 
     public float SampleDensityCurve(float heightPercent)
