@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Landform" load_steps=4 format=3 uid="uid://dc3jly20q2ugl"]
+
+[ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="1_kcgnv"]
+
+[sub_resource type="Curve" id="Curve_kcgnv"]
+_data = [Vector2(0.509025, 1), 0.0, 0.0, 0, 0, Vector2(0.511421, 0.500438), 0.0, 0.0, 0, 0, Vector2(0.524112, 0.76801), 0.0, 0.0, 0, 0, Vector2(0.52665, 0.378038), 0.0, 0.0, 0, 0, Vector2(0.532995, 0.430699), 0.0, 0.0, 0, 0, Vector2(0.538071, 0.0933874), 0.0, 0.0, 0, 0, Vector2(0.551396, 0), 0.0, 0.0, 0, 0]
+point_count = 7
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_q8hpy"]
+fractal_type = 2
+
+[resource]
+script = ExtResource("1_kcgnv")
+name = "plains_volcanic"
+upliftRange = Vector2(0, 0.4)
+precipitationRange = Vector2(0, 100)
+temperatureRange = Vector2(-500, 500)
+windRange = Vector2(0, 100)
+magmaRange = Vector2(0.1, 100)
+riverDistance = -1
+noise = SubResource("FastNoiseLite_q8hpy")
+noiseStrength = 0.1
+noiseBounds = Vector2(0.5, 0.6)
+noiseFrequency = 0.1
+heightDensityCurve = SubResource("Curve_kcgnv")
+metadata/_custom_type_script = "uid://18x4lnspygxi"

@@ -3,7 +3,6 @@ shader_type spatial;
 uniform sampler2D height_gradient;
 uniform sampler2D steep_gradient;
 uniform float slope_cutoff;
-uniform sampler2D water_gradient;
 uniform float planet_radius;
 uniform float terrain_height;
 uniform vec3 world_center;
@@ -27,10 +26,11 @@ void fragment() {
 	vec3 world_normal = (INV_VIEW_MATRIX * vec4(NORMAL.xyz, 0.0)).xyz;
 
 	float height = length(world_pos - world_center) - planet_radius;
-	if (height <= 0.0) ALBEDO = texture(water_gradient, vec2(1.0 - height/terrain_height, 0)).rgb;
+	if (height <= 0.0) ALBEDO = texture(height_gradient, vec2(0.0)).rgb;
 	else{
-		if(abs(dot(world_normal, normalize(world_pos))) > slope_cutoff) ALBEDO = climate_zone_ground_colours[int(COLOR.r * 14.0 + 0.5)];//ALBEDO = texture(height_gradient, vec2(min(0.999, height/terrain_height), 0)).rgb;
-		else ALBEDO = texture(steep_gradient, vec2(min(0.999, height/terrain_height), 0)).rgb;
+		float slope = abs(dot(world_normal, normalize(world_pos)));
+		if(slope > slope_cutoff) ALBEDO = climate_zone_ground_colours[int(COLOR.r * 14.0 + 0.5)];//ALBEDO = texture(height_gradient, vec2(min(0.999, height/terrain_height), 0)).rgb;
+		else ALBEDO = texture(steep_gradient, vec2(min(0.999, 1.0 - slope), 0)).rgb;
 	}
 
 	//ALBEDO = climate_zone_ground_colours[int(floor(COLOR.r * 14.0 + 0.5))];

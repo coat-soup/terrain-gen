@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="Landform" load_steps=4 format=3 uid="uid://0v8sq6x8w5b8"]
+
+[ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="1_c3juv"]
+
+[sub_resource type="Curve" id="Curve_c3juv"]
+_data = [Vector2(0.504792, 1), 0.0, 0.0, 0, 0, Vector2(0.559105, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_c3juv"]
+fractal_type = 2
+fractal_octaves = 3
+fractal_weighted_strength = 0.58
+
+[resource]
+script = ExtResource("1_c3juv")
+name = "desert_sandy"
+upliftRange = Vector2(0, 0.3)
+precipitationRange = Vector2(0, 0.05)
+temperatureRange = Vector2(30, 500)
+windRange = Vector2(0.2, 100)
+magmaRange = Vector2(0, 100)
+riverDistance = -1
+noise = SubResource("FastNoiseLite_c3juv")
+noiseStrength = 0.1
+noiseBounds = Vector2(0.5, 0.6)
+noiseFrequency = 0.1
+heightDensityCurve = SubResource("Curve_c3juv")
+metadata/_custom_type_script = "uid://18x4lnspygxi"

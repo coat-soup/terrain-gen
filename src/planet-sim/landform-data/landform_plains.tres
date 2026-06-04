@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Landform" load_steps=4 format=3 uid="uid://dpv1g6p322bgw"]
+
+[ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="1_qc87b"]
+
+[sub_resource type="Curve" id="Curve_qc87b"]
+_data = [Vector2(0.504559, 1), 0.0, 0.0, 0, 0, Vector2(0.509475, 0.559545), 0.0, 0.0, 0, 0, Vector2(0.518222, 0.51024), 0.0, 0.0, 0, 0, Vector2(0.518232, 0.0336283), 0.0, 0.0, 0, 0, Vector2(0.535714, 0), -1.92352, 0.0, 1, 0, Vector2(0.995441, 0), 0.0, 0.0, 0, 0]
+point_count = 6
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gg253"]
+fractal_lacunarity = 1.355
+
+[resource]
+script = ExtResource("1_qc87b")
+name = "plains"
+upliftRange = Vector2(0, 0.2)
+precipitationRange = Vector2(0, 100)
+temperatureRange = Vector2(-500, 500)
+windRange = Vector2(0, 100)
+magmaRange = Vector2(0, 100)
+riverDistance = -1
+noise = SubResource("FastNoiseLite_gg253")
+noiseStrength = 0.1
+noiseBounds = Vector2(0.5, 0.6)
+noiseFrequency = 0.013
+heightDensityCurve = SubResource("Curve_qc87b")
+metadata/_custom_type_script = "uid://18x4lnspygxi"

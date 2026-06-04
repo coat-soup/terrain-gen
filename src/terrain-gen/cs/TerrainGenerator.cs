@@ -17,12 +17,15 @@ public partial class TerrainGenerator : Node
 
     [Export] public Material terrainMaterial;
     
+    [Export] public Landform[] landforms;
+    
     public Array<Array<int>> neighbours;
     public Vector3[] positions;
     public float[] heights;
     public Vector3[] windDirs;
     public float[] precipitations;
     public int[] climateZoneIDs;
+    public int[] landformIDs;
     
     public OctreeNode tree;
     private int n_nodes;
@@ -60,9 +63,9 @@ public partial class TerrainGenerator : Node
         chunkThread.Start(new Callable(this, MethodName.RunChunkQueue));
         
     }
-
     
-    public void CreateTreeFromDataArrays(Array<Array<int>> _neighbours, Vector3[] _positions, float[] _heights, Vector3[] _windDirs, float[] _precipitations, int[] _climateZoneIDs)
+    
+    public void CreateTreeFromDataArrays(Array<Array<int>> _neighbours, Vector3[] _positions, float[] _heights, Vector3[] _windDirs, float[] _precipitations, int[] _climateZoneIDs, int[] _landformIDs)
     {
         neighbours = _neighbours;
         positions = _positions;
@@ -70,6 +73,7 @@ public partial class TerrainGenerator : Node
         windDirs = _windDirs;
         precipitations = _precipitations;
         climateZoneIDs = _climateZoneIDs;
+        landformIDs = _landformIDs;
         GD.Print("Creating tree from data. Got heights size " + _heights.Length);
 
         tree = CreateRootNode(chunkSize);
@@ -249,9 +253,18 @@ public partial class TerrainGenerator : Node
     {
         int cell = refineCell? CellIDFromNormal(position.Normalized(), startingCell) : startingCell;
 
-        float simHeight = InterpolateHeightBarycentric(position, cell);
-        float height = planetRadius + (simHeight + (noise.GetNoise3Dv(position) -0.5f) * noiseScale) * terrainHeight;
-        return height - position.Length();
+        float heightPercent = ((position.Length() - planetRadius) / terrainHeight + 1.0f) / 2.0f;
+        
+        int[] closestCells = FindDelaunayTriangle(cell, position);
+        float[] weights = InterpolateHeightBarycentric(closestCells, position);
+        float landformDensity = landforms[landformIDs[closestCells[0]]].CalculateDensity(position, heightPercent, this) * weights[0] +
+                              landforms[landformIDs[closestCells[1]]].CalculateDensity(position, heightPercent, this) * weights[1] +
+                              landforms[landformIDs[closestCells[2]]].CalculateDensity(position, heightPercent, this) * weights[2];
+        //landformDensity = landforms[0].CalculateDensity(position, heightPercent, this);
+        //float height = planetRadius + (simHeight + (noise.GetNoise3Dv(position) -0.5f) * noiseScale) * terrainHeight;
+        float height = planetRadius + (heightPercent * 0.0f + landformDensity) * terrainHeight;
+        //return height - position.Length();
+        return landformDensity;
     }
     
     
@@ -293,11 +306,8 @@ public partial class TerrainGenerator : Node
         );
     }
     
-    public float InterpolateHeightBarycentric(Vector3 position, int closest)
+    public float[] InterpolateHeightBarycentric(int[] cells, Vector3 position)
     {
-        var cells = FindDelaunayTriangle(closest, position);
-        if (cells.Length < 3) return heights[closest];
-
         // normalized triangle verts
         Vector3 A = positions[cells[0]];
         Vector3 B = positions[cells[1]];
@@ -321,7 +331,8 @@ public partial class TerrainGenerator : Node
         float hB = heights[cells[1]];
         float hC = heights[cells[2]];
 
-        return hA * wA + hB * wB + hC * wC;
+        return [wA, wB, wC];
+        //return hA * wA + hB * wB + hC * wC;
     }
     
     public override void _Process(double delta)

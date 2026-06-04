@@ -8,6 +8,8 @@ public partial class ClimateZoneFoliageData : Resource
     [Export] public Mesh[] meshes;
     [Export] public float[] weights;
 
+    [Export] public float density = 1.0f;
+    
     private float totalWeight = -1;
     private Random rnd = new Random();
     

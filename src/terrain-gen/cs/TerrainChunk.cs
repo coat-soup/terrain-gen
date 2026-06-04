@@ -9,7 +9,6 @@ public partial class TerrainChunk : MeshInstance3D
     
     public string path = ""; // eg. 401057 is root.child[4].child[0].child[1].child[0].child[5].child[7]
                              // TODO: make not a string probably
-                             // NOTE: this isn't implemented. It's just an idea for saving/loading
     public Vector3 chunkPos;
     public float[] data;
     public uint[] materialData;
@@ -130,6 +129,8 @@ public partial class TerrainChunk : MeshInstance3D
     
     public void PopulateData(int x)
     {
+        bool _hasFilled = false;
+        bool _hasEmpty = false;
         //for(int x = 0; x < size; x++)
         for(int y = 0; y < size; y++)
         for (int z = 0; z < size; z++)
@@ -140,9 +141,12 @@ public partial class TerrainChunk : MeshInstance3D
             data[GridToIDX(x, y, z)] = density;
             materialData[GridToIDX(x, y, z)] = (uint)tgen.climateZoneIDs[cell];
 
-            System.Threading.Interlocked.Or(ref hasFilled, density < 0 ? 1 : 0);
-            System.Threading.Interlocked.Or(ref hasEmpty,  density > 0 ? 1 : 0);
+            if (density < 0) _hasFilled = true;
+            if (density > 0) _hasEmpty = true;
         }
+        
+        if(_hasFilled) System.Threading.Interlocked.Or(ref hasFilled, 1);
+        if(_hasEmpty) System.Threading.Interlocked.Or(ref hasEmpty,  1);
     }
 
     

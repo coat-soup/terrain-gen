@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Landform" load_steps=4 format=3 uid="uid://dxc8brws133xj"]
+
+[ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="1_axxsd"]
+
+[sub_resource type="Curve" id="Curve_7tey2"]
+_data = [Vector2(0.50639, 1), 0.0, -3.15977, 0, 1, Vector2(0.573482, 0.788002), -3.15977, -0.0631954, 1, 1, Vector2(0.693291, 0.780431), -0.0631954, -3.26652, 1, 1, Vector2(0.752396, 0.587362), -3.26652, -7.01075, 1, 1, Vector2(0.790735, 0.318579), -7.01075, -0.692311, 1, 1, Vector2(0.932907, 0.220151), -0.692311, -4.92902, 1, 1, Vector2(0.974381, 0.015725), -4.92902, 0.0, 1, 0]
+point_count = 7
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_a2s6q"]
+noise_type = 2
+
+[resource]
+script = ExtResource("1_axxsd")
+name = "mountains_volcanic"
+upliftRange = Vector2(0.4, 100)
+precipitationRange = Vector2(0, 100)
+temperatureRange = Vector2(-500, 500)
+windRange = Vector2(0, 100)
+magmaRange = Vector2(0.05, 100)
+riverDistance = -1
+noise = SubResource("FastNoiseLite_a2s6q")
+noiseStrength = 10.0
+noiseBounds = Vector2(0.5, 1)
+noiseFrequency = 0.042
+heightDensityCurve = SubResource("Curve_7tey2")
+metadata/_custom_type_script = "uid://18x4lnspygxi"

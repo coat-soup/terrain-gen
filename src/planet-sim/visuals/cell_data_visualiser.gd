@@ -2,7 +2,7 @@
 extends Node
 class_name CellDataVisualiser
 
-enum VisualisationType {CELL_ID, PLATE_ID, CELL_POSITION, PLATE_STRESS, CELL_HEIGHT, CELL_TEMPERATURE, OCEAN_CURRENTS, WIND, OCEAN_BOUNDARY, PRECIPITATION, SLOPE, CLIMATE_ZONES, DEBUG_NEIGHBOUR_ORDER, EROSION, MAGMA}
+enum VisualisationType {CELL_ID, PLATE_ID, CELL_POSITION, PLATE_STRESS, CELL_HEIGHT, CELL_TEMPERATURE, OCEAN_CURRENTS, WIND, OCEAN_BOUNDARY, PRECIPITATION, SLOPE, CLIMATE_ZONES, DEBUG_NEIGHBOUR_ORDER, EROSION, MAGMA, RIVERS, LANDFORMS}
 @export var vis_type : VisualisationType:
 	set(new_vis_type):
 		vis_type = new_vis_type
@@ -31,12 +31,14 @@ func colour_mesh():
 			4: data.append(simulator.cells[i].height)
 			5: data.append(simulator.cells[i].temperature if not simulator.cells[i].is_oceanic else -999.0)
 			7: data.append(simulator.cells[i].wind_dir.length() *(1.0 if simulator.cells[i].height > 0 else -1.0))
-			8: data.append(1.0 - simulator.cells[i].distance_to_ocean_boundary / 40.0)
+			8: data.append(1.0 - simulator.cells[i].distance_to_ocean_boundary / 100.0)
 			9: data.append(simulator.cells[i].precipitation if simulator.cells[i].height > 0 else -999.0)
 			10: data.append(simulator.cells[i].height_gradient.length())
 			11: data.append(simulator.cells[i].climate_zone_id if simulator.cells[i].height > 0 else -1)
 			13: data.append(simulator.cells[i].erosion if simulator.cells[i].height > 0 else -1)
 			14: data.append(simulator.cells[i].magma)# if simulator.cells[i].height > 0 else -1)
+			15: data.append(simulator.cells[i].height if simulator.cells[i].water_content <= 0 else simulator.cells[i].water_content - 999.0)
+			16: data.append(simulator.cells[i].landform_id)# if simulator.cells[i].height > 0 else -1)
 	if vis_type == 6: data = data_from_ocean_currents(simulator)
 	if vis_type == 12: data = data_from_debug_neighbour_ordering(simulator)
 	
@@ -52,15 +54,15 @@ func colour_mesh():
 
 
 func _process(delta: float) -> void:
-	if vis_type == 7:
+	if vis_type == 7 and false:
 		for cell in simulator.cells:
 			pass
-			DebugDraw3D.scoped_config().set_thickness(0.002)
+			DebugDraw3D.scoped_config().set_thickness(0.0003)
 			#DebugDraw3D.draw_line(cell.unit_pos, cell.unit_pos + cell.wind_dir / 100.0)
 			var color : Color = Color.WHITE
 			var d_pos = generator.mesh_instance.transform * cell.unit_pos
 			#color = Color(cell.wind_dir.x, cell.wind_dir.y, cell.wind_dir.z)
-			DebugDraw3D.draw_arrow(d_pos, d_pos + generator.mesh_instance.transform * cell.wind_dir.normalized() / 30.0, color, 0.003, true)
+			DebugDraw3D.draw_arrow(d_pos, d_pos + generator.mesh_instance.transform * cell.wind_dir.normalized() / 100.0, color, 0.003, true)
 			#DebugDraw3D.draw_arrow(d_pos, d_pos + generator.mesh_instance.transform* HeightGradientCalculator.get_boundary_dir(cell, simulator.cells).normalized() / 30.0, color, 0.003, true)
 			#DebugDraw3D.draw_arrow(d_pos, d_pos + generator.mesh_instance.transform * cell.height_gradient.normalized() / 30.0, color, 0.003, true)
 

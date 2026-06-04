@@ -15,7 +15,8 @@ public partial class FoliageChunk : Node
     public int cellID;
     private Rid[] rids;
     
-
+    ClimateZoneFoliageData climateData;
+    
     public FoliageChunk(String p, Vector3 pos, int s, int cid, FoliageGenerator f, TerrainGenerator t)
     {
         path = p;
@@ -28,15 +29,25 @@ public partial class FoliageChunk : Node
 
     public void Load()
     {
-        if (!TryLoadChunk()) GeneratePositions();
-        SaveData();
-
-        ClimateZoneFoliageData climateData = null;
         foreach (ClimateZoneFoliageData data in fgen.climateData)
         {
-            if (tgen.climateZoneIDs[cellID] == data.climateZoneID) climateData = data;
+            if (tgen.climateZoneIDs[cellID] == data.climateZoneID)
+            {
+                climateData = data;
+                break;
+            }
         }
-        if (climateData == null) return;
+
+        transforms = new List<Transform3D>();
+        
+        if (climateData == null)
+        {
+            GD.Print("CLIMATE DATA NOT FOUND; ID" + (tgen.climateZoneIDs[cellID]).ToString());
+            return;
+        }
+        
+        if (!TryLoadChunk()) GeneratePositions();
+        SaveData();
         
         rids = new Rid[transforms.Count];
         for(int i = 0; i < transforms.Count; i++)
@@ -131,13 +142,15 @@ public partial class FoliageChunk : Node
         Vector3 bitangent = up.Cross(tangent).Normalized();
 
         float padding = 0.3f * size; // for diagonal shadow
+
+        float spacing = fgen.spacing / climateData.density;
         
-        for(int x = -(int)(padding / fgen.spacing); x < (size + padding) / fgen.spacing; x++)
-        for (int y = -(int)(padding / fgen.spacing); y < (size + padding) / fgen.spacing; y++)
+        for(int x = -(int)(padding / spacing); x < (size + padding) / spacing; x++)
+        for (int y = -(int)(padding / spacing); y < (size + padding) / spacing; y++)
         {
             Vector2 offset = new Vector2(
-                (x + 0.5f) * fgen.spacing - fgen.chunkSize * 0.5f,
-                (y + 0.5f) * fgen.spacing - fgen.chunkSize * 0.5f
+                (x + 0.5f) * spacing - fgen.chunkSize * 0.5f,
+                (y + 0.5f) * spacing - fgen.chunkSize * 0.5f
             );
 
             Vector3 pos = chunkCenter + tangent * offset.X + bitangent * offset.Y;

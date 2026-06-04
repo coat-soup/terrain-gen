@@ -2,7 +2,7 @@
 extends SimulationStep
 class_name OceanBoundaryCalculator
 
-@export_range(0,30) var distance_cutoff : int = 8
+@export_range(0,100) var distance_cutoff : int = 50
 
 func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellData]:
 	for cell in cells:

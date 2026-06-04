@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="Landform" load_steps=4 format=3 uid="uid://cnabvpjc8j3fp"]
+
+[ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="1_1a488"]
+
+[sub_resource type="Curve" id="Curve_1a488"]
+_data = [Vector2(0.49848, 1), 0.0, 0.0, 0, 0, Vector2(0.545593, 0.75979), -5.09864, -4.65765, 1, 1, Vector2(0.604863, 0.483729), 0.0, 0.0, 0, 0, Vector2(0.670213, 0.293712), -2.9077, -32.2104, 1, 1, Vector2(0.679331, 0), -3.02791, 0.0, 0, 0]
+point_count = 5
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_2l8j7"]
+
+[resource]
+script = ExtResource("1_1a488")
+name = "hills"
+upliftRange = Vector2(0.2, 0.4)
+precipitationRange = Vector2(0, 100)
+temperatureRange = Vector2(-500, 500)
+windRange = Vector2(0, 100)
+magmaRange = Vector2(0, 100)
+riverDistance = -1
+noise = SubResource("FastNoiseLite_2l8j7")
+noiseStrength = 0.3
+noiseBounds = Vector2(0.5, 1)
+noiseFrequency = 0.083
+heightDensityCurve = SubResource("Curve_1a488")
+metadata/_custom_type_script = "uid://18x4lnspygxi"
