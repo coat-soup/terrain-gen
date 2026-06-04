@@ -19,6 +19,7 @@ magmaRange = Vector2(0, 100)
 riverDistance = -1
 noise = SubResource("FastNoiseLite_2l8j7")
 noiseStrength = 0.3
+noiseBounds = Vector2(0.5, 1)
 noiseFrequency = 0.083
 heightDensityCurve = SubResource("Curve_1a488")
 metadata/_custom_type_script = "uid://18x4lnspygxi"

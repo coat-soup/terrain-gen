@@ -54,7 +54,7 @@ func colour_mesh():
 
 
 func _process(delta: float) -> void:
-	if vis_type == 7:
+	if vis_type == 7 and false:
 		for cell in simulator.cells:
 			pass
 			DebugDraw3D.scoped_config().set_thickness(0.0003)
@@ -62,7 +62,7 @@ func _process(delta: float) -> void:
 			var color : Color = Color.WHITE
 			var d_pos = generator.mesh_instance.transform * cell.unit_pos
 			#color = Color(cell.wind_dir.x, cell.wind_dir.y, cell.wind_dir.z)
-			DebugDraw3D.draw_arrow(d_pos, d_pos + generator.mesh_instance.transform * cell.wind_dir.normalized() / 20.0, color, 0.0003, true)
+			DebugDraw3D.draw_arrow(d_pos, d_pos + generator.mesh_instance.transform * cell.wind_dir.normalized() / 100.0, color, 0.003, true)
 			#DebugDraw3D.draw_arrow(d_pos, d_pos + generator.mesh_instance.transform* HeightGradientCalculator.get_boundary_dir(cell, simulator.cells).normalized() / 30.0, color, 0.003, true)
 			#DebugDraw3D.draw_arrow(d_pos, d_pos + generator.mesh_instance.transform * cell.height_gradient.normalized() / 30.0, color, 0.003, true)
 
