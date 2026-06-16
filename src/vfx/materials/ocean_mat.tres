@@ -1,0 +1,21 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3 uid="uid://5e42vx15sp50"]
+
+[ext_resource type="Shader" uid="uid://c6e23klivh3es" path="res://vfx/shaders/ocean_shader.gdshader" id="1_v87w1"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_cfffd"]
+frequency = 0.1056
+
+[sub_resource type="NoiseTexture3D" id="NoiseTexture3D_v87w1"]
+seamless = true
+seamless_blend_skirt = 0.584
+noise = SubResource("FastNoiseLite_cfffd")
+
+[resource]
+render_priority = 1
+shader = ExtResource("1_v87w1")
+shader_parameter/Noise = SubResource("NoiseTexture3D_v87w1")
+shader_parameter/Color = Color(0.0818992, 0.11116, 0.289542, 1)
+shader_parameter/shallow_color = Color(0.22834, 0.695729, 1, 1)
+shader_parameter/depth_threshold = 200.0
+shader_parameter/depth_color_threshold = 20.0
+shader_parameter/alpha_dist = 5000.0

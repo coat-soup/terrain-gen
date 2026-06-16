@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=3 uid="uid://f1o2row1elky"]
+[gd_scene load_steps=47 format=3 uid="uid://f1o2row1elky"]
 
 [ext_resource type="Script" uid="uid://b360mtqi65fnp" path="res://terrain-gen/cs/save_data_loader.gd" id="1_8ubml"]
 [ext_resource type="Script" uid="uid://xmnrya6cfe2g" path="res://terrain-gen/cs/TerrainGenerator.cs" id="1_mmnf0"]
@@ -14,9 +14,11 @@
 [ext_resource type="Script" uid="uid://c5dktj43vvsde" path="res://ui/ui_manager.gd" id="7_abapg"]
 [ext_resource type="Resource" uid="uid://dnpxpkrugfks" path="res://planet-sim/landform-data/landform_ocean_shallow.tres" id="7_yfj8o"]
 [ext_resource type="Resource" uid="uid://cslarupycg715" path="res://planet-sim/landform-data/landform_mountains.tres" id="8_a3i3t"]
+[ext_resource type="Resource" uid="uid://viq1xq0tkt0b" path="res://planet-sim/landform-data/landform_ocean_deep.tres" id="8_elhhf"]
 [ext_resource type="PackedScene" uid="uid://uys6n0u4hk2k" path="res://player/human_reference.glb" id="8_nwh6r"]
 [ext_resource type="Resource" uid="uid://d3ujqkvhr5mc3" path="res://planet-sim/landform-data/landform_foothills.tres" id="9_3if6e"]
 [ext_resource type="Resource" uid="uid://dw5ab0rttcmv8" path="res://foliage/climate-data/climate_foliage_subarctic.tres" id="9_7u3ri"]
+[ext_resource type="Resource" uid="uid://5ddhccy06hv6" path="res://planet-sim/landform-data/landform_ocean_trench.tres" id="9_020ws"]
 [ext_resource type="Resource" uid="uid://cnabvpjc8j3fp" path="res://planet-sim/landform-data/landform_hills.tres" id="9_gjaur"]
 [ext_resource type="Resource" uid="uid://dhgrwas4y7x3i" path="res://foliage/climate-data/climate_foliage_humid_continental.tres" id="10_1il7e"]
 [ext_resource type="Resource" uid="uid://bcimw1841ndtr" path="res://planet-sim/landform-data/landform_plateau.tres" id="10_a3i3t"]
@@ -35,6 +37,7 @@
 [ext_resource type="Resource" uid="uid://qtjl5e0m52fk" path="res://foliage/climate-data/climate_foliage_tropical_monsoon.tres" id="17_7qj4i"]
 [ext_resource type="Resource" uid="uid://dvhv7uo1j2hl3" path="res://planet-sim/landform-data/landform_river.tres" id="17_gjaur"]
 [ext_resource type="Resource" uid="uid://c3qdkfkn3rygf" path="res://foliage/climate-data/climate_foliage_tropical_rainforest.tres" id="18_o715a"]
+[ext_resource type="Material" uid="uid://5e42vx15sp50" path="res://vfx/materials/ocean_mat.tres" id="35_020ws"]
 
 [sub_resource type="Sky" id="Sky_od0dj"]
 sky_material = ExtResource("1_yogo7")
@@ -56,11 +59,9 @@ emission = Color(1, 1, 1, 1)
 frequency = 0.001
 
 [sub_resource type="SphereMesh" id="SphereMesh_8kbu4"]
+material = ExtResource("35_020ws")
 radius = 50.0
 height = 100.0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sblsk"]
-albedo_color = Color(0.248353, 0.511842, 0.822794, 1)
 
 [sub_resource type="QuadMesh" id="QuadMesh_abapg"]
 
@@ -70,6 +71,10 @@ shader = ExtResource("6_mruw7")
 shader_parameter/positions = PackedVector2Array(0, 0, 0, 1, 1, 0, 1, 1, 0.5, 0.5, 0.355, 0.615)
 shader_parameter/values = PackedColorArray(1, 1, 1, 1, 1, 0.6, 0.6, 1, 0.142019, 0.666942, 0.979199, 1, 0, 1, 0, 1, 1, 0.275893, 0.194685, 1, 0.385243, 0.00159544, 0.865125, 1)
 shader_parameter/distance_power = 2.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_020ws"]
+radius = 8.312
+height = 11.156
 
 [node name="MarchingCube" type="Node3D"]
 
@@ -96,7 +101,7 @@ player = NodePath("../Player")
 script = ExtResource("1_mmnf0")
 planetRadius = 24000.0
 terrainMaterial = ExtResource("2_lmp17")
-landforms = Array[ExtResource("6_vm7jn")]([ExtResource("7_yfj8o"), ExtResource("8_a3i3t"), ExtResource("9_3if6e"), ExtResource("9_gjaur"), ExtResource("10_a3i3t"), ExtResource("10_gjaur"), ExtResource("11_3if6e"), ExtResource("13_3nwo8"), ExtResource("12_q2tvr"), ExtResource("13_elhhf"), ExtResource("16_3nwo8"), ExtResource("17_gjaur")])
+landforms = Array[ExtResource("6_vm7jn")]([ExtResource("7_yfj8o"), ExtResource("8_elhhf"), ExtResource("9_020ws"), ExtResource("8_a3i3t"), ExtResource("9_3if6e"), ExtResource("9_gjaur"), ExtResource("10_a3i3t"), ExtResource("10_gjaur"), ExtResource("11_3if6e"), ExtResource("13_3nwo8"), ExtResource("12_q2tvr"), ExtResource("13_elhhf"), ExtResource("16_3nwo8"), ExtResource("17_gjaur")])
 noise = SubResource("FastNoiseLite_lmp17")
 noiseScale = 0.2
 camera = NodePath("../Player")
@@ -129,9 +134,9 @@ maxGrassInstances = 100000
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5796.89, 17054.2, -17104.6)
 
 [node name="OceanSurface" type="MeshInstance3D" parent="."]
-transform = Transform3D(480.48, 0, 0, 0, 480.48, 0, 0, 0, 480.48, 0, 0, 0)
+transform = Transform3D(480.48, 0, 0, 0, 480.48, 0, 0, 0, 480.48, 8.85218, 0.053885, -0.152599)
+material_override = ExtResource("35_020ws")
 mesh = SubResource("SphereMesh_8kbu4")
-surface_material_override/0 = SubResource("StandardMaterial3D_sblsk")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.503262, 0.498866, 0)
@@ -243,3 +248,10 @@ sun_light = NodePath("../DirectionalLight3D")
 player_camera = NodePath("../Player")
 day_light_color = Color(1, 1, 1, 1)
 horizon_light_color = Color(1, 0.347923, 0.0935639, 1)
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_020ws")
+surface_material_override/0 = ExtResource("35_020ws")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.92609, 0, 0)
