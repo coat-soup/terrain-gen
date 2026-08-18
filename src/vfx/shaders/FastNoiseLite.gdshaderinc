@@ -135,7 +135,7 @@ struct fnl_state
 
     // The octave weighting for all none Domaain Warp fractal types.
     // @remark Default: 0.0
-    // @remark 
+    // @remark
     float weighted_strength;
 
     // The strength of the fractal ping pong effect.
@@ -202,7 +202,7 @@ const float GRADIENTS_2D[] =
     -0.38268343236509f, -0.923879532511287f, -0.923879532511287f, -0.38268343236509f, -0.923879532511287f, 0.38268343236509f, -0.38268343236509f, 0.923879532511287f
 };
 
-const float RAND_VECS_2D[] = 
+const float RAND_VECS_2D[] =
 {
     -0.2700222198f, -0.9628540911f, 0.3863092627f, -0.9223693152f, 0.04444859006f, -0.999011673f, -0.5992523158f, -0.8005602176f, -0.7819280288f, 0.6233687174f, 0.9464672271f, 0.3227999196f, -0.6514146797f, -0.7587218957f, 0.9378472289f, 0.347048376f,
     -0.8497875957f, -0.5271252623f, -0.879042592f, 0.4767432447f, -0.892300288f, -0.4514423508f, -0.379844434f, -0.9250503802f, -0.9951650832f, 0.0982163789f, 0.7724397808f, -0.6350880136f, 0.7573283322f, -0.6530343002f, -0.9928004525f, -0.119780055f,
@@ -258,7 +258,7 @@ const float GRADIENTS_3D[] =
     1.f, 1.f, 0.f, 0.f,  0.f,-1.f, 1.f, 0.f, -1.f, 1.f, 0.f, 0.f,  0.f,-1.f,-1.f, 0.f
 };
 
-const float RAND_VECS_3D[] = 
+const float RAND_VECS_3D[] =
 {
     -0.7292736885f, -0.6618439697f, 0.1735581948f, 0.f, 0.790292081f, -0.5480887466f, -0.2739291014f, 0.f, 0.7217578935f, 0.6226212466f, -0.3023380997f, 0.f, 0.565683137f, -0.8208298145f, -0.0790000257f, 0.f, 0.760049034f, -0.5555979497f, -0.3370999617f, 0.f, 0.3713945616f, 0.5011264475f, 0.7816254623f, 0.f, -0.1277062463f, -0.4254438999f, -0.8959289049f, 0.f, -0.2881560924f, -0.5815838982f, 0.7607405838f, 0.f,
     0.5849561111f, -0.662820239f, -0.4674352136f, 0.f, 0.3307171178f, 0.0391653737f, 0.94291689f, 0.f, 0.8712121778f, -0.4113374369f, -0.2679381538f, 0.f, 0.580981015f, 0.7021915846f, 0.4115677815f, 0.f, 0.503756873f, 0.6330056931f, -0.5878203852f, 0.f, 0.4493712205f, 0.601390195f, 0.6606022552f, 0.f, -0.6878403724f, 0.09018890807f, -0.7202371714f, 0.f, -0.5958956522f, -0.6469350577f, 0.475797649f, 0.f,
@@ -620,7 +620,7 @@ float _fnlSingleSimplex2D(int seed, FNLfloat x, FNLfloat y)
 
     float c = (2.f * (1.f - 2.f * G2) * (1.f / G2 - 2.f)) * t + ((-2.f * (1.f - 2.f * G2) * (1.f - 2.f * G2)) + a);
     if (c <= 0.f)
-	{		
+	{
         n2 = 0.f;
 	}
     else
@@ -636,7 +636,7 @@ float _fnlSingleSimplex2D(int seed, FNLfloat x, FNLfloat y)
         float y1 = y0 + G2 - 1.f;
         float b = 0.5f - x1 * x1 - y1 * y1;
         if (b <= 0.f)
-		{			
+		{
             n1 = 0.f;
 		}
         else
@@ -650,7 +650,7 @@ float _fnlSingleSimplex2D(int seed, FNLfloat x, FNLfloat y)
         float y1 = y0 + G2;
         float b = 0.5f - x1 * x1 - y1 * y1;
         if (b <= 0.f)
-		{			
+		{
             n1 = 0.f;
 		}
         else
@@ -1122,7 +1122,7 @@ float _fnlSingleCellular2D(fnl_state state, int seed, FNLfloat x, FNLfloat y)
     {
         distance0 = _fnlFastSqrt(distance0);
         if (state.cellular_return_type >= FNL_CELLULAR_RETURN_TYPE_DISTANCE2)
-		{			
+		{
             distance1 = _fnlFastSqrt(distance1);
 		}
     }
@@ -2210,7 +2210,7 @@ float fnlGetNoise3D(fnl_state state, FNLfloat x, FNLfloat y, FNLfloat z)
 }
 
 // 2D warps the input position using current domain warp settings.
-// 
+//
 // Example usage with fnlGetNoise2D:
 // ```
 // fnlDomainWarp2D(state, x, y);
@@ -2233,7 +2233,7 @@ void fnlDomainWarp2D(fnl_state state, inout FNLfloat x, inout FNLfloat y)
 }
 
 // 3D warps the input position using current domain warp settings.
-// 
+//
 // Example usage with fnlGetNoise3D:
 // ```
 // fnlDomainWarp3D(state, x, y, z);
@@ -2241,7 +2241,7 @@ void fnlDomainWarp2D(fnl_state state, inout FNLfloat x, inout FNLfloat y)
 // ```
 void fnlDomainWarp3D(fnl_state state, inout FNLfloat x, inout FNLfloat y, inout FNLfloat z)
 {
-	
+
     switch (state.fractal_type)
     {
         case FNL_FRACTAL_DOMAIN_WARP_PROGRESSIVE:

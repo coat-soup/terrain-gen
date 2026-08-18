@@ -144,7 +144,6 @@ mesh = SubResource("QuadMesh_abapg")
 surface_material_override/0 = SubResource("ShaderMaterial_nwh6r")
 
 [node name="UI" type="Control" parent="."]
-visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
