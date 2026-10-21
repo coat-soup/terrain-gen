@@ -1,4 +1,4 @@
-[gd_resource type="ShaderMaterial" load_steps=5 format=3 uid="uid://dya33iy1uhy84"]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://dya33iy1uhy84"]
 
 [ext_resource type="Shader" uid="uid://cc4q3er1xsng4" path="res://foliage/tree_shader.gdshader" id="1_lg36s"]
 [ext_resource type="Texture2D" uid="uid://3xdjmnidwenl" path="res://foliage/textures/leaf_willow.png" id="2_lg36s"]
@@ -7,8 +7,8 @@
 frequency = 0.0091
 
 [sub_resource type="NoiseTexture3D" id="NoiseTexture3D_h7cvk"]
-seamless = true
 noise = SubResource("FastNoiseLite_rjjq3")
+seamless = true
 
 [resource]
 render_priority = 0

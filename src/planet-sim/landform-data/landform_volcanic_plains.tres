@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Landform" load_steps=4 format=3 uid="uid://dc3jly20q2ugl"]
+[gd_resource type="Resource" script_class="Landform" format=3 uid="uid://dc3jly20q2ugl"]
 
 [ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="1_kcgnv"]
 
@@ -13,11 +13,7 @@ fractal_type = 2
 script = ExtResource("1_kcgnv")
 name = "plains_volcanic"
 upliftRange = Vector2(0, 0.4)
-precipitationRange = Vector2(0, 100)
-temperatureRange = Vector2(-500, 500)
-windRange = Vector2(0, 100)
 magmaRange = Vector2(0.1, 100)
-riverDistance = -1
 noise = SubResource("FastNoiseLite_q8hpy")
 noiseStrength = 0.1
 noiseBounds = Vector2(0.5, 0.6)
