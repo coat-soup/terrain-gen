@@ -2,7 +2,7 @@ using Godot;
 using System;
 
 [GlobalClass]
-public partial class Landform : Resource
+public partial class LandformDeprecated : Resource
 {
     [Export] public String name;
     [Export] public Vector2 upliftRange = new Vector2(0,100);
@@ -20,7 +20,7 @@ public partial class Landform : Resource
     
     [Export] public Curve heightDensityCurve;
     
-    public virtual float CalculateDensity(Vector3 position, float heightPercent, TerrainGenerator tgen)
+    public virtual float CalculateDensity(Vector3 position, float heightPercent, TerrainGeneratorDeprecated tgen)
     {
         var flatPos = position.Normalized() * tgen.planetRadius;
         

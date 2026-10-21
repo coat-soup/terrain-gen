@@ -2,14 +2,14 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
-public partial class FoliageChunk : Node
+public partial class FoliageChunkDeprecated : Node
 {
     private const String SAVE_PATH = "user://chunks/";
     public string path = "";
     
     public List<Transform3D> transforms;
-    public TerrainGenerator tgen;
-    public FoliageGenerator fgen;
+    public TerrainGeneratorDeprecated tgen;
+    public FoliageGeneratorDeprecated fgen;
     public Vector3 chunkPos;
     public int size;
     public int cellID;
@@ -17,7 +17,7 @@ public partial class FoliageChunk : Node
     
     ClimateZoneFoliageData climateData;
     
-    public FoliageChunk(String p, Vector3 pos, int s, int cid, FoliageGenerator f, TerrainGenerator t)
+    public FoliageChunkDeprecated(String p, Vector3 pos, int s, int cid, FoliageGeneratorDeprecated f, TerrainGeneratorDeprecated t)
     {
         path = p;
         chunkPos = pos;

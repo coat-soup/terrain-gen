@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 
-public partial class TerrainChunk : MeshInstance3D
+public partial class TerrainChunkDeprecated : MeshInstance3D
 {
     public Signal finished;
     
@@ -17,7 +17,7 @@ public partial class TerrainChunk : MeshInstance3D
     public Vector3[] vertices;
     public Vector3[] normals;
     public Color[] colours;
-    public TerrainGenerator tgen;
+    public TerrainGeneratorDeprecated tgen;
     public int cellID;
 
     public bool chunkEmpty;
@@ -27,7 +27,7 @@ public partial class TerrainChunk : MeshInstance3D
     int hasFilled = 0;
     int hasEmpty = 0;
     
-    public TerrainChunk(Vector3 pos, int s, TerrainGenerator gen, int cID, int sizeMult, String p)
+    public TerrainChunkDeprecated(Vector3 pos, int s, TerrainGeneratorDeprecated gen, int cID, int sizeMult, String p)
     {
         chunkPos = pos;
         size = s;
@@ -87,7 +87,7 @@ public partial class TerrainChunk : MeshInstance3D
         data = new float[size * size * size];
         materialData = new uint[data.Length];
         
-        bool loaded = ChunkSaveData.TryLoadChunk(this);
+        bool loaded = ChunkSaveDataDeprecated.TryLoadChunk(this);
 
         if (!loaded)
         {
@@ -97,7 +97,7 @@ public partial class TerrainChunk : MeshInstance3D
             
             chunkEmpty = !(hasEmpty == 1 && hasFilled == 1);
             
-            ChunkSaveData.SaveData(this);
+            ChunkSaveDataDeprecated.SaveData(this);
         }
         
         GenerateMesh();

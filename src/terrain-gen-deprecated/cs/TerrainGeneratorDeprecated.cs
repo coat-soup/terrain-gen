@@ -5,10 +5,10 @@ using Godot.Collections;
 using System.Collections.Generic;
 
 [GlobalClass]
-public partial class TerrainGenerator : Node
+public partial class TerrainGeneratorDeprecated : Node
 {
     [Signal]
-    public delegate void TerrainChunkFinishedLoadingEventHandler(TerrainChunk chunk);
+    public delegate void TerrainChunkFinishedLoadingEventHandler(TerrainChunkDeprecated chunk);
     
     [Export] public float planetRadius { get; set; } = 12000.0f;
     [Export] public float terrainHeight { get; set; } = 1000.0f;
@@ -17,7 +17,7 @@ public partial class TerrainGenerator : Node
 
     [Export] public Material terrainMaterial;
     
-    [Export] public Landform[] landforms;
+    [Export] public LandformDeprecated[] landforms;
     
     public Array<Array<int>> neighbours;
     public Vector3[] positions;
@@ -27,7 +27,7 @@ public partial class TerrainGenerator : Node
     public int[] climateZoneIDs;
     public int[] landformIDs;
     
-    public OctreeNode tree;
+    public OctreeNodeDeprecated tree;
     private int n_nodes;
     private int n_small_leaves;
     private int n_loaded_chunks;
@@ -40,7 +40,7 @@ public partial class TerrainGenerator : Node
     
     public const float HALFSQRT3 = 0.86602540378f; // Sqrt(3)/2
 
-    private Queue<OctreeNode> chunkLoadQueue = new Queue<OctreeNode>();
+    private Queue<OctreeNodeDeprecated> chunkLoadQueue = new Queue<OctreeNodeDeprecated>();
     private bool pauseChunkQueue;
     private GodotThread chunkThread;
 
@@ -49,7 +49,7 @@ public partial class TerrainGenerator : Node
     private double time;
     public Rid worldScenario;
 
-    [Export] public FoliageGenerator fgen;
+    [Export] public FoliageGeneratorDeprecated fgen;
     
     
     public override void _Ready()
@@ -88,7 +88,7 @@ public partial class TerrainGenerator : Node
     }
 
 
-    public OctreeNode CreateRootNode(int cSize)
+    public OctreeNodeDeprecated CreateRootNode(int cSize)
     {
         float margin = terrainHeight * 1.2f;
         float diameter = 2.0f * planetRadius + 2.0f * margin;
@@ -96,7 +96,7 @@ public partial class TerrainGenerator : Node
         int si = 0;
         while (s < diameter) { s *= 2.0f; si += 1;}
         Vector3 rootPos = -Vector3.One * s / 2.0f;
-        return new OctreeNode(rootPos, s, 0, si, 0);
+        return new OctreeNodeDeprecated(rootPos, s, 0, si, 0);
     }
     
     
@@ -114,7 +114,7 @@ public partial class TerrainGenerator : Node
     }
     
     
-    public void BuildTree(OctreeNode node)
+    public void BuildTree(OctreeNodeDeprecated node)
     {
         n_nodes++;
         if (node.size == 0) n_small_leaves++;
@@ -131,10 +131,10 @@ public partial class TerrainGenerator : Node
             if (node.children == null)
             {
                 Vector3[] childPositions = [new Vector3(0,0,0), new Vector3(0,0,1), new Vector3(0,1,0), new Vector3(0,1,1), new Vector3(1,0,0), new Vector3(1,0,1), new Vector3(1,1,0), new Vector3(1,1,1)];
-                node.children = new OctreeNode[8];
+                node.children = new OctreeNodeDeprecated[8];
                 for(int i = 0; i < 8; i++)
                 {
-                    node.children[i] = new OctreeNode(node.position + node.sideLength * childPositions[i] / 2.0f, node.sideLength / 2.0f, node.depth + 1, node.size - 1, node.cell_id, node.path + i.ToString(), node);
+                    node.children[i] = new OctreeNodeDeprecated(node.position + node.sideLength * childPositions[i] / 2.0f, node.sideLength / 2.0f, node.depth + 1, node.size - 1, node.cell_id, node.path + i.ToString(), node);
                 }
             }
             for(int i = 0; i < node.children.Length; i++) BuildTree(node.children[i]);
@@ -146,7 +146,7 @@ public partial class TerrainGenerator : Node
         }
     }
 
-    public void CollapseNode(OctreeNode node)
+    public void CollapseNode(OctreeNodeDeprecated node)
     {
         if (node.chunk != null)
         {
@@ -155,7 +155,7 @@ public partial class TerrainGenerator : Node
             node.chunkQueued = false;
         }
 
-        if (node.children != null) foreach (OctreeNode child in node.children)
+        if (node.children != null) foreach (OctreeNodeDeprecated child in node.children)
         {
             CollapseNode(child);
         }
@@ -213,13 +213,13 @@ public partial class TerrainGenerator : Node
     }
 
 
-    public void BuildNodeChunks(OctreeNode node)
+    public void BuildNodeChunks(OctreeNodeDeprecated node)
     {
         if (pauseChunkQueue) return;
         
         if (node.chunk == null && node.chunkQueued)
         {
-            node.chunk = new TerrainChunk(node.position, chunkSize, this, node.cell_id, (int)Mathf.Pow(2, node.size), node.path);
+            node.chunk = new TerrainChunkDeprecated(node.position, chunkSize, this, node.cell_id, (int)Mathf.Pow(2, node.size), node.path);
             if(node.chunk != null)
                 Callable.From(() => { AddChild(node.chunk); }).CallDeferred();
             node.chunk.Load();
@@ -227,12 +227,12 @@ public partial class TerrainGenerator : Node
             
             if (node.children != null)
             {
-                foreach (OctreeNode child in node.children) CollapseNode(child);
+                foreach (OctreeNodeDeprecated child in node.children) CollapseNode(child);
                 node.children = null;
             }
         }
         
-        if (node.children != null && !node.chunkQueued) foreach (OctreeNode child in node.children) BuildNodeChunks(child);
+        if (node.children != null && !node.chunkQueued) foreach (OctreeNodeDeprecated child in node.children) BuildNodeChunks(child);
         
         if (node.chunk != null && !node.chunkQueued)
         {

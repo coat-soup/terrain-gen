@@ -1,4 +1,4 @@
-[gd_resource type="ShaderMaterial" load_steps=18 format=3 uid="uid://bkqil5aru5nt"]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://bkqil5aru5nt"]
 
 [ext_resource type="Shader" uid="uid://c3tqhrogejj4f" path="res://planet-sim/visuals/planet_visuals.gdshader" id="1_nmcor"]
 

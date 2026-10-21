@@ -1,8 +1,8 @@
-[gd_scene load_steps=380 format=4 uid="uid://bo4ql1bkcj5mo"]
+[gd_scene format=4 uid="uid://bo4ql1bkcj5mo"]
 
-[ext_resource type="Script" uid="uid://b341v1opvq055" path="res://terrain-gen/terrain_mesh_generator.gd" id="1_mjncd"]
-[ext_resource type="Material" uid="uid://bp7to70lbqsjs" path="res://terrain-gen/marching_cubes_terrain_mat.tres" id="2_sblsk"]
-[ext_resource type="Script" uid="uid://b7v5a4qorglu1" path="res://terrain-gen/terrain_chunk.gd" id="3_sblsk"]
+[ext_resource type="Script" uid="uid://b341v1opvq055" path="res://terrain-gen-deprecated/terrain_mesh_generator.gd" id="1_mjncd"]
+[ext_resource type="Material" uid="uid://bp7to70lbqsjs" path="res://terrain-gen-deprecated/marching_cubes_terrain_mat.tres" id="2_sblsk"]
+[ext_resource type="Script" uid="uid://b7v5a4qorglu1" path="res://terrain-gen-deprecated/terrain_chunk.gd" id="3_sblsk"]
 [ext_resource type="PackedScene" uid="uid://k8an4yh1xw7p" path="res://player/player.tscn" id="4_sblsk"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sblsk"]

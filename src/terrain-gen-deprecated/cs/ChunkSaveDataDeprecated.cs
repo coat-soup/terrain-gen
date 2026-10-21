@@ -1,14 +1,14 @@
 using Godot;
 using System;
 
-public partial class ChunkSaveData : Resource
+public partial class ChunkSaveDataDeprecated : Resource
 {
     private const String SAVE_PATH = "user://chunks/";
     
     [Export] public float[] data;
     [Export] public bool isEmpty;
 
-    public static void SaveData(TerrainChunk chunk)
+    public static void SaveData(TerrainChunkDeprecated chunk)
     {
         DirAccess.MakeDirRecursiveAbsolute(SAVE_PATH);
         
@@ -22,7 +22,7 @@ public partial class ChunkSaveData : Resource
             }
     }
     
-    public static bool TryLoadChunk(TerrainChunk chunk)
+    public static bool TryLoadChunk(TerrainChunkDeprecated chunk)
     {
         string path = SAVE_PATH + chunk.path + ".bin";
         if (!FileAccess.FileExists(path)) return false;

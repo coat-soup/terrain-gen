@@ -1,6 +1,6 @@
-[gd_resource type="ShaderMaterial" load_steps=6 format=3 uid="uid://bp7to70lbqsjs"]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://bp7to70lbqsjs"]
 
-[ext_resource type="Shader" uid="uid://c0ys8vxxfmsbn" path="res://terrain-gen/terrain_shader.gdshader" id="1_436cy"]
+[ext_resource type="Shader" uid="uid://c0ys8vxxfmsbn" path="res://terrain-gen-deprecated/terrain_shader_deprecated.gdshader" id="1_436cy"]
 
 [sub_resource type="Gradient" id="Gradient_5ks2f"]
 interpolation_mode = 1

@@ -3,12 +3,12 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-public partial class FoliageGenerator : Node
+public partial class FoliageGeneratorDeprecated : Node
 {
     [Export] public Mesh grassMesh;
     [Export] public Material material;
     [Export] public Node3D camera;
-    [Export] public TerrainGenerator tgen;
+    [Export] public TerrainGeneratorDeprecated tgen;
     [Export] public float renderDist = 300;
     [Export] public float grassDistance = 50;
     [Export] public float maxSlope = 45;
@@ -19,7 +19,7 @@ public partial class FoliageGenerator : Node
 
     [Export] public ClimateZoneFoliageData[] climateData;
     
-    private OctreeNode tree;
+    private OctreeNodeDeprecated tree;
 
     [Export] public bool regenAroundCamera = true;
     public Vector3 cameraChunkPos;
@@ -34,7 +34,7 @@ public partial class FoliageGenerator : Node
     [Export] public int maxGrassInstances = 10000;
     public int grassMultiMeshInstanceCounter = 0;
     public MultiMeshInstance3D grassMultiMesh;
-    public List<TerrainChunk> grassChunks;
+    public List<TerrainChunkDeprecated> grassChunks;
 
     public Timer grassUpdateTimer;
     public bool shouldUpdateGrass;
@@ -55,7 +55,7 @@ public partial class FoliageGenerator : Node
 
         //grassRids = new List<Rid>();
         //grassTransforms = new List<Transform3D>();
-        grassChunks = new List<TerrainChunk>();
+        grassChunks = new List<TerrainChunkDeprecated>();
         grassMultiMesh = new MultiMeshInstance3D();
         grassMultiMesh.Multimesh = new MultiMesh();
         grassMultiMesh.Multimesh.Mesh = grassMesh;
@@ -75,21 +75,21 @@ public partial class FoliageGenerator : Node
     }
 
     
-    public void BuildTree(OctreeNode node)
+    public void BuildTree(OctreeNodeDeprecated node)
     {
         node.cell_id = tgen.CellIDFromNormal(node.position + Vector3.One * node.sideLength / 2.0f, node.cell_id);
         
-        bool inRange = (node.position + Vector3.One * node.sideLength/2.0f).DistanceTo(cameraPos) <= renderDist + node.sideLength * TerrainGenerator.HALFSQRT3;
+        bool inRange = (node.position + Vector3.One * node.sideLength/2.0f).DistanceTo(cameraPos) <= renderDist + node.sideLength * TerrainGeneratorDeprecated.HALFSQRT3;
         
-        if (node.size > 0 && inRange && (node.depth == 0 || Mathf.Abs(tgen.SampleSDF(node.position + Vector3.One * node.sideLength/2.0f, node.cell_id)) <= node.sideLength * TerrainGenerator.HALFSQRT3)) // SHOULD SUBDIVIDE
+        if (node.size > 0 && inRange && (node.depth == 0 || Mathf.Abs(tgen.SampleSDF(node.position + Vector3.One * node.sideLength/2.0f, node.cell_id)) <= node.sideLength * TerrainGeneratorDeprecated.HALFSQRT3)) // SHOULD SUBDIVIDE
         {
             if (node.children == null)
             {
                 Vector3[] childPositions = [new Vector3(0,0,0), new Vector3(0,0,1), new Vector3(0,1,0), new Vector3(0,1,1), new Vector3(1,0,0), new Vector3(1,0,1), new Vector3(1,1,0), new Vector3(1,1,1)];
-                node.children = new OctreeNode[8];
+                node.children = new OctreeNodeDeprecated[8];
                 for(int i = 0; i < 8; i++)
                 {
-                    node.children[i] = new OctreeNode(node.position + node.sideLength * childPositions[i] / 2.0f, node.sideLength / 2.0f, node.depth + 1, node.size - 1, node.cell_id, node.path + i.ToString(), node);
+                    node.children[i] = new OctreeNodeDeprecated(node.position + node.sideLength * childPositions[i] / 2.0f, node.sideLength / 2.0f, node.depth + 1, node.size - 1, node.cell_id, node.path + i.ToString(), node);
                 }
             }
             for(int i = 0; i < node.children.Length; i++) BuildTree(node.children[i]);
@@ -103,7 +103,7 @@ public partial class FoliageGenerator : Node
     }
     
     
-    public void CollapseNode(OctreeNode node)
+    public void CollapseNode(OctreeNodeDeprecated node)
     {
         if (node.fChunk != null)
         {
@@ -112,7 +112,7 @@ public partial class FoliageGenerator : Node
             node.fChunk = null;
         }
 
-        if (node.children != null) foreach (OctreeNode child in node.children)
+        if (node.children != null) foreach (OctreeNodeDeprecated child in node.children)
         {
             CollapseNode(child);
         }
@@ -121,11 +121,11 @@ public partial class FoliageGenerator : Node
     }
     
     
-    public void SpawnNodeFoliage(OctreeNode node)
+    public void SpawnNodeFoliage(OctreeNodeDeprecated node)
     {
         nNewChunksSpawned++;
         
-        FoliageChunk fChunk = new FoliageChunk(node.path, node.position, chunkSize * (node.size + 1), node.cell_id, this, tgen);
+        FoliageChunkDeprecated fChunk = new FoliageChunkDeprecated(node.path, node.position, chunkSize * (node.size + 1), node.cell_id, this, tgen);
         node.fChunk = fChunk;
         
         fChunk.Load();
@@ -149,7 +149,7 @@ public partial class FoliageGenerator : Node
         
         
         grassMultiMeshInstanceCounter = 0;
-        foreach (TerrainChunk chunk in grassChunks)
+        foreach (TerrainChunkDeprecated chunk in grassChunks)
         {
             if (chunk.chunkEmpty || chunk.vertices == null) continue;
             for (int i = 0; i < chunk.vertices.Length; i+=3)
@@ -204,7 +204,7 @@ public partial class FoliageGenerator : Node
         }
     }
     
-    public void TravelChunkTreeForGrass(OctreeNode node)
+    public void TravelChunkTreeForGrass(OctreeNodeDeprecated node)
     {
         bool inRange = (node.position + Vector3.One * node.sideLength/2.0f).DistanceTo(cameraPos) <= grassDistance + node.sideLength * 0.86602540378f;
 
@@ -213,7 +213,7 @@ public partial class FoliageGenerator : Node
         if(node.children == null && node.chunk != null) grassChunks.Add(node.chunk);
         else if(node.children != null)
         {
-            foreach(OctreeNode child in node.children) TravelChunkTreeForGrass(child);
+            foreach(OctreeNodeDeprecated child in node.children) TravelChunkTreeForGrass(child);
         }
     }
     

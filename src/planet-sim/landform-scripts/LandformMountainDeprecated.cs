@@ -2,12 +2,12 @@ using Godot;
 using System;
 
 [GlobalClass]
-public partial class LandformMountain : Landform
+public partial class LandformMountainDeprecated : LandformDeprecated
 {
     [Export] public Noise cliffRockNoise;
     [Export] public float cliffRockNoiseFrequency;
     
-    public override float CalculateDensity(Vector3 position, float height, TerrainGenerator tgen)
+    public override float CalculateDensity(Vector3 position, float height, TerrainGeneratorDeprecated tgen)
     {
         if (noise == null) return 0.0f;
 
