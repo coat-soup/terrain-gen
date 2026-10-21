@@ -37,6 +37,11 @@ void fragment() {
 		ALPHA_SCISSOR_THRESHOLD = mix(0.5, 0.0, clamp(cam_dist / alpha_dist, 0.0,1.0));
 	}
 
+	if(is_grass && !FRONT_FACING){
+		//NORMAL = (vec4(0.0, 1.0, 0.0, 0.0) * INV_VIEW_MATRIX).xyz;
+		NORMAL = -NORMAL;
+	}
+
 	ROUGHNESS = 1.0;
 	SPECULAR = 0.0;
 }

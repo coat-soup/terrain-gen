@@ -1,4 +1,4 @@
-[gd_resource type="ShaderMaterial" load_steps=4 format=3 uid="uid://bpnt24j5tuxxh"]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://bpnt24j5tuxxh"]
 
 [ext_resource type="Shader" uid="uid://cc4q3er1xsng4" path="res://foliage/tree_shader.gdshader" id="1_dkv4f"]
 
@@ -6,8 +6,8 @@
 frequency = 0.0091
 
 [sub_resource type="NoiseTexture3D" id="NoiseTexture3D_h7cvk"]
-seamless = true
 noise = SubResource("FastNoiseLite_rjjq3")
+seamless = true
 
 [resource]
 render_priority = 0
