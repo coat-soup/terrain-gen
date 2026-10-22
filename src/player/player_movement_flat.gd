@@ -24,7 +24,7 @@ var landing : bool
 signal jump_start
 signal jump_land
 
-var debug_mode = false
+var debug_mode = true
 
 
 

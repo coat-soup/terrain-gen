@@ -1,7 +1,11 @@
 [gd_scene format=3 uid="uid://b88cy26r6f3rq"]
 
+[ext_resource type="Script" uid="uid://dfqnuojcqju6" path="res://terrain-gen/SurfaceNetsScene.cs" id="1_56guy"]
 [ext_resource type="PackedScene" uid="uid://k8an4yh1xw7p" path="res://player/player.tscn" id="1_121w3"]
 [ext_resource type="Script" uid="uid://ygtghcfgm7ln" path="res://player/player_movement_flat.gd" id="2_d8ysa"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_56guy"]
+frequency = 0.02
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_d8ysa"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -16,7 +20,11 @@ sky = SubResource("Sky_56guy")
 tonemap_mode = 2
 glow_enabled = true
 
-[node name="SurfaceNets" type="Node3D" unique_id=1173510876]
+[node name="SurfaceNets" type="Node3D" unique_id=1173510876 node_paths=PackedStringArray("mesh")]
+script = ExtResource("1_56guy")
+size = Vector3i(50, 50, 50)
+mesh = NodePath("Mesh")
+noise = SubResource("FastNoiseLite_56guy")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1185755368]
 environment = SubResource("Environment_tup8u")
@@ -29,3 +37,5 @@ directional_shadow_max_distance = 1.0
 [node name="Player" parent="." unique_id=1257903605 instance=ExtResource("1_121w3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.3848805, 9.536743e-07, 7.1111255)
 script = ExtResource("2_d8ysa")
+
+[node name="Mesh" type="MeshInstance3D" parent="." unique_id=828159084]
