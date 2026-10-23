@@ -2,12 +2,12 @@
 extends SimulationStep
 class_name LandformGenerator
 
-@export var landforms : Array[Landform]
+@export var landforms : Array[LandformDeprecated]
 
 
 func simulate(cells : Array[CellData], sim : SimulationPipeline) -> Array[CellData]:
 	for i in range(landforms.size()):
-		var landform : Landform = landforms[i]
+		var landform : LandformDeprecated = landforms[i]
 		for cell in cells:
 			if cell.height < landform.upliftRange.x or cell.height > landform.upliftRange.y: continue
 			if cell.precipitation < landform.precipitationRange.x or cell.precipitation > landform.precipitationRange.y: continue

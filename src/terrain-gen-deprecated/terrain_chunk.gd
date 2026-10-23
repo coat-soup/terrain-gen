@@ -15,8 +15,8 @@ var octree_node : ChunkOctreeNode
 
 var terrain_mesh_generator : TerrainMeshGenerator
 var mc : Dictionary
-var marching_cubes_cs = preload("res://terrain-gen/MarchingCubes.cs")
-var sampler_cs = preload("res://terrain-gen/ChunkVoxelSampler.cs")
+var marching_cubes_cs = preload("res://terrain-gen-deprecated/MarchingCubes.cs")
+var sampler_cs = preload("res://terrain-gen-deprecated/ChunkVoxelSampler.cs")
 
 var lod_level : int = 0
 

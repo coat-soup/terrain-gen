@@ -25,11 +25,11 @@ func load_data():
 
 func delete_chunks():
 	print("deleting chunk data")
-	const ChunkSaveData = preload("res://terrain-gen/cs/ChunkSaveData.cs")
+	const ChunkSaveData = preload("res://terrain-gen-deprecated/cs/ChunkSaveDataDeprecated.cs")
 	ChunkSaveData.ClearAllChunkData()
  
 
 func delete_foliage_chunks():
 	print("deleting foliage chunk data")
-	const FoliageChunk = preload("res://terrain-gen/cs/FoliageChunk.cs")
+	const FoliageChunk = preload("res://terrain-gen-deprecated/cs/FoliageChunkDeprecated.cs")
 	FoliageChunk.ClearAllChunkData()
