@@ -10,13 +10,13 @@ public partial class SurfaceNets
     {
         public Vector3[] vertices;
         public Vector3[] normals;
-        public Color[] colours;
+        public Vector3[] materials; // (material_a ID as packed UINT32, material_b ID as packed UINT32, blend amount as standard FLOAT32)
 
-        public MeshData(Vector3[] v, Vector3[] n, Color[] c)
+        public MeshData(Vector3[] v, Vector3[] n, Vector3[] m)
         {
             vertices = v;
             normals = n;
-            colours = c;
+            materials = m;
         }
     }
 
@@ -70,11 +70,11 @@ public partial class SurfaceNets
         [new Vector3I(0, 1, 0), new Vector3I(0, 1, 1)],
     ];
     
-    public static MeshData Generate(float[] data, Vector3I size, float iso = 0.0f, float cellSize = 1.0f)
+    public static MeshData Generate(float[] data, uint[] material_data, Vector3I size, float cellSize = 1.0f)
     {
         List<Vector3> verts = new List<Vector3>();
         List<Vector3> norms = new List<Vector3>();
-        List<Color> colours = new List<Color>();
+        List<Vector3> colours = new List<Vector3>();
 		
         for (int x = 0; x < size.X - 1; x++) for (int y = 0; y < size.Y - 1; y++) for (int z = 0; z < size.Z - 1; z++)
         {
@@ -96,49 +96,69 @@ public partial class SurfaceNets
                     interpolate_vertex_position(data, samplePoint1 + QUAD_POINTS[i][3], size)
                 ];
 
-                Vector3[] quad_norms =
-                [
-                    get_surface_gradient(data, samplePoint1 + QUAD_POINTS[i][0], sample_grid_array(data, samplePoint1 + QUAD_POINTS[i][0], size), size),
-                    get_surface_gradient(data, samplePoint1 + QUAD_POINTS[i][1], sample_grid_array(data, samplePoint1 + QUAD_POINTS[i][1], size), size),
-                    get_surface_gradient(data, samplePoint1 + QUAD_POINTS[i][2], sample_grid_array(data, samplePoint1 + QUAD_POINTS[i][2], size), size),
-                    get_surface_gradient(data, samplePoint1 + QUAD_POINTS[i][3], sample_grid_array(data, samplePoint1 + QUAD_POINTS[i][3], size), size)
-                ];
+                //Vector3[] quad_norms =
+                //[
+                    //get_surface_gradient(data, samplePoint1 + QUAD_POINTS[i][0], sample_grid_array(data, samplePoint1 + QUAD_POINTS[i][0], size), size),
+                    //get_surface_gradient(data, samplePoint1 + QUAD_POINTS[i][1], sample_grid_array(data, samplePoint1 + QUAD_POINTS[i][1], size), size),
+                    //get_surface_gradient(data, samplePoint1 + QUAD_POINTS[i][2], sample_grid_array(data, samplePoint1 + QUAD_POINTS[i][2], size), size),
+                    //get_surface_gradient(data, samplePoint1 + QUAD_POINTS[i][3], sample_grid_array(data, samplePoint1 + QUAD_POINTS[i][3], size), size)
+                //];
 
+                Vector3[] quad_colors =
+                [
+                    get_material_weights(material_data, samplePoint1 + QUAD_POINTS[i][0], size),
+                    get_material_weights(material_data, samplePoint1 + QUAD_POINTS[i][1], size),
+                    get_material_weights(material_data, samplePoint1 + QUAD_POINTS[i][2], size),
+                    get_material_weights(material_data, samplePoint1 + QUAD_POINTS[i][3], size)
+                ];
+                
                 if (sampleVal1 < 0 && sampleVal2 >= 0)
                 {
                     verts.Add(quad_points[0]);
                     verts.Add(quad_points[1]);
                     verts.Add(quad_points[2]);
-                    norms.Add(quad_norms[0]);
-                    norms.Add(quad_norms[1]);
-                    norms.Add(quad_norms[2]);
+                    //norms.Add(quad_norms[0]);
+                    //norms.Add(quad_norms[1]);
+                    //norms.Add(quad_norms[2]);
+                    colours.Add(quad_colors[0]);
+                    colours.Add(quad_colors[1]);
+                    colours.Add(quad_colors[2]);
                     
                     verts.Add(quad_points[0]);
                     verts.Add(quad_points[2]);
                     verts.Add(quad_points[3]);
-                    norms.Add(quad_norms[0]);
-                    norms.Add(quad_norms[2]);
-                    norms.Add(quad_norms[3]);
+                    //norms.Add(quad_norms[0]);
+                    //norms.Add(quad_norms[2]);
+                    //norms.Add(quad_norms[3]);
+                    colours.Add(quad_colors[0]);
+                    colours.Add(quad_colors[2]);
+                    colours.Add(quad_colors[3]);
                 }
                 else if (sampleVal1 >= 0 && sampleVal2 < 0)
                 {
                     verts.Add(quad_points[0]);
                     verts.Add(quad_points[2]);
                     verts.Add(quad_points[1]);
-                    norms.Add(quad_norms[0]);
-                    norms.Add(quad_norms[2]);
-                    norms.Add(quad_norms[1]);
+                    //norms.Add(quad_norms[0]);
+                    //norms.Add(quad_norms[2]);
+                    //norms.Add(quad_norms[1]);
+                    colours.Add(quad_colors[0]);
+                    colours.Add(quad_colors[2]);
+                    colours.Add(quad_colors[1]);
                     
                     verts.Add(quad_points[0]);
                     verts.Add(quad_points[3]);
                     verts.Add(quad_points[2]);
-                    norms.Add(quad_norms[0]);
-                    norms.Add(quad_norms[3]);
-                    norms.Add(quad_norms[2]);
+                    //norms.Add(quad_norms[0]);
+                    //norms.Add(quad_norms[3]);
+                    //norms.Add(quad_norms[2]);
+                    colours.Add(quad_colors[0]);
+                    colours.Add(quad_colors[3]);
+                    colours.Add(quad_colors[2]);
                 }
             }
         }
-
+        
         return new MeshData(verts.ToArray(), norms.ToArray(), colours.ToArray());
     }
 
@@ -153,6 +173,17 @@ public partial class SurfaceNets
         return data[index];
     }
 
+    public static uint sample_grid_array(uint[] data, Vector3I pos, Vector3I size)
+    {
+        return sample_grid_array(data, pos.X, pos.Y, pos.Z, size);
+    }
+    
+    public static uint sample_grid_array(uint[] data, int x, int y, int z, Vector3I size){
+        if(x < 0 || y < 0 || z < 0 || x >= size.X || y >= size.Y || z >= size.Z) return 0;
+        int index = x + y * size.X + z * size.X * size.Y;
+        return data[index];
+    }
+    
     public static Vector3 interpolate_vertex_position(float[] data, Vector3I pos, Vector3I data_size)
     {
         Vector3 total = Vector3.Zero;
@@ -182,5 +213,28 @@ public partial class SurfaceNets
             sample_grid_array(data, pos + AXIS[1], data_size) - sample_value,
             sample_grid_array(data, pos + AXIS[2], data_size) - sample_value
             ).Normalized();
+    }
+
+    public static Vector3 get_material_weights(uint[] material_data, Vector3I pos, Vector3I size)
+    {
+        uint[] materials = 
+            [
+                sample_grid_array(material_data, pos, size),
+                sample_grid_array(material_data, pos + AXIS[0], size),
+                sample_grid_array(material_data, pos + AXIS[1], size),
+                sample_grid_array(material_data, pos + -AXIS[2], size),
+            ];
+
+        int other = 0;
+        for (int i = 0; i < 4; i++)
+        {
+            if (materials[i] != materials[0])
+            {
+                other = i;
+                break;
+            }
+        }
+
+        return new Vector3(BitConverter.UInt32BitsToSingle(materials[0]), BitConverter.UInt32BitsToSingle(materials[other]), other == 0? 0f : 1f);
     }
 }
