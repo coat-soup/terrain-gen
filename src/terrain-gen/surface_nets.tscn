@@ -11,7 +11,7 @@ frequency = 0.02
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_56guy"]
 render_priority = 0
 shader = ExtResource("2_tup8u")
-shader_parameter/colour_array = PackedColorArray(1, 1, 1, 1, 0.49475014, 0.70880187, 0.94786614, 1, 0.99999994, 0.19860184, 0.8343081, 1, 0.31586608, 0.61260074, 1.92523e-07, 1, 0.8396447, 0.48664546, 0, 1, 0.81195486, 0, 0.12337086, 1, 0.6611932, 0.4506423, 1, 1, 0.646029, 0.646029, 0.646029, 1)
+shader_parameter/colour_array = PackedColorArray(0, 0, 0, 1, 1, 1, 1, 1, 0.49475014, 0.70880187, 0.94786614, 1, 0.99999994, 0.19860184, 0.8343081, 1, 0.31586608, 0.61260074, 1.92523e-07, 1, 0.8396447, 0.48664546, 0, 1, 0.81195486, 0, 0.12337086, 1, 0.6611932, 0.4506423, 1, 1, 0.646029, 0.646029, 0.646029, 1)
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_d8ysa"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)

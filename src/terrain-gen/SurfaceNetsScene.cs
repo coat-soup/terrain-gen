@@ -70,7 +70,8 @@ public partial class SurfaceNetsScene : Node3D
             //data[x + y * size.X + z * size.X * size.Y] = (new Vector3(x, y, z) - new Vector3(size.X / 2, size.Y / 2, size.Z / 2)).Length() - 30f;
             data[x + y * size.X + z * size.X * size.Y] = noise.GetNoise3D(x, y, z);
 
-            material_data[x + y * size.X + z * size.X * size.Y] = y > size.Y / 2 ? (z > size.Z / 2? (x > size.X/2? 0u : 1u) : (x > size.X/2? 2u : 3u)) : (z > size.Z / 2? (x > size.X/2? 4u : 5u) : (x > size.X/2? 6u : 7u));
+            // 0 is air
+            material_data[x + y * size.X + z * size.X * size.Y] = y > size.Y / 2 ? (z > size.Z / 2? (x > size.X/2? 1u : 2u) : (x > size.X/2? 3u : 4u)) : (z > size.Z / 2? (x > size.X/2? 5u : 6u) : (x > size.X/2? 7u : 8u));
         }
         
         SurfaceNets.MeshData meshData = SurfaceNets.Generate(data, material_data, size);
@@ -80,7 +81,7 @@ public partial class SurfaceNetsScene : Node3D
         st.SetCustomFormat(0, SurfaceTool.CustomFormat.RgbaFloat);
         for(int i = 0; i < meshData.vertices.Length; i++)
         {
-            st.SetCustom(0, new Color(meshData.materials[i].X, meshData.materials[i].Y, meshData.materials[i].Z, 0));
+            st.SetCustom(0, new Color(meshData.materials[i].X, meshData.materials[i].Y, meshData.materials[i].Z, meshData.materials[i].W));
             st.AddVertex(meshData.vertices[i]);
         }
         st.GenerateNormals();

@@ -10,9 +10,9 @@ public partial class SurfaceNets
     {
         public Vector3[] vertices;
         public Vector3[] normals;
-        public Vector3[] materials; // (material_a ID as packed UINT32, material_b ID as packed UINT32, blend amount as standard FLOAT32)
+        public Vector4[] materials; // (4 materials, first 16bits = material ID second 16bits = material weight)
 
-        public MeshData(Vector3[] v, Vector3[] n, Vector3[] m)
+        public MeshData(Vector3[] v, Vector3[] n, Vector4[] m)
         {
             vertices = v;
             normals = n;
@@ -74,7 +74,7 @@ public partial class SurfaceNets
     {
         List<Vector3> verts = new List<Vector3>();
         List<Vector3> norms = new List<Vector3>();
-        List<Vector3> colours = new List<Vector3>();
+        List<Vector4> colours = new List<Vector4>();
 		
         for (int x = 0; x < size.X - 1; x++) for (int y = 0; y < size.Y - 1; y++) for (int z = 0; z < size.Z - 1; z++)
         {
@@ -104,7 +104,7 @@ public partial class SurfaceNets
                     //get_surface_gradient(data, samplePoint1 + QUAD_POINTS[i][3], sample_grid_array(data, samplePoint1 + QUAD_POINTS[i][3], size), size)
                 //];
 
-                Vector3[] quad_colors =
+                Vector4[] quad_colors =
                 [
                     get_material_weights(material_data, samplePoint1 + QUAD_POINTS[i][0], size),
                     get_material_weights(material_data, samplePoint1 + QUAD_POINTS[i][1], size),
@@ -215,26 +215,103 @@ public partial class SurfaceNets
             ).Normalized();
     }
 
-    public static Vector3 get_material_weights(uint[] material_data, Vector3I pos, Vector3I size)
+    private struct MaterialWeightPair
+    {
+        public uint material;
+        public float weight;
+
+        public MaterialWeightPair(uint m, float w)
+        {
+            material = m;
+            weight = w;
+        }
+    }
+    
+    
+    public static Vector4 get_material_weights(uint[] material_data, Vector3I pos, Vector3I size)
     {
         uint[] materials = 
-            [
-                sample_grid_array(material_data, pos, size),
-                sample_grid_array(material_data, pos + AXIS[0], size),
-                sample_grid_array(material_data, pos + AXIS[1], size),
-                sample_grid_array(material_data, pos + -AXIS[2], size),
-            ];
-
+        [
+            sample_grid_array(material_data, pos, size),
+            sample_grid_array(material_data, pos + AXIS[0], size),
+            sample_grid_array(material_data, pos + AXIS[1], size),
+            sample_grid_array(material_data, pos + -AXIS[2], size),
+        ];
+        
         int other = 0;
-        for (int i = 0; i < 4; i++)
-        {
-            if (materials[i] != materials[0])
+        int other2 = 0;
+        int other3 = 0;
+        for (int i = 1; i < 4; i++)
+            if (materials[i] != materials[0] && materials[i] != 0)
             {
-                other = i;
-                break;
+                if (other == 0) other = i;
+                if (other2 == 0) other2 = i;
+                if (other3 == 0) other3 = i;
             }
+
+        return new Vector4(
+            PackMaterial(materials[0],  other==0f? 1f : 0f),
+            PackMaterial(materials[other], other==0f? 0f : other2==0? 1f : other3==0? 0.5f : 0.33f),
+            PackMaterial(materials[other2], other==0f? 0f : other2==0? 0.0f : other3==0? 0.5f : 0.33f),
+            PackMaterial(materials[other3], other==0f? 0f : other2==0? 0.0f : other3==0? 0.0f : 0.33f)
+        );
+
+    }
+    
+    public static Vector4 get_material_weights_fancy_and_smart(uint[] material_data, Vector3I pos, Vector3I size)
+    {
+        List<MaterialWeightPair> materials = new List<MaterialWeightPair>();
+
+        materials.Add(new MaterialWeightPair(sample_grid_array(material_data, pos, size), 1));
+        if (materials[0].material == 0u) return Vector4.Zero;
+        
+        for (int i = 0; i < 3; i++)
+        {
+            uint material = sample_grid_array(material_data, pos + AXIS[i], size);
+            if(material == 0) continue; // 0 is air;
+            bool new_material = true;
+            for (int j = 0; j < materials.Count; j++)
+            {
+                if (materials[j].material == material)
+                {
+                    new_material = false;
+                    materials[j] = new MaterialWeightPair(material, materials[j].weight + 1);
+                    break;
+                }
+            }
+            if(new_material) materials.Add(new MaterialWeightPair(material, 1));
         }
 
-        return new Vector3(BitConverter.UInt32BitsToSingle(materials[0]), BitConverter.UInt32BitsToSingle(materials[other]), other == 0? 0f : 1f);
+        materials.Sort(delegate(MaterialWeightPair a, MaterialWeightPair b) { return a.weight.CompareTo(b.weight); });
+        Vector4 material_weights = new Vector4(PackMaterial(materials[0].material,-100f), PackMaterial(materials[0].material,-100f),PackMaterial(materials[0].material,-100f),PackMaterial(materials[0].material,-100f));
+        for (int i = 0; i < 4 && i < materials.Count; i++)
+        {
+            material_weights[i] = PackMaterial(materials[i].material, 1f / materials.Count);
+        }
+
+        return new Vector4(
+            PackMaterial(materials[0].material, materials.Count>1? 0.5f : 1f),
+            materials.Count>1? PackMaterial(materials[1].material, 0.5f) : PackMaterial(0u,0 ),
+            PackMaterial(0u, 0),
+            PackMaterial(0u, 0)
+        );
+
+        return material_weights;
+    }
+    
+    
+    static float PackMaterial(uint materialId, float weight)
+    {
+        if (materialId > ushort.MaxValue)
+            throw new ArgumentOutOfRangeException(nameof(materialId));
+
+        // Convert weight to IEEE 754 half-precision bits.
+        ushort weightBits = BitConverter.HalfToUInt16Bits((Half)weight);
+
+        // Upper 16 bits = ID, lower 16 bits = weight.
+        uint packed = (materialId << 16) | weightBits;
+
+        // Reinterpret all 32 bits as a float.
+        return BitConverter.UInt32BitsToSingle(packed);
     }
 }

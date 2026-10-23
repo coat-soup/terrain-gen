@@ -1,25 +1,32 @@
 shader_type spatial;
 
-uniform vec3[8] colour_array : source_color;
+uniform vec3[16] colour_array : source_color;
 
-varying flat uint material_id_a;
-varying flat uint material_id_b;
-varying float blend_amount;
+varying flat uint[4] material_ids;
+varying float[4] material_weights;
+
 
 void vertex() {
-	// Called for every vertex the material is visible on.
-	//COLOR = vec4(colour_array[floatBitsToUint(CUSTOM0.r)], 1.0);
-	//COLOR = CUSTOM0;
-	material_id_a = floatBitsToUint(CUSTOM0.r);
-	material_id_b = floatBitsToUint(CUSTOM0.g);
-	blend_amount = CUSTOM0.b;
+	for(int i = 0; i < 4; i++){
+		uint bits = floatBitsToUint(CUSTOM0[i]);
+		material_ids[i] = bits >> 16u;
+		material_weights[i] = unpackHalf2x16(bits).x;
+	}
 }
 
 void fragment() {
-	ALBEDO = COLOR.rgb;
-	ALBEDO = mix(colour_array[material_id_a], colour_array[material_id_b], blend_amount);
+	ALBEDO = vec3(0.0);
+	for(int i = 0; i < 4; i++){
+		if(material_weights[i] <= 0.0 || material_ids[i]==0u) continue;
+		ALBEDO += colour_array[material_ids[i]] * material_weights[i];
+	}
 	
-	//if(material_id_a != material_id_b) ALBEDO = vec3(0.0);
+	for(int i = 0; i < 4; i++){
+		//if(material_ids[i] == 0u && material_weights[i] > 0.0) ALBEDO = vec3(1.0);
+		//ALBEDO += colour_array[material_ids[i]] * material_weights[i];
+	}
+	
+	//ALBEDO = vec3(material_weights[0]);
 }
 
 //void light() {
