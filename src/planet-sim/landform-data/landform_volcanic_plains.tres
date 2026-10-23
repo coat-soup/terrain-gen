@@ -1,4 +1,4 @@
-[gd_resource type="Resource" format=3 uid="uid://dc3jly20q2ugl"]
+[gd_resource type="Resource" script_class="Landform" format=3 uid="uid://dc3jly20q2ugl"]
 
 [ext_resource type="Script" path="res://planet-sim/generation/Landform.cs" id="1_kcgnv"]
 
