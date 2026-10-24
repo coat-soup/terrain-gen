@@ -22,7 +22,7 @@ public partial class SurfaceNetsScene : Node3D
     {
         base._Input(@event);
 
-        if (Input.IsKeyPressed(Key.R))
+        if (Input.IsActionJustPressed("debug_reload"))
         {
             double time = Time.GetUnixTimeFromSystem();
             GenerateMeshST();

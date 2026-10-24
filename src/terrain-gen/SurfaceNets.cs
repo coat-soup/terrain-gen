@@ -76,13 +76,16 @@ public partial class SurfaceNets
         List<Vector3> norms = new List<Vector3>();
         List<Vector4> colours = new List<Vector4>();
 		
-        for (int x = 0; x < size.X - 1; x++) for (int y = 0; y < size.Y - 1; y++) for (int z = 0; z < size.Z - 1; z++)
+        for (int x = 1; x < size.X - 2; x++) for (int y = 1; y < size.Y - 2; y++) for (int z = 1; z < size.Z - 2; z++)
         {
+            Vector3I samplePoint1 = new Vector3I(x, y, z);
             for (int i = 0; i < 3; i++)
             {
                 Vector3I axis = AXIS[i];
-                Vector3I samplePoint1 = new Vector3I(x, y, z);
                 Vector3I samplePoint2 = new Vector3I(x, y, z) + axis;
+
+                if (!IsInBounds(samplePoint2, size - Vector3I.One)) continue;
+                
                 float sampleVal1 = sample_grid_array(data, samplePoint1.X, samplePoint1.Y, samplePoint1.Z, size);
                 float sampleVal2 = sample_grid_array(data, samplePoint2.X, samplePoint2.Y, samplePoint2.Z, size);
 
@@ -168,7 +171,7 @@ public partial class SurfaceNets
     }
     
     public static float sample_grid_array(float[] data, int x, int y, int z, Vector3I size){
-        if(x < 0 || y < 0 || z < 0 || x >= size.X || y >= size.Y || z >= size.Z) return -1.0f;
+        if(!IsInBounds(x,y,z,size)) return -1.0f;
         int index = x + y * size.X + z * size.X * size.Y;
         return data[index];
     }
@@ -179,7 +182,7 @@ public partial class SurfaceNets
     }
     
     public static uint sample_grid_array(uint[] data, int x, int y, int z, Vector3I size){
-        if(x < 0 || y < 0 || z < 0 || x >= size.X || y >= size.Y || z >= size.Z) return 0;
+        if(!IsInBounds(x,y,z, size)) return 0;
         int index = x + y * size.X + z * size.X * size.Y;
         return data[index];
     }
@@ -193,6 +196,9 @@ public partial class SurfaceNets
         {
             Vector3I point1 = pos + EDGES[i][0];
             Vector3I point2 = pos + EDGES[i][1];
+
+            if (!IsInBounds(point1, data_size) || !IsInBounds(point2, data_size)) continue;
+            
             float val1 = sample_grid_array(data, point1.X, point1.Y, point1.Z, data_size);
             float val2 = sample_grid_array(data, point2.X, point2.Y, point2.Z, data_size);
 
@@ -313,5 +319,15 @@ public partial class SurfaceNets
 
         // Reinterpret all 32 bits as a float.
         return BitConverter.UInt32BitsToSingle(packed);
+    }
+
+    public static bool IsInBounds(Vector3I pos, Vector3I size)
+    {
+        return IsInBounds(pos.X, pos.Y, pos.Z, size);
+    }
+    
+    public static bool IsInBounds(int x, int y, int z, Vector3I size)
+    {
+        return !(x < 0 || y < 0 || z < 0 || x >= size.X || y >= size.Y || z >= size.Z);
     }
 }
