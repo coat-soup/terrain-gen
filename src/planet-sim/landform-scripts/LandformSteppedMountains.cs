@@ -2,10 +2,10 @@ using Godot;
 using System;
 
 [GlobalClass]
-public partial class LandformSteppedMountains : Landform
+public partial class LandformSteppedMountainsDeprecated : LandformDeprecated
 {
     
-    public override float CalculateDensity(Vector3 position, float height, TerrainGenerator tgen)
+    public override float CalculateDensity(Vector3 position, float height, TerrainGeneratorDeprecated tgen)
     {
         if (noise == null) return 0.0f;
         

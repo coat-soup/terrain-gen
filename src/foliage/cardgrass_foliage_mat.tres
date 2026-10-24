@@ -1,4 +1,4 @@
-[gd_resource type="ShaderMaterial" load_steps=5 format=3 uid="uid://cx2m65baga5xp"]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://cx2m65baga5xp"]
 
 [ext_resource type="Shader" uid="uid://cc4q3er1xsng4" path="res://foliage/tree_shader.gdshader" id="1_p1g1m"]
 [ext_resource type="Texture2D" uid="uid://xeghemtntq8r" path="res://foliage/textures/grass.png" id="2_btomd"]

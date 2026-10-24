@@ -1,0 +1,92 @@
+[gd_scene format=3 uid="uid://b88cy26r6f3rq"]
+
+[ext_resource type="Script" uid="uid://dfqnuojcqju6" path="res://terrain-gen/SurfaceNetsScene.cs" id="1_5l10r"]
+[ext_resource type="Shader" uid="uid://bq8ubfu1lidt0" path="res://vfx/shaders/colourdatatest.gdshader" id="2_ti742"]
+[ext_resource type="Texture2D" uid="uid://b2clb1ke1n26w" path="res://terrain-gen/textures/cliff_rocks_07_basecolor_1k.png" id="3_p76fa"]
+[ext_resource type="Texture2D" uid="uid://bdrpk3rahojvg" path="res://terrain-gen/textures/grass_05_basecolor_1k.png" id="4_5anp6"]
+[ext_resource type="Texture2D" uid="uid://c2w8i76of42v8" path="res://terrain-gen/textures/ground_02_color_1k.png" id="5_ff023"]
+[ext_resource type="Texture2D" uid="uid://8gyj6qsiw5pi" path="res://terrain-gen/textures/sand_04_color_1k.png" id="6_w61t4"]
+[ext_resource type="PackedScene" uid="uid://k8an4yh1xw7p" path="res://player/player.tscn" id="7_jqh8u"]
+[ext_resource type="Script" uid="uid://ygtghcfgm7ln" path="res://player/player_movement_flat.gd" id="8_5qv41"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_56guy"]
+frequency = 0.02
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_56guy"]
+render_priority = 0
+shader = ExtResource("2_ti742")
+shader_parameter/colour_array = PackedColorArray(0, 0, 0, 1, 1, 1, 1, 1, 0.49475014, 0.70880187, 0.94786614, 1, 0.99999994, 0.19860184, 0.8343081, 1, 0.31586608, 0.61260074, 1.92523e-07, 1, 0.8396447, 0.48664546, 0, 1, 0.81195486, 0, 0.12337086, 1, 0.6611932, 0.4506423, 1, 1, 0.646029, 0.646029, 0.646029, 1)
+shader_parameter/material_texture_array = Array[Texture2D]([null, ExtResource("3_p76fa"), ExtResource("4_5anp6"), ExtResource("5_ff023"), ExtResource("6_w61t4"), null, null, null, null])
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_d8ysa"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_er4l8"]
+sky_material = SubResource("ProceduralSkyMaterial_d8ysa")
+
+[sub_resource type="Environment" id="Environment_tup8u"]
+background_mode = 2
+sky = SubResource("Sky_er4l8")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_42vg1"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tup8u"]
+albedo_color = Color(0, 0, 1, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f8ksc"]
+albedo_color = Color(0, 1, 0, 1)
+
+[node name="SurfaceNets" type="Node3D" unique_id=1173510876 node_paths=PackedStringArray("mesh")]
+script = ExtResource("1_5l10r")
+size = Vector3i(64, 64, 64)
+mesh = NodePath("Mesh")
+noise = SubResource("FastNoiseLite_56guy")
+material = SubResource("ShaderMaterial_56guy")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1185755368]
+environment = SubResource("Environment_tup8u")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1452651533]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+directional_shadow_max_distance = 1.0
+
+[node name="Player" parent="." unique_id=1257903605 instance=ExtResource("7_jqh8u")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.3848805, 9.536743e-07, 7.1111255)
+script = ExtResource("8_5qv41")
+
+[node name="Mesh" type="MeshInstance3D" parent="." unique_id=828159084]
+
+[node name="Globcoords" type="Node3D" parent="." unique_id=1334377999]
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="Globcoords" unique_id=1319679231]
+transform = Transform3D(-4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0, 1, 1, 0, 0)
+cone = true
+material = SubResource("StandardMaterial3D_42vg1")
+
+[node name="Label3D" type="Label3D" parent="Globcoords/CSGCylinder3D" unique_id=801554254]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -0.4140733, 0, 0)
+text = "+X"
+
+[node name="CSGCylinder3D2" type="CSGCylinder3D" parent="Globcoords" unique_id=823263118]
+transform = Transform3D(1.9106855e-15, -4.371139e-08, -1, -1, -4.371139e-08, 0, -4.371139e-08, 1, -4.371139e-08, 0, 0, 1)
+cone = true
+material = SubResource("StandardMaterial3D_tup8u")
+
+[node name="Label3D" type="Label3D" parent="Globcoords/CSGCylinder3D2" unique_id=1978293865]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -0.4140733, 0, 0)
+text = "+Z"
+
+[node name="CSGCylinder3D3" type="CSGCylinder3D" parent="Globcoords" unique_id=533249589]
+transform = Transform3D(1.9106855e-15, -4.371139e-08, -1, 0, 1, -4.371139e-08, 1, 0, 1.9106855e-15, 0, 1, 0)
+cone = true
+material = SubResource("StandardMaterial3D_f8ksc")
+
+[node name="Label3D" type="Label3D" parent="Globcoords/CSGCylinder3D3" unique_id=1429160756]
+transform = Transform3D(1, 8.351872e-23, -4.3711392e-08, 1.9106855e-15, 1, 4.3711385e-08, 4.3711392e-08, -4.371139e-08, 1, -0.4140733, 0, 0)
+text = "+Y
+"
