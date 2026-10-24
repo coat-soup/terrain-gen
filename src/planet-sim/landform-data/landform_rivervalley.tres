@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="Landform" format=3 uid="uid://sp2vsbyvoq5g"]
+[gd_resource type="Resource" script_class="LandformDeprecated" format=3 uid="uid://sp2vsbyvoq5g"]
 
-[ext_resource type="Script" path="res://planet-sim/generation/Landform.cs" id="1_1gwgc"]
+[ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/LandformDeprecated.cs" id="1_1gwgc"]
 
 [sub_resource type="Curve" id="Curve_1gwgc"]
 _data = [Vector2(0.308063, 1), 0.0, 0.0, 0, 0, Vector2(0.424789, 0.356132), 0.0, 0.0, 0, 0, Vector2(0.466907, 0.280875), 0.0, 0.0, 0, 0, Vector2(0.511432, 0), 0.0, 0.0, 0, 0]
