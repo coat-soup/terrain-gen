@@ -4,6 +4,10 @@
 [ext_resource type="PackedScene" uid="uid://k8an4yh1xw7p" path="res://player/player.tscn" id="1_121w3"]
 [ext_resource type="Script" uid="uid://ygtghcfgm7ln" path="res://player/player_movement_flat.gd" id="2_d8ysa"]
 [ext_resource type="Shader" uid="uid://bq8ubfu1lidt0" path="res://vfx/shaders/colourdatatest.gdshader" id="2_tup8u"]
+[ext_resource type="Texture2D" uid="uid://b2clb1ke1n26w" path="res://terrain-gen/textures/cliff_rocks_07_basecolor_1k.png" id="3_bv22g"]
+[ext_resource type="Texture2D" uid="uid://bdrpk3rahojvg" path="res://terrain-gen/textures/grass_05_basecolor_1k.png" id="4_ycvra"]
+[ext_resource type="Texture2D" uid="uid://c2w8i76of42v8" path="res://terrain-gen/textures/ground_02_color_1k.png" id="5_7ittd"]
+[ext_resource type="Texture2D" uid="uid://8gyj6qsiw5pi" path="res://terrain-gen/textures/sand_04_color_1k.png" id="6_ywsgv"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_56guy"]
 frequency = 0.02
@@ -12,6 +16,7 @@ frequency = 0.02
 render_priority = 0
 shader = ExtResource("2_tup8u")
 shader_parameter/colour_array = PackedColorArray(0, 0, 0, 1, 1, 1, 1, 1, 0.49475014, 0.70880187, 0.94786614, 1, 0.99999994, 0.19860184, 0.8343081, 1, 0.31586608, 0.61260074, 1.92523e-07, 1, 0.8396447, 0.48664546, 0, 1, 0.81195486, 0, 0.12337086, 1, 0.6611932, 0.4506423, 1, 1, 0.646029, 0.646029, 0.646029, 1)
+shader_parameter/material_texture_array = Array[Texture2D]([null, ExtResource("3_bv22g"), ExtResource("4_ycvra"), ExtResource("5_7ittd"), ExtResource("6_ywsgv"), null, null, null, null])
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_d8ysa"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
