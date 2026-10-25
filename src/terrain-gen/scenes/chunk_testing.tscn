@@ -8,6 +8,8 @@
 [ext_resource type="Texture2D" uid="uid://bdrpk3rahojvg" path="res://terrain-gen/textures/grass_05_basecolor_1k.png" id="4_w8ybc"]
 [ext_resource type="Texture2D" uid="uid://c2w8i76of42v8" path="res://terrain-gen/textures/ground_02_color_1k.png" id="5_tmf45"]
 [ext_resource type="Texture2D" uid="uid://8gyj6qsiw5pi" path="res://terrain-gen/textures/sand_04_color_1k.png" id="6_tyosf"]
+[ext_resource type="PackedScene" uid="uid://uys6n0u4hk2k" path="res://player/human_reference.glb" id="9_geay8"]
+[ext_resource type="Script" uid="uid://crabrthmnvte4" path="res://debug/human_reference_teleporter.gd" id="10_w8ybc"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_iqpll"]
 
@@ -43,7 +45,6 @@ albedo_color = Color(0, 1, 0, 1)
 script = ExtResource("1_yl746")
 noise = SubResource("FastNoiseLite_iqpll")
 material = SubResource("ShaderMaterial_f1vuf")
-renderDistance = 2
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1625367403]
 environment = SubResource("Environment_pr7v5")
@@ -56,6 +57,10 @@ directional_shadow_max_distance = 1.0
 [node name="Player" parent="." unique_id=379381778 instance=ExtResource("1_a55he")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.3848805, 9.536743e-07, 7.1111255)
 script = ExtResource("2_p2qww")
+
+[node name="human_reference" parent="." unique_id=572450095 node_paths=PackedStringArray("player") instance=ExtResource("9_geay8")]
+script = ExtResource("10_w8ybc")
+player = NodePath("../Player")
 
 [node name="Globcoords" type="Node3D" parent="." unique_id=816305177]
 

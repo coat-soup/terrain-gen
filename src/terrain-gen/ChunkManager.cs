@@ -14,13 +14,31 @@ public partial class ChunkManager : Node
 
     [Export] public int renderDistance = 4;
 
+    private GodotThread chunkThread = new GodotThread();
+    
     public override void _Ready()
     {
         base._Ready();
-        LoadChunks();
+        CreateChunks();
+        chunkThread.Start(new Callable(this, MethodName.ChunkLoadLoop));
     }
 
-    public void LoadChunks()
+    public override void _Input(InputEvent @event)
+    {
+        base._Input(@event);
+
+        if (Input.IsActionJustPressed("debug_reload"))
+        {
+            seed = Random.Shared.Next();
+            noise.Seed = seed;
+            double time = Time.GetUnixTimeFromSystem();
+            foreach (TerrainChunk chunk in chunks) chunk.dirty = true;
+            GD.Print("Generated in " + (Time.GetUnixTimeFromSystem() - time) + " seconds.");
+        }
+        
+    }
+    
+    public void CreateChunks()
     {
         foreach (TerrainChunk chunk in chunks) chunk.QueueFree();
 
@@ -31,8 +49,24 @@ public partial class ChunkManager : Node
             TerrainChunk chunk = new TerrainChunk(this, new Vector3I(x, y, z), chunkSize);
             AddChild(chunk);
             chunk.GlobalPosition = new Vector3(x, y, z) * chunkSize;
-            chunk.LoadChunk();
             chunks.Add(chunk);
         }
+    }
+    
+    public void ChunkLoadLoop()
+    {
+        while(true)
+            foreach (TerrainChunk chunk in chunks)
+            {
+                if (chunk.dirty)
+                {
+                    chunk.LoadChunk();
+                }
+            }
+    }
+    
+    public override void _ExitTree()
+    {
+        chunkThread.WaitToFinish();
     }
 }
