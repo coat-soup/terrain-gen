@@ -8,6 +8,7 @@ public partial class ChunkManager : Node
     [Export] public FastNoiseLite noise;
     [Export] public ShaderMaterial material;
 
+    [Export] public int generationDistance = 500;
     [Export] public int chunkSize = 64;
     
     private List<TerrainChunk> chunks = new List<TerrainChunk>();
@@ -40,16 +41,37 @@ public partial class ChunkManager : Node
     
     public void CreateChunks()
     {
-        foreach (TerrainChunk chunk in chunks) chunk.QueueFree();
+        foreach (TerrainChunk c in chunks) c.QueueFree();
 
         chunks = new List<TerrainChunk>();
-        
-        for(int x = 0; x < renderDistance; x++) for(int y = 0; y < renderDistance; y++) for (int z = 0; z < renderDistance; z++)
+
+        int max_lod = 0;
+        while (chunkSize * Math.Pow(2, max_lod) < generationDistance)
         {
-            TerrainChunk chunk = new TerrainChunk(this, new Vector3I(x, y, z), chunkSize);
-            AddChild(chunk);
-            chunk.GlobalPosition = new Vector3(x, y, z) * chunkSize;
-            chunks.Add(chunk);
+            max_lod += 1;
+        }
+        
+        TerrainChunk chunk = new TerrainChunk(this, Vector3I.Zero, chunkSize, max_lod);
+        AddChild(chunk);
+        chunks.Add(chunk);
+        RecursiveAddChildChunks(chunk);
+    }
+
+    public void RecursiveAddChildChunks(TerrainChunk chunk)
+    {
+        bool subdivide = chunk.chunkLOD > 0 && chunk.IsPointInBounds(new Vector3(5,5,5));
+        if (subdivide)
+        {
+            chunk.childChunks = new TerrainChunk[8];
+            for(int x = 0; x < 2; x++) for(int y = 0; y < 2; y++) for (int z = 0; z < 2; z++)
+            {
+                TerrainChunk childChunk = new TerrainChunk(this, chunk.chunkPos + new Vector3I(x,y,z) * (int)Mathf.Pow(2, chunk.chunkLOD-1), chunkSize, chunk.chunkLOD-1, chunk);
+                AddChild(childChunk);
+                childChunk.GlobalPosition = childChunk.chunkPos * chunkSize;
+                chunks.Add(childChunk);
+                chunk.childChunks[x + y * 2 + z * 2 * 2] = childChunk;
+                RecursiveAddChildChunks(childChunk);
+            }
         }
     }
     

@@ -12,6 +12,7 @@
 [ext_resource type="Script" uid="uid://crabrthmnvte4" path="res://debug/human_reference_teleporter.gd" id="10_w8ybc"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_iqpll"]
+frequency = 0.005
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_f1vuf"]
 render_priority = 0

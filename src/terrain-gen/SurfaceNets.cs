@@ -93,10 +93,10 @@ public partial class SurfaceNets
                 
                 Vector3[] quad_points =
                 [
-                    interpolate_vertex_position(data, samplePoint1 + QUAD_POINTS[i][0], size),
-                    interpolate_vertex_position(data, samplePoint1 + QUAD_POINTS[i][1], size),
-                    interpolate_vertex_position(data, samplePoint1 + QUAD_POINTS[i][2], size),
-                    interpolate_vertex_position(data, samplePoint1 + QUAD_POINTS[i][3], size)
+                    interpolate_vertex_position(data, samplePoint1 + QUAD_POINTS[i][0], size) * cellSize,
+                    interpolate_vertex_position(data, samplePoint1 + QUAD_POINTS[i][1], size) * cellSize,
+                    interpolate_vertex_position(data, samplePoint1 + QUAD_POINTS[i][2], size) * cellSize,
+                    interpolate_vertex_position(data, samplePoint1 + QUAD_POINTS[i][3], size) * cellSize
                 ];
 
                 //Vector3[] quad_norms =
