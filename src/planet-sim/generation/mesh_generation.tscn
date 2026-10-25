@@ -34,7 +34,7 @@
 [ext_resource type="Resource" uid="uid://bldmmb434ayhl" path="res://planet-sim/climate_zones/climate_tropical_monsoon.tres" id="28_iu7pl"]
 [ext_resource type="Resource" uid="uid://bwdkyefae485" path="res://planet-sim/climate_zones/climate_mediterranean.tres" id="30_0b1tj"]
 [ext_resource type="Script" uid="uid://c63i7r23t2jch" path="res://planet-sim/pipeline-steps/magma.gd" id="33_3p78x"]
-[ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/Landform.cs" id="34_jq5p3"]
+[ext_resource type="Script" uid="uid://18x4lnspygxi" path="res://planet-sim/generation/LandformDeprecated.cs" id="34_jq5p3"]
 [ext_resource type="Resource" uid="uid://cslarupycg715" path="res://planet-sim/landform-data/landform_mountains.tres" id="35_nqmr2"]
 [ext_resource type="Resource" uid="uid://viq1xq0tkt0b" path="res://planet-sim/landform-data/landform_ocean_deep.tres" id="35_qd2hm"]
 [ext_resource type="Resource" uid="uid://dnpxpkrugfks" path="res://planet-sim/landform-data/landform_ocean_shallow.tres" id="35_ut86g"]
@@ -76,7 +76,7 @@ neighbour_reach = 30
 metadata/_custom_type_script = "uid://bm5us738gf306"
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_3p78x"]
-seed = -1246672527
+seed = 2066020890
 domain_warp_amplitude = 64.69
 domain_warp_frequency = -0.02
 domain_warp_fractal_lacunarity = 0.51
@@ -102,7 +102,7 @@ script = ExtResource("8_qerwa")
 metadata/_custom_type_script = "uid://5ugwld3c3dkw"
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_wqit5"]
-seed = -1846663676
+seed = -1024785784
 
 [sub_resource type="Resource" id="Resource_f46qa"]
 script = ExtResource("9_27our")
